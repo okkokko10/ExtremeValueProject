@@ -1,0 +1,141 @@
+% In this file you should put the actual content of the blueprint.
+% It will be used both by the web and the print version.
+% It should *not* include the \begin{document}
+%
+% If you want to split the blueprint content into several files then
+% the current file can be a simple sequence of \input. Otherwise It
+% can start with a \section or \chapter for instance.
+
+\chapter{Extreme value distributions}
+
+\section{Definition of extreme value distributions}
+
+Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
+
+\begin{definition}
+  \label{def:extr-val-distr}
+  \uses{lem:oriented-affine-action-on-cdf}
+  \lean{CumulativeDistributionFunction.IsExtremeValueDistr}
+  % \leanok
+  A c.d.f. $G$ is said to be an \emph{extreme value distribution} if
+  $G$ is nondegenerate and
+  there exists a c.d.f. $F$ and a sequence $(A_n)_{n \in \N}$ of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$, such that
+  for every continuity point $x \in \R$ of~$G$ we have
+  \begin{align*}
+  \lim_{n \to \infty} \big( (A_n.F)(x) \big)^n \; = \; G(x) .
+  \end{align*}
+\end{definition}
+
+\begin{lemma}
+  \label{lem:extr-val-distr-transform}
+  \uses{lem:oriented-affine-action-on-cdf, def:extr-val-distr}
+  \lean{CumulativeDistributionFunction.IsExtremeValueDistr.affineTransform}
+  \leanok
+  Let $G$ be an extreme value distribution and
+  and $A \in \OriAffR$ an orientation preserving affine isomorphism.
+  Then also $A.G$ is an extreme value distribution.
+\end{lemma}
+\begin{proof}
+  \uses{lem:cdf-continuity-pt-transform, lem:degenerate-cdf-transform}
+  % \leanok
+  Straightforward using Lemmas~\ref{lem:cdf-continuity-pt-transform}
+  and~\ref{lem:degenerate-cdf-transform}.
+\end{proof}
+
+
+
+\section{Three types of extreme value distributions}
+
+\begin{definition}
+  \label{def:std-Gumbel-cdf}
+  \uses{def:cdf}
+  \lean{standardGumbelCDF}
+  % \leanok
+  \emph{The standard Gumbel distribution} is the c.d.f. $F_\Gumbel$ given by
+  \begin{align*}
+  F_\Gumbel (x) = \exp\big(-\exp(-x)\big) .
+  \end{align*}
+\end{definition}
+
+\begin{definition}
+  \label{def:std-Weibull-cdf}
+  \uses{def:cdf}
+  \lean{standardWeibullCDF}
+  % \leanok
+  \emph{The standard Weibull distribution} is the c.d.f. $F_\Weibull$ given by
+  \begin{align*}
+  F_\Weibull (x) = \cdots .
+  \end{align*}
+\end{definition}
+
+\begin{definition}
+  \label{def:std-Frechet-cdf}
+  \uses{def:cdf}
+  \lean{standardFrechetCDF}
+  % \leanok
+  \emph{The standard Fr\'echet distribution} is the c.d.f. $F_\Frechet$ given by
+  \begin{align*}
+  F_\Frechet (x) = \cdots .
+  \end{align*}
+\end{definition}
+
+\begin{theorem}
+  \label{thm:Gumbel-is-extr-val-distr}
+  \uses{def:std-Gumbel-cdf, def:extr-val-distr}
+  \lean{isExtremeValueDistr_standardGumbelCDF}
+  % \leanok
+  The standard Gumbel distribution $F_\Gumbel$ is an extreme value
+  distribution.
+\end{theorem}
+\begin{proof}
+  %\uses{lem:cdf-of-max-many}
+  % \leanok
+  Set $A_n(x) = x - \log(n)$ for $n \in \bN$. Then
+  $A_n^{-1}(x) = x + \log(n)$ and for any $n \ge 1$ and $x \in \bR$ we get
+  \begin{align*}
+    \big( (A_n . F_\Gumbel)(x) \big)^n
+    = \; & \big( (F_\Gumbel)(x + \log(n)) \big)^n \\
+    = \; & \Big( \exp \big( - \exp(-(x + \log n)) \big) \Big)^n \\
+    = \; & \Big( \exp \big( - n \exp(-x - \log n) \big) \Big) \\
+    = \; & \Big( \exp \big( - n \, e^{-x} \, e^{-\log n}  \big) \Big) \\
+    = \; & \Big( \exp \big( - n \, e^{-x} \, n^{-1} \big) \Big) \\
+    = \; & \Big( \exp \big( - e^{-x} \big) \Big)
+    = F_\Gumbel(x) .
+  \end{align*}
+  Since the above is true for each $n$, we in particular have
+  \begin{align*}
+    \lim_{n \to \infty} \big( (A_n . F_\Gumbel)(x) \big)^n
+    = F_\Gumbel(x)
+  \end{align*}
+  for all $x \in \bR$. Since $F_\Gumbel$ is also nondegenerate,
+  this shows that it is an extreme value distribution.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:Weibull-is-extr-val-distr}
+  \uses{def:std-Weibull-cdf, def:extr-val-distr}
+  \lean{isExtremeValueDistr_standardWeibullCDF}
+  % \leanok
+  The standard Weibull distribution $F_\Weibull$ is an extreme value
+  distribution.
+\end{theorem}
+\begin{proof}
+  \uses{lem:cdf-of-max-many}
+  % \leanok
+  \ldots
+\end{proof}
+
+\begin{theorem}
+  \label{thm:Frechet-is-extr-val-distr}
+  \uses{def:std-Frechet-cdf, def:extr-val-distr}
+  \lean{isExtremeValueDistr_standardFrechetCDF}
+  % \leanok
+  The standard Fr\'echet distribution $F_\Frechet$ is an extreme value
+  distribution.
+\end{theorem}
+\begin{proof}
+  \uses{}
+  % \leanok
+  \ldots
+\end{proof}

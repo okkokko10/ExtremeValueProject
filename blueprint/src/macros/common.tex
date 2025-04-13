@@ -1,18 +1,48 @@
-% In this file you should put all LaTeX macros and settings to be used both by
-% the pdf version and the web version.
+% In this file you should put all LaTeX macros to be used
+% both by the pdf version and the web version.
 % This should be most of your macros.
 
-% The theorem-like environments defined below are those that appear by default
-% in the dependency graph. See the README of leanblueprint if you need help to
-% customize this. 
-% The configuration below use the theorem counter for all those environments
-% (this is what the [theorem] arguments mean) and never resets it.
-% If you want for instance to number them within chapters then you can add
-% [chapter] at the end of the next line.
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
+% Put any macro needed for the project here. Those macros for both the web and print versions of the blueprint.
 
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\bZ}{\Z}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\bN}{\N}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\bQ}{\Q}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bR}{\R}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\bC}{\C}
+
+\newcommand{\PR}{\mathsf{P}}
+\newcommand{\EX}{\mathsf{E}}
+
+\newcommand{\indof}[1]{\mathbb{I}_{{#1}}}
+\newcommand{\PRmeas}{\mu}
+
+\newcommand{\eps}{\varepsilon}
+
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\PGL}{PGL}
+\DeclareMathOperator{\PSL}{PSL}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\dmn}{dim}
+
+%\newcommand{idOf}[1]{\id_{#1}}
+
+\newcommand{\AffOf}[1]{\mathrm{Aff}_{#1}}
+\newcommand{\AffR}{\AffOf{\R}}
+\newcommand{\OriAffR}{\mathrm{Aff}^+_{\R}}
+
+\newcommand{\Gumbel}{\mathrm{Gumbel}}
+\newcommand{\Weibull}{\mathrm{Weibull}}
+\newcommand{\Frechet}{\mathrm{Fréchet}}
+
+\newcommand{\ud}{\mathrm{d}}
+\newcommand{\der}[1]{\frac{\ud}{\ud #1}}
+\newcommand{\dder}[1]{\frac{\ud^2}{\ud {#1}^2}}
