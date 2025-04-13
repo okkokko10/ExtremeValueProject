@@ -22,7 +22,7 @@
   for some $\alpha \colon \bR \to \bR$ and every $s,h \in \bR$.
   Then $Q$ is twice continuously differentiable and satisfies
   \begin{align}
-    Q' ' (s) = Q'(s) \, Q' ' (0) \qquad \text{ for every } s \in \bR .
+    Q'' (s) = Q'(s) \, Q'' (0) \qquad \text{ for every } s \in \bR .
   \end{align}
 \end{lemma}
 \begin{proof}
@@ -58,19 +58,19 @@
      \frac{Q(h)}{h} \big( Q'(s) - 1 \big) = Q(s) \frac{Q'(h) - 1}{h} .
   \end{align*}
   Taking the limit $h \to 0$, recalling $Q(0)=1$ and $Q'(0)=1$,
-  gives the existence of the second derivative $Q' '(0)$ and the equation
+  gives the existence of the second derivative $Q''(0)$ and the equation
   \begin{align*}
-    Q'(s) - 1 = Q(s) Q' '(0) .
+    Q'(s) - 1 = Q(s) Q''(0) .
   \end{align*}
-  Solving $Q'(s) = 1 + Q' '(0) \, Q(s)$ and recalling that $Q$
+  Solving $Q'(s) = 1 + Q''(0) \, Q(s)$ and recalling that $Q$
   is differentiable shows that $Q'$ is also differentiable, so
   $Q$ is indeed twice differentiable. Differentiating, we get
   the asserted equation
   \begin{align*}
-    Q' '(s) = Q'(s) \, Q' '(0) .
+    Q''(s) = Q'(s) \, Q''(0) .
   \end{align*}
   Since $Q'$ is differentiable and in particular continuous, this also shows
-  that $Q' '$ is continuous, i.e., that $Q$ is twice continuously differentiable.
+  that $Q''$ is continuous, i.e., that $Q$ is twice continuously differentiable.
 \end{proof}
 
 \begin{lemma}[Solution for Q]
@@ -81,9 +81,9 @@
   Suppose that $Q \colon \bR \to \bR$ is twice continuously differentiable
   and $Q'$ is positive and $Q$
   and satisfies $Q(0)=0$, $Q'(0) = 1$, and the equation concluded in
-  Lemma~\ref{lem:ode-of-order-two-for-Q} with $\gamma = Q' '(0)$, i.e.,
+  Lemma~\ref{lem:ode-of-order-two-for-Q} with $\gamma = Q''(0)$, i.e.,
   \begin{align}\label{eq: Q eqn dd}
-  Q' ' (s) = \gamma \, Q'(s) \qquad \text{ for every } s \in \bR .
+  Q'' (s) = \gamma \, Q'(s) \qquad \text{ for every } s \in \bR .
   \end{align}
   Then $Q$ is given by
   \begin{align*}
@@ -206,12 +206,12 @@
   By Lemma~\ref{lem:ode-of-order-two-for-Q} $Q$ is then twice
   continuously differentiable and satisfies
   \begin{align}
-  Q'(s) Q' ' (0) = Q' ' (s) \qquad \text{ for all } s \in \bR .
+  Q'(s) Q'' (0) = Q'' (s) \qquad \text{ for all } s \in \bR .
   \end{align}
   By Lemma~\ref{lem:solve-Q} we then get
   a formula for $Q$, which involves
   \begin{align*}
-  \gamma = Q' '(0) = \frac{H' '(0)}{c}
+  \gamma = Q''(0) = \frac{H''(0)}{c}
     = \frac{1}{c} \dder{s} E(e^s) \big|_{s = 0} .
   \end{align*}
 
