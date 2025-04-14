@@ -252,3 +252,37 @@
 % \end{enumerate}
 % \end{definition}
 %
+
+\begin{lemma}[Continuity points of c.d.f.s are those which carry no point mass]
+  \label{lem:cdf-continuity-pt-iff-measure-singleton}
+  \uses{def:cdf}
+  % \lean{}
+  % \leanok
+  Let $F$ be cumulative distribution function of a
+  probability measure $\PRmeas$ on $\bR$. A point $x \in \bR$ is
+  a continuity point of $F$ if and only if $\PRmeas[\set{x}] = 0$.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  A c.d.f. is always continuous from the right.
+
+  Continuity of $F$ from the left at $x$ means that for any
+  sequence $(x_n)_{n \in \bN}$ increasing to $x$
+  (i.e., $x_n \le x_{n+1} < x$ for all $n \in \bN$)
+  \begin{align*}
+    F(x_n) \to F(x) ,
+  \end{align*}
+  or equivalently in terms of measures
+  \begin{align*}
+    \PRmeas \big[ (-\infty,x_n] \big] \to \PRmeas \big[ (-\infty,x_n] \big] .
+  \end{align*}
+  But by monotone convergence of measures, we always have
+  \begin{align*}
+    \PRmeas \big[ (-\infty,x_n] \big]
+    \to \; & \PRmeas \big[ (-\infty,x_n) \big] \\
+    = \; & \PRmeas \big[ (-\infty,x_n] \big] - \PRmeas[\set{x}] .
+  \end{align*}
+  A comparison of these conditions shows that $F$ is also continuous from the left
+  at $x$ if and only if $\PRmeas[\set{x}] = 0$.
+\end{proof}
