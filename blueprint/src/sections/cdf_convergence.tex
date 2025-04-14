@@ -305,8 +305,8 @@ reads:
 \begin{lemma}[Necessary condition for convergence in distribution with cdfs]
   \label{lem:cdf-convergence-from-convergence-in-distribution}
   \uses{def:convergence-in-distribution, def:cdf}
-  \lean{forall_continuousAt_tendsto_cdf_of_tendsto}
-  % \leanok
+  \lean{CumulativeDistributionFunction.tendsto_apply_of_tendsto_of_continuousAt}
+  \leanok
   Let $\PRmeas$ and $\PRmeas_n$, $n \in \bN$, be Borel
   probability measures on $\bR$, and let $F$ and $F_n$, $n \in \bN$,
   be their cumulative distribution functions, respectively, i.e.,
@@ -321,7 +321,7 @@ reads:
 \end{lemma}
 \begin{proof}
   \uses{lem:cdf-continuity-pt-iff-measure-singleton, lem:portmanteau-convergence-for-borel}
-  % \leanok
+  \leanok
   Let $x \in \bR$ be a continuity point of $F$. Then we have $\mu [\set{x}] = 0$,
   by Lemma~\ref{lem:cdf-continuity-pt-iff-measure-singleton}.
   Note that the boundary of the Borel set $(-\infty,x] \subset \bR$ is
