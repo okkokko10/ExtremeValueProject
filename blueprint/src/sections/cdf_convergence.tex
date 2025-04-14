@@ -32,8 +32,9 @@ reads:
 \begin{lemma}[Monotone real functions have only countably many points of discontinuity]
   \label{lem:monotone-discontinuities-countable}
   %\uses{}
-  %\lean{}
-  % \leanok
+  \lean{Set.Countable.dense_compl, Monotone.countable_not_continuousAt}
+  \leanok
+  \mathlibok
   A monotone function $f \colon \bR \to \bR$ can have at most countably
   many points of discontinuity. In particular the set $D \subset \bR$
   of continuity points of $f$ is dense in $\bR$.
