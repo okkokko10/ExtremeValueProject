@@ -2,6 +2,7 @@
 -- Import modules here that should be built as part of the library.
 import «ExtremeValueProject».AffineTransformation
 import «ExtremeValueProject».Basic
+import «ExtremeValueProject».ClassificationCalculation
 import «ExtremeValueProject».CumulativeDistributionFunction
 import «ExtremeValueProject».DegenerateCDF
 import «ExtremeValueProject».ExtremeValueDistribution
