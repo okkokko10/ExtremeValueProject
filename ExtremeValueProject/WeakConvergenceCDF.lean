@@ -14,7 +14,7 @@ open Filter Topology NNReal ENNReal Set
 lemma CumulativeDistributionFunction.forall_pos_exists_exists_lt_gt_continuousAt
     (F : CumulativeDistributionFunction) {ε : ℝ} (ε_pos : 0 < ε) :
     ∃ (a b : ℝ), a < b ∧ F a < ε ∧ 1 - ε < F b ∧ ContinuousAt F a ∧ ContinuousAt F b := by
-  sorry -- **Issue #15**
+  sorry -- **Issue #16**
 
 /-- Lemma 4.4 (subdivision-dense) in blueprint:
 An interval `[a,b]` can be subdivided with points from a dense set so that the consecutive
@@ -24,7 +24,7 @@ lemma forall_exists_subdivision_diff_lt_of_dense {D : Set ℝ} (D_dense : Dense 
     ∃ (k : ℕ) (cs : Fin (k + 1) → ℝ),
       (cs 0 = a) ∧ (cs (Fin.last _) = b) ∧ (Monotone cs) ∧ (∀ k, cs k ∈ D) ∧
       (∀ (j : Fin k), cs j.succ - cs j < δ) := by
-  sorry -- **Issue #16**
+  sorry -- **Issue #22**
 
 /-- Lemma 4.5 (continuous-function-approximation-subdivision) in blueprint:
 An interval `[a,b]` can be subdivided with points from a dense set so that for a given
@@ -45,7 +45,7 @@ lemma CumulativeDistributionFunction.integral_indicator_eq (F : CumulativeDistri
     {κ : Type*} {s : Finset κ} {a b : ℝ} (a_le_b : a ≤ b) (α : E) :
     ∫ x, (indicator (Ioc a b) (fun _ ↦ α)) x ∂ F.measure =
       (F b - F a) • α := by
-  sorry -- **Issue #18**
+  sorry -- **Issue #19**
 
 /-- Lemma 4.6 (simple-integral-cdf-difference) in blueprint. -/
 lemma CumulativeDistributionFunction.integral_sum_indicator_eq (F : CumulativeDistributionFunction)
@@ -59,18 +59,6 @@ lemma CumulativeDistributionFunction.integral_sum_indicator_eq (F : CumulativeDi
   sorry -- **Issue #18**
 
 open MeasureTheory Topology
-
-#check ProbabilityMeasure.tendsto_measure_of_null_frontier_of_tendsto
-
-/-- Lemma 4.7 (cdf-convergence-from-convergence-in-distribution) in blueprint:
-Convergence in distribution of a sequence of Borel probability measures on `ℝ` implies that the
-corresponding c.d.f.s converge pointwise at all continuity points of the limit c.d.f. -/
-theorem forall_continuousAt_tendsto_cdf_of_tendsto
-    (μs : ℕ → ProbabilityMeasure ℝ) (μ : ProbabilityMeasure ℝ)
-    (h : Tendsto μs atTop (𝓝 μ)) {x : ℝ} (hx : ContinuousAt μ.cdf x) :
-    Tendsto (fun n ↦ (μs n).cdf x) atTop (𝓝 (μ.cdf x)) := by
-  -- The key lemma is `MeasureTheory.ProbabilityMeasure.tendsto_measure_of_null_frontier_of_tendsto`
-  sorry -- **Issue #19**
 
 /-- Theorem 4.8 (convergence-in-distribution-with-cdf) in blueprint:
 Convergence of a sequence of c.d.f.s pointwise at all continuity points of the limit c.d.f. imply
