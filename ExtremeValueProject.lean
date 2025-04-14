@@ -7,3 +7,4 @@ import «ExtremeValueProject».DegenerateCDF
 import «ExtremeValueProject».ExtremeValueDistribution
 import «ExtremeValueProject».PseudoInverses
 import «ExtremeValueProject».TransformedCDF
+import «ExtremeValueProject».WeakConvergenceCDF
