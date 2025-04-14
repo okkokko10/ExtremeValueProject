@@ -96,10 +96,10 @@ private noncomputable def standardGumbelAux (x : ℝ) := Real.exp (-Real.exp (-x
 
 noncomputable def standardGumbelCDF : CumulativeDistributionFunction where
   toFun := standardGumbelAux
-  mono' := sorry
-  right_continuous' := sorry
-  tendsto_atTop := sorry
-  tendsto_atBot := sorry
+  mono' := sorry -- **Issue #13**
+  right_continuous' := sorry -- **Issue #13**
+  tendsto_atTop := sorry -- **Issue #13**
+  tendsto_atBot := sorry -- **Issue #13**
 
 noncomputable def standardFrechetAux (ξ : ℝ) (x : ℝ) :=
   if x ≥ -ξ⁻¹ then 1 else Real.exp (-(1 + x * ξ)^((-ξ : ℝ)⁻¹))
@@ -123,7 +123,7 @@ noncomputable def standardWeibullCDF {ξ : ℝ} (ξ_neg : ξ < 0) : CumulativeDi
 
 lemma isExtremeValueDistr_standardGumbelCDF :
     standardGumbelCDF.IsExtremeValueDistr := by
-  sorry
+  sorry -- **Issue #14**
 
 lemma isExtremeValueDistr_standardFrechetCDF {ξ : ℝ} (ξ_pos : 0 < ξ) :
     (standardFrechetCDF ξ_pos).IsExtremeValueDistr := by

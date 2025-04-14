@@ -93,11 +93,11 @@ instance : CoeFun CumulativeDistributionFunction (fun _ ↦ ℝ → ℝ) where
 
 lemma apply_nonneg (F : CumulativeDistributionFunction) (x : ℝ) :
     0 ≤ F x := by
-  sorry
+  sorry -- **Issue #9**
 
 lemma apply_le_one (F : CumulativeDistributionFunction) (x : ℝ) :
     F x ≤ 1 := by
-  sorry
+  sorry -- **Issue #9**
 
 lemma apply_eq_measure_Iic (F : CumulativeDistributionFunction) (x : ℝ) :
     F x = ENNReal.toReal (F.measure (Iic x)) := by
@@ -109,8 +109,8 @@ def _root_.MeasureTheory.ProbabilityMeasure.cdf (μ : ProbabilityMeasure ℝ) : 
   toFun := μ.toFiniteMeasure.cdf
   mono' := StieltjesFunction.mono (FiniteMeasure.cdf μ.toFiniteMeasure)
   right_continuous' := StieltjesFunction.right_continuous' (FiniteMeasure.cdf μ.toFiniteMeasure)
-  tendsto_atTop := sorry
-  tendsto_atBot := sorry
+  tendsto_atTop := sorry -- **Issue #10**
+  tendsto_atBot := sorry -- **Issue #10**
 
 lemma _root_.MeasureTheory.ProbabilityMeasure.cdf_apply_eq (μ : ProbabilityMeasure ℝ) (x : ℝ) :
     μ.cdf x = μ (Iic x) := by rfl
@@ -152,7 +152,7 @@ lemma continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
     ContinuousAt F x ↔ F.measure {x} = 0 := by
   rw [StieltjesFunction.measure_singleton]
   rw [Monotone.continuousAt_iff_leftLim_eq_rightLim F.mono']
-  sorry
+  sorry -- **Issue #11**
 
 lemma tendsto_apply_of_tendsto_of_continuousAt {L : Filter ι}
     {μs : ι →ProbabilityMeasure ℝ} {μ : ProbabilityMeasure ℝ} (weak_lim : Tendsto μs L (𝓝 μ))

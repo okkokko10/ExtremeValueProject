@@ -52,15 +52,15 @@ def AffineEquiv.IsOrientationPreserving (A : ℝ ≃ᵃ[ℝ] ℝ) : Prop :=
 an increasing function. -/
 lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.IsOrientationPreserving ↔ Monotone (fun x ↦ A x) := by
-  sorry
+  sorry -- **Issue #2**
 
 -- TODO: Generalize to canonically linearly ordered fields?
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
-  mul_mem' := by sorry
-  one_mem' := by sorry
-  inv_mem' := by sorry
+  mul_mem' := by sorry -- **Issue #3**
+  one_mem' := by sorry -- **Issue #3**
+  inv_mem' := by sorry -- **Issue #3**
 
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
@@ -83,10 +83,10 @@ noncomputable def affineTransform
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
-  mono' := sorry
-  right_continuous' := sorry
-  tendsto_atTop := sorry
-  tendsto_atBot := sorry
+  mono' := sorry -- **Issue #4** (recall `AffineEquiv.isOrientationPreserving_iff_mono`)
+  right_continuous' := sorry -- **Issue #4**
+  tendsto_atTop := sorry -- **Issue #4**
+  tendsto_atBot := sorry -- **Issue #4**
 
 @[simp] lemma affineTransform_apply_eq
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
@@ -118,7 +118,7 @@ noncomputable instance instMulActionOrientationPreservingAffineEquiv :
 lemma affine_isDegenerate_iff
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     (A • F).IsDegenerate ↔ F.IsDegenerate := by
-  sorry
+  sorry -- **Issue #5**
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if the c.d.f. itself is continuous
 at `x`. -/
@@ -126,7 +126,7 @@ lemma affine_continuousAt_of_continuousAt
     {F : CumulativeDistributionFunction} {x : ℝ} (F_cont : ContinuousAt F x)
     (A : orientationPreservingAffineEquiv) :
     ContinuousAt (A • F) ((A : ℝ ≃ᵃ[ℝ] ℝ) x) := by
-  sorry
+  sorry -- **Issue #6**
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if and only if the c.d.f. itself is
 continuous at `x`. -/
@@ -158,19 +158,19 @@ noncomputable def AffineMap.extend (A : ℝ →ᵃ[ℝ] ℝ) (x : EReal) : EReal
 
 lemma AffineMap.leftOrdContinuous (A : ℝ →ᵃ[ℝ] ℝ) :
     LeftOrdContinuous A := by
-  sorry
+  sorry -- **Issue #7** (Rmk: This should go via a lemma that is being PRd to Mathlib)
 
 lemma AffineMap.rightOrdContinuous (A : ℝ →ᵃ[ℝ] ℝ) :
     RightOrdContinuous A := by
-  sorry
+  sorry -- **Issue #7** (Rmk: This should go via a lemma that is being PRd to Mathlib)
 
 lemma AffineMap.leftOrdContinuous_extend (A : ℝ →ᵃ[ℝ] ℝ) :
     LeftOrdContinuous A.extend := by
-  sorry
+  sorry -- **Issue #7**
 
 lemma AffineMap.rightOrdContinuous_extend (A : ℝ →ᵃ[ℝ] ℝ) :
     RightOrdContinuous A.extend := by
-  sorry
+  sorry -- **Issue #7**
 
 lemma AffineEquiv.extend_bot' (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.toAffineMap.extend ⊥ =
@@ -203,9 +203,9 @@ noncomputable def AffineEquiv.extend (A : ℝ ≃ᵃ[ℝ] ℝ) : EReal ≃ EReal
   toFun := A.toAffineMap.extend
   invFun := A.symm.toAffineMap.extend
   left_inv x := by
-    sorry
+    sorry -- **Issue #8**
   right_inv := by
-    sorry
+    sorry -- **Issue #8**
 
 @[simp] lemma AffineEquiv.extend_bot (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.extend ⊥ = if 0 < A.toAffineMap.coefs_of_field.1 then ⊥ else ⊤ :=
@@ -221,7 +221,7 @@ noncomputable def AffineEquiv.extend (A : ℝ ≃ᵃ[ℝ] ℝ) : EReal ≃ EReal
 
 @[simp] lemma AffineEquiv.extend_symm (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.extend.symm = A.symm.extend := by
-  sorry
+  sorry -- **Issue #8**
 
 end extend
 

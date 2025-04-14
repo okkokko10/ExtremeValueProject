@@ -24,24 +24,24 @@ lemma isDegenerate_def (F : CumulativeDistributionFunction) :
 /-- A c.d.f. F is degenerate if and only if it jumps from 0 to 1 at some point x₀. -/
 lemma isDegenerate_iff (F : CumulativeDistributionFunction) :
     F.IsDegenerate ↔ ∃ x₀, F.toFun = (Set.Ici x₀).indicator (fun _ ↦ 1) := by
-  sorry
+  sorry -- **Issue #12**
 
 -- TODO: This probably belongs to Mathlib?
 lemma _root_.MeasureTheory.diracProba_apply' {X : Type*} [MeasurableSpace X] (x₀ : X)
     {s : Set X} (s_mble : MeasurableSet s) :
     (diracProba x₀) s = s.indicator 1 x₀ := by
-  sorry
+  sorry -- **Issue #12**
 
 -- TODO: This probably also belongs to Mathlib? (Note slightly different hypotheses to the above.)
 lemma _root_.MeasureTheory.diracProba_apply {X : Type*} [MeasurableSpace X]
     [MeasurableSingletonClass X] (x₀ : X) (s : Set X) :
     (diracProba x₀) s = s.indicator 1 x₀ := by
-  sorry
+  sorry -- **Issue #12**
 
 lemma cdf_diracProba_apply (x₀ x : ℝ) :
     (diracProba x₀).cdf x = if x < x₀ then 0 else 1 := by
   -- `MeasureTheory.diracProba_apply` or ``MeasureTheory.diracProba_apply'`` should be the keys
-  sorry
+  sorry -- **Issue #12**
 
 /-- The c.d.f. of Dirac delta mass at a point x₀ is degenerate. -/
 lemma diracProba_is_degenerate (x₀ : ℝ) :
@@ -60,7 +60,7 @@ lemma diracProba_is_degenerate (x₀ : ℝ) :
 at some point x₀. -/
 lemma eq_diracProba_of_isDegenerate (μ : ProbabilityMeasure ℝ) (degen : μ.cdf.IsDegenerate) :
     ∃ x₀, μ = diracProba x₀ := by
-  sorry
+  sorry -- **Issue #12**
 
 end CumulativeDistributionFunction
 
