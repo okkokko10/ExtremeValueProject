@@ -200,7 +200,7 @@
 \begin{lemma}
   \label{lem:degenerate-cdf-transform}
   \uses{lem:oriented-affine-action-on-cdf, def:degenerate-cdf}
-  \lean{affine_isDegenerate_iff}
+  \lean{CumulativeDistributionFunction.affine_isDegenerate_iff}
   Let $F$ be a cumulative distribution function
   and $A \in \OriAffR$ an orientation preserving affine isomorphism.
   Then $A.F$ is degenerate if and only if $F$ is degenerate.
@@ -214,7 +214,7 @@
 \begin{lemma}
   \label{lem:cdf-continuity-pt-transform}
   \uses{lem:oriented-affine-action-on-cdf}
-  \lean{affine_continuousAt_of_continuousAt}
+  \lean{CumulativeDistributionFunction.affine_continuousAt_of_continuousAt}
   % \leanok
   Let $F$ be a cumulative distribution function,
   and $A \in \OriAffR$ an orientation preserving affine isomorphism.

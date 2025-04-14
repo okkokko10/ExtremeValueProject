@@ -121,8 +121,6 @@ noncomputable def standardWeibullCDF {ξ : ℝ} (ξ_neg : ξ < 0) : CumulativeDi
   tendsto_atTop := sorry
   tendsto_atBot := sorry
 
-namespace CumulativeDistributionFunction
-
 lemma isExtremeValueDistr_standardGumbelCDF :
     standardGumbelCDF.IsExtremeValueDistr := by
   sorry
@@ -134,8 +132,6 @@ lemma isExtremeValueDistr_standardFrechetCDF {ξ : ℝ} (ξ_pos : 0 < ξ) :
 lemma isExtremeValueDistr_standardWeibullCDF {ξ : ℝ} (ξ_neg : ξ < 0) :
     (standardWeibullCDF ξ_neg).IsExtremeValueDistr := by
   sorry
-
-end CumulativeDistributionFunction
 
 end three_evds
 
