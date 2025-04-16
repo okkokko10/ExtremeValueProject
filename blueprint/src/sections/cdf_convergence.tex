@@ -49,8 +49,8 @@ reads:
 \begin{lemma}[Tightness of a cumulative distribution function]
   \label{lem:cdf-tight}
   \uses{def:cdf}
-  \lean{CumulativeDistributionFunction.forall_pos_exists_exists_lt_gt_continuousAt}
-  % \leanok
+  \lean{CumulativeDistributionFunction.forall_pos_exists_lt_gt_continuousAt}
+  \leanok
   Let $F$ be a cumulative distribution function. Then for any
   $\eps > 0$ there exists points $a,b \in \bR$ with $a < b$ such that
   $F(b) - F(a) > 1 - \eps$ and $F$ is continuous at the points $a$ and $b$.
@@ -75,7 +75,7 @@ reads:
   \label{lem:subdivision-dense}
   %\uses{}
   \lean{forall_exists_subdivision_diff_lt_of_dense}
-  % \leanok
+  \leanok
   Let $D \subset \bR$ be a dense set and $a,b \in D$ with $a < b$.
   Then for any $\delta > 0$ there exists a $k \in \bN$
   and $a = c_0, c_1, \ldots, c_{k-1}, c_k = b \in D$ such that
@@ -91,7 +91,7 @@ reads:
   \label{lem:continuous-function-approximation-subdivision}
   %\uses{}
   \lean{forall_exists_subdivision_dist_apply_lt_of_dense_of_continuous}
-  % \leanok
+  \leanok
   Let $D \subset \bR$ be a dense set, let $f \colon \bR \to \bR$ be continuous,
   let $a, b \in D$ with $a < b$, and let $\eps > 0$.
   Then there exists a $k \in \bN$ and points
@@ -124,7 +124,7 @@ reads:
   \label{lem:simple-integral-cdf-difference}
   \uses{def:cdf}
   \lean{CumulativeDistributionFunction.integral_sum_indicator_eq}
-  % \leanok
+  \leanok
   Let $a = c_0 < c_1 < \cdots < c_k = b$ and consider the
   linear combination of indicator functions
   \begin{align*}
@@ -181,7 +181,7 @@ reads:
   \label{thm:convergence-in-distribution-with-cdf}
   \uses{def:convergence-in-distribution, def:cdf}
   \lean{tendsto_of_forall_continuousAt_tendsto_cdf}
-  % \leanok
+  \leanok
   Let $F$ and $F_n$, $n \in \bN$, be cumulative distribution functions of
   probability measures $\PRmeas$ and $\PRmeas_n$, $n \in \bN$, respectively, i.e.,
   \begin{align*}

@@ -11,7 +11,7 @@ section weak_convergence_cdf
 open Filter Topology NNReal ENNReal Set
 
 /-- Lemma 4.3 (cdf-tight) in blueprint. -/
-lemma CumulativeDistributionFunction.forall_pos_exists_exists_lt_gt_continuousAt
+lemma CumulativeDistributionFunction.forall_pos_exists_lt_gt_continuousAt
     (F : CumulativeDistributionFunction) {ε : ℝ} (ε_pos : 0 < ε) :
     ∃ (a b : ℝ), a < b ∧ F a < ε ∧ 1 - ε < F b ∧ ContinuousAt F a ∧ ContinuousAt F b := by
   sorry -- **Issue #16**

@@ -17,6 +17,7 @@
   \label{lem:cdf-of-random-var}
   \uses{def:cdf}
   \lean{MeasureTheory.ProbabilityMeasure.cdf}
+  \leanok
   If $X$ is a real-valued random variable, then the function
   $F \colon \R \to \R$ given by $F(x) = \PR \big[ X \le x \big]$ is a c.d.f.
 \end{lemma}
@@ -43,7 +44,7 @@
   \label{lem:degenerate-cdf-iff-exists-jump}
   \uses{def:degenerate-cdf}
   \lean{CumulativeDistributionFunction.isDegenerate_iff}
-  % \leanok
+  \leanok
   $F$ is a degenerate c.d.f. if and only if there exists a $x_0 \in \R$ such that
   \begin{align*}
   F(x) = \begin{cases}
@@ -64,7 +65,7 @@
   \label{lem:delta-has-degenerate-cdf}
   \uses{def:degenerate-cdf}
   \lean{CumulativeDistributionFunction.diracProba_is_degenerate}
-  % \leanok
+  \leanok
   The c.d.f. of Dirac delta mass $\delta_{x_0}$ at $x_0 \in \R$ is degenerate.
 \end{lemma}
 \begin{proof}
@@ -187,6 +188,7 @@
   \label{lem:oriented-affine-action-on-cdf}
   \uses{def:oriented-affine-transform-of-cdf}
   \lean{CumulativeDistributionFunction.instMulActionOrientationPreservingAffineEquiv}
+  \leanok
   The actions of orientation preserving affine isomorphisms
   on a cumulative distribution functions is a group action, i.e.,
   $1.F = F$ and $(AB).F = A.(B.F)$ for any c.d.f. $F$ and any $A,B \in \OriAffR$.
@@ -201,6 +203,7 @@
   \label{lem:degenerate-cdf-transform}
   \uses{lem:oriented-affine-action-on-cdf, def:degenerate-cdf}
   \lean{CumulativeDistributionFunction.affine_isDegenerate_iff}
+  \leanok
   Let $F$ be a cumulative distribution function
   and $A \in \OriAffR$ an orientation preserving affine isomorphism.
   Then $A.F$ is degenerate if and only if $F$ is degenerate.
@@ -215,7 +218,7 @@
   \label{lem:cdf-continuity-pt-transform}
   \uses{lem:oriented-affine-action-on-cdf}
   \lean{CumulativeDistributionFunction.affine_continuousAt_of_continuousAt}
-  % \leanok
+  \leanok
   Let $F$ be a cumulative distribution function,
   and $A \in \OriAffR$ an orientation preserving affine isomorphism.
   If a point $x \in \R$ is a continuity point of $F$, then
@@ -257,7 +260,7 @@
   \label{lem:cdf-continuity-pt-iff-measure-singleton}
   \uses{def:cdf}
   \lean{CumulativeDistributionFunction.continuousAt_iff}
-  % \leanok
+  \leanok
   Let $F$ be cumulative distribution function of a
   probability measure $\PRmeas$ on $\bR$. A point $x \in \bR$ is
   a continuity point of $F$ if and only if $\PRmeas[\set{x}] = 0$.
