@@ -34,6 +34,13 @@ lemma AffineMap.apply_eq_of_field {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[�
     simp [AffineMap.coefs_of_field]
   · simp
 
+/-- An affine equivalence `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b` for the values `a b : 𝕜`
+which are obtained by `AffineEquiv.toAffineMap.coefs_of_field`. -/
+lemma AffineEquiv.apply_eq_of_field {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) (x : 𝕜) :
+    A x = A.toAffineMap.coefs_of_field.1 * x + A.toAffineMap.coefs_of_field.2 := by
+  rw [show A x = A.toAffineMap x from rfl]
+  exact AffineMap.apply_eq_of_field A x
+
 lemma AffineEquiv.coefs_of_field_fst_ne_zero {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
     A.toAffineMap.coefs_of_field.1 ≠ 0 := by
   intro maybe_zero
@@ -42,6 +49,123 @@ lemma AffineEquiv.coefs_of_field_fst_ne_zero {𝕜 : Type*} [Field 𝕜] (A : �
     simp_rw [A.toAffineMap.apply_eq_of_field]
     simp [maybe_zero]
   exact zero_ne_one <| A.injective obs
+
+/-- Construct an affine map `𝕜 →ᵃ[𝕜] 𝕜` from coefficients `a b : 𝕜` by the
+formula `x ↦ a * x + b`. -/
+def AffineMap.mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜] (a b : 𝕜) :
+    𝕜 →ᵃ[𝕜] 𝕜 where
+  toFun x := a * x + b
+  linear :=
+    { toFun x := a * x
+      map_add' x y := by ring
+      map_smul' c x := by simp only [smul_eq_mul, RingHom.id_apply] ; ring }
+  map_vadd' p v := by simp only [vadd_eq_add, LinearMap.coe_mk, AddHom.coe_mk] ; ring
+
+@[simp] lemma AffineMap.coefs_of_field_fst_mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜] (a b : 𝕜) :
+    (AffineMap.mkOfCoefs_of_field a b).coefs_of_field.1 = a := by
+  simp [AffineMap.mkOfCoefs_of_field, AffineMap.coefs_of_field]
+
+@[simp] lemma AffineMap.coefs_of_field_snd_mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜] (a b : 𝕜) :
+    (AffineMap.mkOfCoefs_of_field a b).coefs_of_field.2 = b := by
+  simp [AffineMap.mkOfCoefs_of_field, AffineMap.coefs_of_field]
+
+lemma AffineMap.mkOfCoefs_of_field_apply_eq {𝕜 : Type*} [Field 𝕜] (a b : 𝕜) (x : 𝕜):
+    AffineMap.mkOfCoefs_of_field a b x = a * x + b :=
+  rfl
+
+@[simp] lemma AffineMap.mkOfCoefs_of_field_eq_self
+    {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜) :
+    AffineMap.mkOfCoefs_of_field A.coefs_of_field.1 A.coefs_of_field.2 = A := by
+  ext x
+  simp [AffineMap.apply_eq_of_field A x, AffineMap.mkOfCoefs_of_field]
+
+def AffineEquiv.mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜] {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) :
+    𝕜 ≃ᵃ[𝕜] 𝕜 where
+  toFun := AffineMap.mkOfCoefs_of_field a b
+  invFun := AffineMap.mkOfCoefs_of_field a⁻¹ (-a⁻¹ * b)
+  left_inv x := by
+    simp [AffineMap.mkOfCoefs_of_field, mul_add, ← mul_assoc, inv_mul_cancel₀ a_ne_zero]
+  right_inv x := by
+    simp [AffineMap.mkOfCoefs_of_field, mul_add, ← mul_assoc, mul_inv_cancel₀ a_ne_zero]
+  linear :=
+    { toFun x := a * x
+      map_add' x y := by ring
+      map_smul' c x := by simp only [smul_eq_mul, RingHom.id_apply] ; ring
+      invFun x := a⁻¹ * x
+      left_inv x := by simp [← mul_assoc, inv_mul_cancel₀ a_ne_zero]
+      right_inv x := by simp [← mul_assoc, mul_inv_cancel₀ a_ne_zero] }
+  map_vadd' p v := by
+    simp only [AffineMap.mkOfCoefs_of_field, AffineMap.coe_mk, neg_mul, vadd_eq_add,
+               Equiv.coe_fn_mk, LinearEquiv.coe_mk]
+    ring
+
+@[simp] lemma AffineEquiv.mkOfCoefs_of_field_toAffineMap {𝕜 : Type*} [Field 𝕜]
+    {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b).toAffineMap
+      = AffineMap.mkOfCoefs_of_field a b :=
+  rfl
+
+@[simp] lemma AffineEquiv.mkOfCoefs_of_field_symm_eq_mkOfCoefs_of_field
+    {𝕜 : Type*} [Field 𝕜] {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b).symm.toAffineMap
+      = AffineMap.mkOfCoefs_of_field a⁻¹ (-a⁻¹ * b) :=
+  rfl
+
+lemma AffineEquiv.coefs_of_field_fst_mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜]
+    {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b).toAffineMap.coefs_of_field.1 = a := by
+  simp
+
+lemma AffineEquiv.coefs_of_field_snd_mkOfCoefs_of_field {𝕜 : Type*} [Field 𝕜]
+    {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b).toAffineMap.coefs_of_field.2 = b := by
+  simp
+
+lemma AffineEquiv.mkOfCoefs_of_field_apply_eq
+    {𝕜 : Type*} [Field 𝕜] {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) (x : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b) x = a * x + b :=
+  rfl
+
+lemma AffineEquiv.mkOfCoefs_of_field_symm_apply_eq
+    {𝕜 : Type*} [Field 𝕜] {a : 𝕜} (a_ne_zero : a ≠ 0) (b : 𝕜) (x : 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field a_ne_zero b).symm x = a⁻¹ * x - a⁻¹ * b := by
+  rw [show (mkOfCoefs_of_field a_ne_zero b).symm x = AffineMap.mkOfCoefs_of_field a⁻¹ (-a⁻¹ * b) x
+      from rfl]
+  simp only [neg_mul, AffineMap.mkOfCoefs_of_field_apply_eq]
+  ring
+
+@[simp] lemma AffineEquiv.mkOfCoefs_of_field_eq_self
+    {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
+    AffineEquiv.mkOfCoefs_of_field (coefs_of_field_fst_ne_zero A) A.toAffineMap.coefs_of_field.2
+      = A := by
+  ext x
+  rw [show A x = A.toAffineMap x from rfl, AffineMap.apply_eq_of_field A.toAffineMap x]
+  simp [mkOfCoefs_of_field, AffineMap.mkOfCoefs_of_field]
+
+/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b`
+is `y ↦ α * x + β` where `α = a⁻¹` and `β = - a⁻¹ * b`. -/
+lemma AffineMap.mkOfCoefs_of_field_eq_inv {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
+    (AffineEquiv.mkOfCoefs_of_field (inv_ne_zero A.coefs_of_field_fst_ne_zero)
+      (-(A.toAffineMap.coefs_of_field.1)⁻¹ * A.toAffineMap.coefs_of_field.2))
+      = A⁻¹ := by
+  ext x
+  simp only [show A⁻¹ = A.symm from rfl, neg_mul, AffineEquiv.mkOfCoefs_of_field_apply_eq]
+  nth_rw 4 [← AffineEquiv.mkOfCoefs_of_field_eq_self A]
+  rw [AffineEquiv.mkOfCoefs_of_field_symm_apply_eq]
+  ring
+
+/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b`
+is `y ↦ α * x + β` where `α = a⁻¹`. -/
+lemma AffineEquiv.inv_coefs_of_field_fst {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
+    (A⁻¹).toAffineMap.coefs_of_field.1 = (A.toAffineMap.coefs_of_field.1)⁻¹ := by
+  simp [← AffineMap.mkOfCoefs_of_field_eq_inv A]
+
+/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b`
+is `y ↦ α * x + β` where `β = - a⁻¹ * b`. -/
+lemma AffineMap.inv_coefs_of_field_fst {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) (x : 𝕜) :
+    (A⁻¹).toAffineMap.coefs_of_field.2
+      = -(A.toAffineMap.coefs_of_field.1)⁻¹ * A.toAffineMap.coefs_of_field.2 := by
+  simp [← AffineMap.mkOfCoefs_of_field_eq_inv A]
 
 /-- An affine isomorphism `ℝ → ℝ` to be orientation preserving if its linear coefficient
 is positive. -/
