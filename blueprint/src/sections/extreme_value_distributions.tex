@@ -147,8 +147,8 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 \begin{lemma}[Logarithmic version of the limit relation]
   \label{lem:log-ev-limit}
   \uses{def:cdf}
-  % \lean{}
-  % \leanok
+  \lean{ev_limit_iff_log_ev_limit}
+  \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
   preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
   such that $0 < G(x) < 1$, the two conditions
@@ -169,8 +169,8 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 \begin{lemma}[Relation implies $F$ tending to one]
   \label{lem:ev-limit-cdf-affine-tendsto-one}
   \uses{def:cdf}
-  % \lean{}
-  % \leanok
+  \lean{tendsto_one_of_ev_limit}
+  \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
   preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
   such that $0 < G(x) < 1$, if
@@ -198,8 +198,9 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 
 \begin{lemma}[Taylor expansion limit modification]
   \label{lem:modify-limit-taylor}
-  % \lean{}
-  % \leanok
+  \lean{tendsto_smul_apply_smul_deriv_of_tendsto_atTop_of_tendsto_smul_apply_smul_deriv,
+  tendsto_zero_of_tendsto_atTop_of_tendsto_smul}
+  \leanok
   Let $S \subset \bR$ be a subset with $0 \in S$, and let $f_1, f_2 \colon S \to \bR$ be
   functions. Let also $(t_n)_{n \in \bN}$ be a sequence in $S$,
   and let $(m_n)_{n \in \bR}$ be a sequence of real numbers tending to infinity,
@@ -217,29 +218,26 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
       if $|f_1(t)| < \eps$ (with $t \in S$) then $|t| < \delta$.
   \end{itemize}
   Denote $c = \frac{1}{f_1'(0)} \, \lim_{n \to \infty} \big( m_n \, f_1 (t_n) \big)$.
-  Then we have
-  \begin{align*}
-    t_n \; = \; & \frac{c}{m_n} + \oo \big(\frac{1}{m_n}\big)
-  \end{align*}
-  and
+  Then we have $\lim_{n \to 0} t_n = 0$ and
   \begin{align*}
     \lim_{n \to \infty} \Big( m_n \, f_2 (t_n) \Big) \; = \; & c \, f_2'(0) .
   \end{align*}
 \end{lemma}
 \begin{proof}
   % \uses{}
-  % \leanok
+  \leanok
   This is in principle straightforward:
   the assumptions are first checked to imply that $\lim_{n \to 0} t_n = 0$,
   and then one can just consider the first order Taylor expansions of the
-  functions $f_j$ at $0$ given by the assumed existence of the derivatives.
+  functions $f_j$ at $0$ given by the assumed existence of the derivatives
+  (the key is $t_n \, = \, \frac{c}{m_n} + \oo \big(\frac{1}{m_n}\big)$).
 \end{proof}
 
 \begin{lemma}[Taylored version of the limit relation]
   \label{lem:taylored-ev-limit}
   \uses{def:cdf}
-  % \lean{}
-  % \leanok
+  \lean{log_ev_limit_iff_taylored_ev_limit}
+  \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
   preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
   such that $0 < G(x) < 1$, the two conditions

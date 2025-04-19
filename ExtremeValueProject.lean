@@ -6,6 +6,7 @@ import «ExtremeValueProject».ClassificationCalculation
 import «ExtremeValueProject».CumulativeDistributionFunction
 import «ExtremeValueProject».DegenerateCDF
 import «ExtremeValueProject».ExtremeValueDistribution
+import «ExtremeValueProject».LimitRelationManipulation
 import «ExtremeValueProject».PseudoInverses
 import «ExtremeValueProject».TransformedCDF
 import «ExtremeValueProject».WeakConvergenceCDF
