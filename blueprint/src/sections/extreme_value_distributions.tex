@@ -139,3 +139,137 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   % \leanok
   \ldots
 \end{proof}
+
+
+
+\section{Equivalent formulations of the limit relation}
+
+\begin{lemma}[Logarithmic version of the limit relation]
+  \label{lem:log-ev-limit}
+  \uses{def:cdf}
+  % \lean{}
+  % \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, the two conditions
+  \begin{align*}
+  \text{(i)} & & \lim_{n \to \infty} \big( (A_n.F)(x) \big)^n \, = \; & G(x) \\
+  \text{(ii)} & & \lim_{n \to \infty} n \, \log F (A_n^{-1}(x)) \, = \; & \log G(x)
+  \end{align*}
+  are equivalent.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  Recall that $(A_n.F)(x) = F (A_n^{-1}(x))$.
+  Then just take logarithms (and use continuity) to get from (i) to (ii),
+  and take exponentials (and use continuity) to get from (ii) to (i).
+\end{proof}
+
+\begin{lemma}[Relation implies $F$ tending to one]
+  \label{lem:ev-limit-cdf-affine-tendsto-one}
+  \uses{def:cdf}
+  % \lean{}
+  % \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, if
+  \begin{align*}
+  \text{(i)} & & \lim_{n \to \infty} \big( (A_n.F)(x) \big)^n \, = \; & G(x)
+  \end{align*}
+  holds, then necessarily
+  \begin{align*}
+    \lim_{n \to \infty} F (A_n^{-1}(x)) \; = \; 1 .
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  Otherwise $\big( F (A_n^{-1}(x)) \big)^n$ would have $0 \ne G(x)$
+  as an accumulation point, contradicting the assumed limit (i).
+
+  To wit, if for some $\delta > 0$ we would have
+  $F (A_n^{-1}(x)) \le 1 - \delta$ for infinitely many $n$, then
+  $0 \le \big( F (A_n^{-1}(x)) \big)^n \le (1 - \delta)^n $
+  for those $n$, and since $(1 - \delta)^n \to 0$, we would
+  get $\big( F (A_n^{-1}(x)) \big)^n \to 0 \ne G(x)$ along the
+  subsequence of those $n$; a contradiction.
+\end{proof}
+
+\begin{lemma}[Taylor expansion limit modification]
+  \label{lem:modify-limit-taylor}
+  % \lean{}
+  % \leanok
+  Let $S \subset \bR$ be a subset with $0 \in S$, and let $f_1, f_2 \colon S \to \bR$ be
+  functions. Let also $(t_n)_{n \in \bN}$ be a sequence in $S$,
+  and let $(m_n)_{n \in \bR}$ be a sequence of real numbers tending to infinity,
+  $\lim_{n \to \infty} m_n = +\infty$.
+  Assume that for $j = 1,2$
+  \begin{itemize}
+    \item $f_j(0)=0$;
+    \item the derivative $f_j'(0)$ exists (derivative taken within the set $S$)
+  \end{itemize}
+  Assume further about $j = 1$ that
+  \begin{itemize}
+    \item $f_1'(0) \ne 0$;
+    \item the limit $\lim_{n \to \infty} \big( m_n \, f_1 (t_n) \big)$ exists;
+    \item for any $\delta > 0$ there exists an $\eps > 0$ such that
+      if $|f_1(t)| < \eps$ (with $t \in S$) then $|t| < \delta$.
+  \end{itemize}
+  Denote $c = \frac{1}{f_1'(0)} \, \lim_{n \to \infty} \big( m_n \, f_1 (t_n) \big)$.
+  Then we have
+  \begin{align*}
+    t_n \; = \; & \frac{c}{m_n} + \oo \big(\frac{1}{m_n}\big)
+  \end{align*}
+  and
+  \begin{align*}
+    \lim_{n \to \infty} \Big( m_n \, f_2 (t_n) \Big) \; = \; & c \, f_2'(0) .
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  This is in principle straightforward:
+  the assumptions are first checked to imply that $\lim_{n \to 0} t_n = 0$,
+  and then one can just consider the first order Taylor expansions of the
+  functions $f_j$ at $0$ given by the assumed existence of the derivatives.
+\end{proof}
+
+\begin{lemma}[Taylored version of the limit relation]
+  \label{lem:taylored-ev-limit}
+  \uses{def:cdf}
+  % \lean{}
+  % \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, the two conditions
+  \begin{align*}
+    \text{(ii)} & & \lim_{n \to \infty} n \, \log F (A_n^{-1}(x)) \, = \; & \log G(x) \\
+    \text{(iii)} & & \lim_{n \to \infty} \Big( n \, \big(1 - F (A_n^{-1}(x)) \big) \Big)
+      \, = \; & - \log G(x)
+  \end{align*}
+  are equivalent.
+\end{lemma}
+\begin{proof}
+  \uses{lem:modify-limit-taylor}
+  % \leanok
+
+  Both implications {(ii) $\, \Rightarrow \,$ (iii)} and {(iii) $\, \Rightarrow \,$ (ii)}
+  are proven similarly using Lemma~\ref{lem:modify-limit-taylor}.
+
+  Assume (ii). Let $f_1(t) = - \log (1-t)$ and $f_2(t) = t$ and
+  $S = [0,1) \subset \bR$, and $m_n = n$ and $t_n = 1 - F (A_n^{-1}(x))$.
+  It is straightforward to check the assumptions of Lemma~\ref{lem:modify-limit-taylor},
+  with
+  \begin{align*}
+    f_1'(0) \; = \; & \der{t} \Big|_{t=0} \Big( - \log (1 - t) \Big) \; = \; 1
+  \end{align*}
+  and $f_2'(0) = \mathrm{id}'(0) = 1$.
+  The key assumption about the existence of
+  the limit $\lim_{n \to \infty} \big( m_n \, f_1(t_n) \big)$ is given by (ii),
+  and the conclusion is (iii).
+
+  Similarly assuming (iii) we derive (ii) with Lemma~\ref{lem:modify-limit-taylor}
+  just interchanging the roles of the two functions, i.e., now using
+  $f_1(t) = t$ and $f_2(t) = - \log (1-t)$ instead.
+\end{proof}
