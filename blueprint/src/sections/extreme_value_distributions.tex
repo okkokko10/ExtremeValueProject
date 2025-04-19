@@ -146,7 +146,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 
 \begin{lemma}[Logarithmic version of the limit relation]
   \label{lem:log-ev-limit}
-  \uses{def:cdf}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
   \lean{ev_limit_iff_log_ev_limit}
   \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
@@ -168,7 +168,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 
 \begin{lemma}[Relation implies $F$ tending to one]
   \label{lem:ev-limit-cdf-affine-tendsto-one}
-  \uses{def:cdf}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
   \lean{tendsto_one_of_ev_limit}
   \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
@@ -235,7 +235,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 
 \begin{lemma}[Taylored version of the limit relation]
   \label{lem:taylored-ev-limit}
-  \uses{def:cdf}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
   \lean{log_ev_limit_iff_taylored_ev_limit}
   \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
@@ -274,7 +274,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 
 \begin{theorem}[Equivalent versions of the limit relation]
   \label{thm:tfae-ev-limit}
-  \uses{def:cdf}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
   \lean{tfae_ev_limit_relation}
   \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation

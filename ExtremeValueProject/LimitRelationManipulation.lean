@@ -264,19 +264,19 @@ lemma ev_limit_iff_log_ev_limit {F G : CumulativeDistributionFunction}
     {As : ℕ → orientationPreservingAffineEquiv} {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
     (Tendsto (fun n ↦ ((As n • F) x)^n) atTop (𝓝 (G x)))
       ↔ (Tendsto (fun n ↦ n * Real.log (((As n) • F) x)) atTop (𝓝 (Real.log (G x)))) := by
-  sorry
+  sorry -- **Issue #26**
 
 lemma tendsto_one_of_ev_limit {F G : CumulativeDistributionFunction}
     {As : ℕ → orientationPreservingAffineEquiv} {x : ℝ} (hGx : G x ∈ Ioo 0 1)
     (h : Tendsto (fun n ↦ ((As n • F) x)^n) atTop (𝓝 (G x))) :
     Tendsto (fun n ↦ ((As n • F) x)) atTop (𝓝 1) := by
-  sorry
+  sorry -- **Issue #28**
 
 lemma log_ev_limit_iff_taylored_ev_limit {F G : CumulativeDistributionFunction}
     {As : ℕ → orientationPreservingAffineEquiv} {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
     (Tendsto (fun n ↦ n * Real.log (((As n) • F) x)) atTop (𝓝 (Real.log (G x))))
       ↔ (Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x))))) := by
-  sorry
+  sorry -- **Issue #27**
 
 theorem tfae_ev_limit_relation {F G : CumulativeDistributionFunction}
     (As : ℕ → orientationPreservingAffineEquiv) {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
