@@ -272,6 +272,34 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   $f_1(t) = t$ and $f_2(t) = - \log (1-t)$ instead.
 \end{proof}
 
+\begin{lemma}[Inverted Taylored version of the limit relation]
+  \label{lem:inv-taylored-ev-limit}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
+  \lean{taylored_ev_limit_iff_oneDivOneSub_limit}
+  \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, the two conditions
+  \begin{align*}
+    \text{(iii)} & & \lim_{n \to \infty} \Big( n \, \big(1 - F (A_n^{-1}(x)) \big) \Big)
+      \, = \; & - \log G(x) \\
+    \text{(iv)} & & \lim_{n \to \infty} \frac{1}{n \, \big(1 - F (A_n^{-1}(x)) \big)}
+      \, = \; & \frac{1}{-\log G(x)}
+  \end{align*}
+  are equivalent.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  \leanok
+  By assumption $G(x) \in (0,1)$ we have $-\log G(x) > 0$.
+
+  The implication {(iii)~$\,\Rightarrow \,$~(iv)}
+  can therefore be seen by applying $t \mapsto \frac{1}{t}$
+  and using its continuity at $t = -\log G(x)$, and the
+  converse implication {(iv)~$\,\Rightarrow \,$~(iii)} similarly by using continuity of
+  $t \mapsto \frac{1}{t}$ at $t = \frac{1}{-\log G(x)}$.
+\end{proof}
+
 \begin{theorem}[Equivalent versions of the limit relation]
   \label{thm:tfae-ev-limit}
   \uses{def:cdf, lem:oriented-affine-action-on-cdf}
@@ -284,7 +312,9 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
     \text{(i)} & & \lim_{n \to \infty} \big( (A_n.F)(x) \big)^n \, = \; & G(x) \\
     \text{(ii)} & & \lim_{n \to \infty} n \, \log F (A_n^{-1}(x)) \, = \; & \log G(x) \\
     \text{(iii)} & & \lim_{n \to \infty} \Big( n \, \big(1 - F (A_n^{-1}(x)) \big) \Big)
-      \, = \; & - \log G(x)
+      \, = \; & - \log G(x) \\
+    \text{(iv)} & & \lim_{n \to \infty} \frac{1}{n \, \big(1 - F (A_n^{-1}(x)) \big)}
+      \, = \; & \frac{1}{-\log G(x)}
   \end{align*}
   are equivalent.
 
@@ -292,7 +322,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   various equivalent phrasings.)}
 \end{theorem}
 \begin{proof}
-  \uses{lem:taylored-ev-limit, lem:log-ev-limit}
+  \uses{lem:taylored-ev-limit, lem:log-ev-limit, lem:inv-taylored-ev-limit}
   \leanok
   This is just a combination of earlier results.
 \end{proof}

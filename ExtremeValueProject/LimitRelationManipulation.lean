@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kalle Kytölä, ...
 -/
 import ExtremeValueProject.AffineTransformation
-import Mathlib.Analysis.Calculus.Deriv.Basic
-import Mathlib.Topology.EMetricSpace.Paracompact
 import Mathlib
 
 open Filter Set Metric Topology Asymptotics
@@ -278,14 +276,29 @@ lemma log_ev_limit_iff_taylored_ev_limit {F G : CumulativeDistributionFunction}
       ↔ (Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x))))) := by
   sorry -- **Issue #27**
 
+lemma taylored_ev_limit_iff_oneDivOneSub_limit {F G : CumulativeDistributionFunction}
+    {As : ℕ → orientationPreservingAffineEquiv} {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
+    (Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x)))))
+      ↔ (Tendsto (fun n ↦ 1/(n * (1 - (((As n) • F) x)))) atTop (𝓝 (1/(-(Real.log (G x)))))) := by
+  simp only [one_div]
+  have log_Gx_ne_zero : Real.log (G x) ≠ 0 := Real.log_ne_zero_of_pos_of_ne_one hGx.1 hGx.2.ne
+  have nlog_Gx_ne_zero := neg_ne_zero.mpr log_Gx_ne_zero
+  constructor
+  · intro h_lim
+    exact Tendsto.inv₀ h_lim nlog_Gx_ne_zero
+  · intro h_invlim
+    simpa only [inv_inv] using Tendsto.inv₀ h_invlim (inv_ne_zero nlog_Gx_ne_zero)
+
 theorem tfae_ev_limit_relation {F G : CumulativeDistributionFunction}
     (As : ℕ → orientationPreservingAffineEquiv) {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
     List.TFAE
       [Tendsto (fun n ↦ ((As n • F) x)^n) atTop (𝓝 (G x)),
        Tendsto (fun n ↦ n * Real.log (((As n) • F) x)) atTop (𝓝 (Real.log (G x))),
-       Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x))))] := by
+       Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x)))),
+       Tendsto (fun n ↦ 1/(n * (1 - (((As n) • F) x)))) atTop (𝓝 (1/(-(Real.log (G x)))))] := by
   have one_iff_two := ev_limit_iff_log_ev_limit hGx (As := As) (F := F) (G := G)
   have two_iff_three := log_ev_limit_iff_taylored_ev_limit hGx (As := As) (F := F) (G := G)
+  have three_iff_four := taylored_ev_limit_iff_oneDivOneSub_limit hGx (As := As) (F := F) (G := G)
   tfae_finish
 
 end actual_limit_relation_manipulation
