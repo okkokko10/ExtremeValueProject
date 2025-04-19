@@ -271,3 +271,28 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   just interchanging the roles of the two functions, i.e., now using
   $f_1(t) = t$ and $f_2(t) = - \log (1-t)$ instead.
 \end{proof}
+
+\begin{theorem}[Equivalent versions of the limit relation]
+  \label{thm:tfae-ev-limit}
+  \uses{def:cdf}
+  \lean{tfae_ev_limit_relation}
+  \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, the conditions
+  \begin{align*}
+    \text{(i)} & & \lim_{n \to \infty} \big( (A_n.F)(x) \big)^n \, = \; & G(x) \\
+    \text{(ii)} & & \lim_{n \to \infty} n \, \log F (A_n^{-1}(x)) \, = \; & \log G(x) \\
+    \text{(iii)} & & \lim_{n \to \infty} \Big( n \, \big(1 - F (A_n^{-1}(x)) \big) \Big)
+      \, = \; & - \log G(x)
+  \end{align*}
+  are equivalent.
+
+  \emph{(More equivalent conditions are to be added; this is just a theorem to collect
+  various equivalent phrasings.)}
+\end{theorem}
+\begin{proof}
+  \uses{lem:taylored-ev-limit, lem:log-ev-limit}
+  \leanok
+  This is just a combination of earlier results.
+\end{proof}
