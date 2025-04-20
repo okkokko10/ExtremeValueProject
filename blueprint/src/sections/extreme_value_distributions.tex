@@ -300,9 +300,38 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   $t \mapsto \frac{1}{t}$ at $t = \frac{1}{-\log G(x)}$.
 \end{proof}
 
+\begin{lemma}[Transformed version of the limit relation]
+  \label{lem:transformed-ev-limit}
+  \uses{def:one-div-one-sub-cdf, def:one-div-neg-log-cdf, lem:oriented-affine-action-on-cdf}
+  \lean{oneDivSub_limit_iff}
+  \leanok
+  Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
+  preserving affine isomorphisms $A_n \in \OriAffR$. Then for any $x \in \bR$
+  such that $0 < G(x) < 1$, the two conditions
+  \begin{align*}
+    \text{(iv)} & & \lim_{n \to \infty} \frac{1}{n \, \big(1 - F (A_n^{-1}(x)) \big)}
+      \, = \; & \frac{1}{-\log G(x)} \\
+    \text{(v)} & & \lim_{n \to \infty} \frac{1}{n} \oneDivOneSub{A_n . F} (x)
+      \, = \; & \oneDivNegLog{G} (x)
+  \end{align*}
+  are equivalent.
+
+  (See Definitions~\ref{def:one-div-one-sub-cdf}
+  and \ref{def:one-div-neg-log-cdf} for the transforms involved in condition (v)).
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  \leanok
+  This is in principle straightforward, although certain cases need to be checked
+  separately and the continuity of various natural extensions need to addressed.
+\end{proof}
+
+% def:one-div-neg-log-cdf
+
+
 \begin{theorem}[Equivalent versions of the limit relation]
   \label{thm:tfae-ev-limit}
-  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
+  \uses{def:one-div-one-sub-cdf, def:one-div-neg-log-cdf, lem:oriented-affine-action-on-cdf}
   \lean{tfae_ev_limit_relation}
   \leanok
   Let $F$ and $G$ be c.d.f.s, and $(A_n)_{n \in \N}$ a sequence of orientation
@@ -314,15 +343,21 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
     \text{(iii)} & & \lim_{n \to \infty} \Big( n \, \big(1 - F (A_n^{-1}(x)) \big) \Big)
       \, = \; & - \log G(x) \\
     \text{(iv)} & & \lim_{n \to \infty} \frac{1}{n \, \big(1 - F (A_n^{-1}(x)) \big)}
-      \, = \; & \frac{1}{-\log G(x)}
+      \, = \; & \frac{1}{-\log G(x)} \\
+    \text{(v)} & & \lim_{n \to \infty} \frac{1}{n} \oneDivOneSub{A_n . F} (x)
+      \, = \; & \oneDivNegLog{G} (x)
   \end{align*}
   are equivalent.
+
+  (See Definitions~\ref{def:one-div-one-sub-cdf}
+  and \ref{def:one-div-neg-log-cdf} for the transforms involved in condition (v)).
 
   \emph{(More equivalent conditions are to be added; this is just a theorem to collect
   various equivalent phrasings.)}
 \end{theorem}
 \begin{proof}
-  \uses{lem:taylored-ev-limit, lem:log-ev-limit, lem:inv-taylored-ev-limit}
+  \uses{lem:taylored-ev-limit, lem:log-ev-limit, lem:inv-taylored-ev-limit,
+  lem:transformed-ev-limit}
   \leanok
   This is just a combination of earlier results.
 \end{proof}

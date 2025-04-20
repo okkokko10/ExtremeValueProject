@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kalle Kytölä, ...
 -/
 import ExtremeValueProject.AffineTransformation
+import ExtremeValueProject.TransformedCDF
 import Mathlib
 
 open Filter Set Metric Topology Asymptotics
@@ -289,16 +290,21 @@ lemma taylored_ev_limit_iff_oneDivOneSub_limit {F G : CumulativeDistributionFunc
   · intro h_invlim
     simpa only [inv_inv] using Tendsto.inv₀ h_invlim (inv_ne_zero nlog_Gx_ne_zero)
 
+open ENNReal
+
 theorem tfae_ev_limit_relation {F G : CumulativeDistributionFunction}
     (As : ℕ → orientationPreservingAffineEquiv) {x : ℝ} (hGx : G x ∈ Ioo 0 1) :
     List.TFAE
       [Tendsto (fun n ↦ ((As n • F) x)^n) atTop (𝓝 (G x)),
        Tendsto (fun n ↦ n * Real.log (((As n) • F) x)) atTop (𝓝 (Real.log (G x))),
        Tendsto (fun n ↦ n * (1 - (((As n) • F) x))) atTop (𝓝 (-(Real.log (G x)))),
-       Tendsto (fun n ↦ 1/(n * (1 - (((As n) • F) x)))) atTop (𝓝 (1/(-(Real.log (G x)))))] := by
+       Tendsto (fun n ↦ 1/(n * (1 - (((As n) • F) x)))) atTop (𝓝 (1/(-(Real.log (G x))))),
+       Tendsto (fun (n : ℕ) ↦ (n : ℝ≥0∞)⁻¹ * (((As n) • F).oneDivOneSub x))
+          atTop (𝓝 (G.oneDivNegLog x))] := by
   have one_iff_two := ev_limit_iff_log_ev_limit hGx (As := As) (F := F) (G := G)
   have two_iff_three := log_ev_limit_iff_taylored_ev_limit hGx (As := As) (F := F) (G := G)
   have three_iff_four := taylored_ev_limit_iff_oneDivOneSub_limit hGx (As := As) (F := F) (G := G)
+  have four_iff_five := oneDivSub_limit_iff hGx (As := As) (F := F) (G := G)
   tfae_finish
 
 end actual_limit_relation_manipulation
