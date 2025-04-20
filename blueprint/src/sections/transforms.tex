@@ -26,6 +26,22 @@ calculation of the extreme value distributions.
   \end{align*}
 \end{definition}
 
+\begin{lemma}[Continuity points of extended c.d.f.]
+  \label{lem:cdf-extend-continuity-pts}
+  \uses{def:cdf-extend}
+  \lean{CumulativeDistributionFunction.extend_continuousAt,
+  CumulativeDistributionFunction.extend_continuousAt_top,
+  CumulativeDistributionFunction.extend_continuousAt_bot}
+  \leanok
+  The extension $\extendcdf{F}$ of a c.d.f. $F$ is continuous
+  at $x = -\infty$, $x = + \infty$, and at any
+  $x \in (-\infty,+\infty)$ where $F$ is continuous.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  \ldots
+\end{proof}
 
 \section{One over one minus cumulative distribution function}
 
@@ -49,6 +65,22 @@ calculation of the extreme value distributions.
   where $\extendcdf{F} \colon [-\infty,+\infty] \to [0,1]$ is the extension of the c.d.f. $F$.
 \end{definition}
 
+\begin{lemma}[Continuity points of one over one minus c.d.f.]
+  \label{lem:one-div-one-sub-cdf-continuity-pts}
+  \uses{def:one-div-one-sub-cdf}
+  \lean{CumulativeDistributionFunction.oneDivOneSub_continuousAt,
+  CumulativeDistributionFunction.oneDivOneSub_continuousAt_top,
+  CumulativeDistributionFunction.oneDivOneSub_continuousAt_bot}
+  \leanok
+  The transform $\oneDivOneSub{F}$ of a c.d.f. $F$ is continuous
+  at $x = -\infty$, $x = + \infty$, and at any
+  $x \in (-\infty,+\infty)$ where $F$ is continuous.
+\end{lemma}
+\begin{proof}
+  \uses{lem:cdf-extend-continuity-pts}
+  % \leanok
+  \ldots
+\end{proof}
 
 \section{One over negative logarithm cumulative distribution function}
 
@@ -71,3 +103,20 @@ calculation of the extreme value distributions.
   \end{align*}
   where $\extendcdf{F} \colon [-\infty,+\infty] \to [0,1]$ is the extension of the c.d.f. $F$.
 \end{definition}
+
+\begin{lemma}[Continuity points of one over negative logarithm c.d.f.]
+  \label{lem:one-div-neg-log-cdf-continuity-pts}
+  \uses{def:one-div-neg-log-cdf}
+  \lean{CumulativeDistributionFunction.oneDivNegLog_continuousAt,
+  CumulativeDistributionFunction.oneDivNegLog_continuousAt_top,
+  CumulativeDistributionFunction.oneDivNegLog_continuousAt_bot}
+  \leanok
+  The transform $\oneDivNegLog{F}$ of a c.d.f. $F$ is continuous
+  at $x = -\infty$, $x = + \infty$, and at any
+  $x \in (-\infty,+\infty)$ where $F$ is continuous.
+\end{lemma}
+\begin{proof}
+  \uses{lem:cdf-extend-continuity-pts}
+  % \leanok
+  \ldots
+\end{proof}
