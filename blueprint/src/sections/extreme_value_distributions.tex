@@ -97,11 +97,11 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
     \big( (A_n . F_\Gumbel)(x) \big)^n
     = \; & \big( (F_\Gumbel)(x + \log(n)) \big)^n \\
     = \; & \Big( \exp \big( - \exp(-(x + \log n)) \big) \Big)^n \\
-    = \; & \Big( \exp \big( - n \exp(-x - \log n) \big) \Big) \\
-    = \; & \Big( \exp \big( - n \, e^{-x} \, e^{-\log n}  \big) \Big) \\
-    = \; & \Big( \exp \big( - n \, e^{-x} \, n^{-1} \big) \Big) \\
-    = \; & \Big( \exp \big( - e^{-x} \big) \Big)
-    = F_\Gumbel(x) .
+    = \; & \exp \big( - n \exp(-x - \log n) \big) \\
+    = \; & \exp \big( - n \, e^{-x} \, e^{-\log n}  \big) \\
+    %= \; & \exp \big( - n \, e^{-x} \, n^{-1} \big) \\
+    = \; & \exp \big( - e^{-x} \big) \\
+    = \; & F_\Gumbel(x) .
   \end{align*}
   Since the above is true for each $n$, we in particular have
   \begin{align*}

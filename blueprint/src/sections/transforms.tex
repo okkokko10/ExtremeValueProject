@@ -40,7 +40,19 @@ calculation of the extreme value distributions.
 \begin{proof}
   % \uses{}
   % \leanok
-  \ldots
+  Since $\lim_{x \to +\infty} F(x) = 1$ by properties of c.d.f.s
+  and $\extendcdf{F}(+\infty) = 1$ by definition of the extension,
+  continuity at $x = + \infty$ follows. Continuity at $x=-\infty$
+  is similar.
+
+  Suppose $F$ is continuous at $x \in \bR$.
+  %Let $\iota \colon \bR \to [-\infty,+\infty]$ be the inclusion
+  %of the real line into the extended real line.
+  Then since $\extendcdf{F}$ coincides with $F$
+  in a neighborhood of $x$
+  (indeed on the open set $\bR \subsetneq [-\infty,+\infty]$),
+  the continuity of $F$ at $x \in \bR$ implies
+  continuity of $\extendcdf{F}$ at $x$.
 \end{proof}
 
 \section{One over one minus cumulative distribution function}
@@ -79,7 +91,30 @@ calculation of the extreme value distributions.
 \begin{proof}
   \uses{lem:cdf-extend-continuity-pts}
   % \leanok
-  \ldots
+  Since $\lim_{x \to +\infty} \extendcdf{F}(x) = \extendcdf{F}(+\infty) = 1$
+  by Lemma~\ref{lem:cdf-extend-continuity-pts} and the continuous extension
+  of $p \mapsto \frac{1}{1-p}$ to a function $[0,1] \to [0,+\infty]$
+  tends to $+\infty$ as $p \to 1$, we have
+  \begin{align*}
+    \lim_{x \to +\infty} \oneDivOneSub{F}(x)
+    \; = \; +\infty \; = \; \oneDivOneSub{F}(+\infty) .
+  \end{align*}
+  Therefore $\oneDivOneSub{F}$ is continuous at $+\infty$.
+  Continuity at $-\infty$ similarly follows from
+  $\lim_{x \to -\infty} \extendcdf{F}(x) = \extendcdf{F}(-\infty) = 0$
+  and $\frac{1}{1-p}$ tending to $1$
+  as $p \to 0$, which give
+  \begin{align*}
+    \lim_{x \to -\infty} \oneDivOneSub{F}(x)
+    \; = \; 1 \; = \; \oneDivOneSub{F}(-\infty) .
+  \end{align*}
+
+  Suppose $F$ is continuous at $x \in \bR$,
+  and recall from Lemma~\ref{lem:cdf-extend-continuity-pts} that
+  $\extendcdf{F}$ is then also continuous at $x$.
+  Now $\oneDivOneSub{F}$ is a composition of the continuous function
+  $p \mapsto \frac{1}{1-p} \colon [0,1] \to [0,+\infty]$ with
+  \extendcdf{F}, and as such also becomes continuous at $x$.
 \end{proof}
 
 \section{One over negative logarithm cumulative distribution function}
@@ -118,5 +153,30 @@ calculation of the extreme value distributions.
 \begin{proof}
   \uses{lem:cdf-extend-continuity-pts}
   % \leanok
-  \ldots
+  \uses{lem:cdf-extend-continuity-pts}
+  % \leanok
+  Since $\lim_{x \to +\infty} \extendcdf{F}(x) = \extendcdf{F}(+\infty) = 1$
+  by Lemma~\ref{lem:cdf-extend-continuity-pts} and the continuous extension
+  of $p \mapsto \frac{1}{\log(1/p)}$ to a function $[0,1] \to [0,+\infty]$
+  tends to $+\infty$ as $p \to 1$, we have
+  \begin{align*}
+    \lim_{x \to +\infty} \oneDivNegLog{F}(x)
+    \; = \; +\infty \; = \; \oneDivNegLog{F}(+\infty) .
+  \end{align*}
+  Therefore $\oneDivNegLog{F}$ is continuous at $+\infty$.
+  Continuity at $-\infty$ similarly follows from
+  $\lim_{x \to -\infty} \extendcdf{F}(x) = \extendcdf{F}(-\infty) = 0$
+  and $\frac{1}{\log(1/p)}$ tending to $0$
+  as $p \to 0$, which give
+  \begin{align*}
+    \lim_{x \to -\infty} \oneDivNegLog{F}(x)
+    \; = \; 0 \; = \; \oneDivNegLog{F}(-\infty) .
+  \end{align*}
+
+  Suppose $F$ is continuous at $x \in \bR$,
+  and recall from Lemma~\ref{lem:cdf-extend-continuity-pts} that
+  $\extendcdf{F}$ is then also continuous at $x$.
+  Now $\oneDivNegLog{F}$ is a composition of the continuous function
+  $p \mapsto \frac{1}{\log(1/p)} \colon [0,1] \to [0,+\infty]$ with
+  \extendcdf{F}, and as such also becomes continuous at $x$.
 \end{proof}

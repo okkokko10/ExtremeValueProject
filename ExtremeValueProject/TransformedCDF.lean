@@ -92,16 +92,16 @@ lemma extend_affine (F : CumulativeDistributionFunction)
 
 lemma extend_continuousAt_bot (F : CumulativeDistributionFunction) :
     ContinuousAt F.extend ⊥ := by
-  sorry
+  sorry -- **Issue #30**
 
 lemma extend_continuousAt_top (F : CumulativeDistributionFunction) :
     ContinuousAt F.extend ⊤ := by
-  sorry
+  sorry -- **Issue #30**
 
 lemma extend_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     (hx : ContinuousAt F x) :
     ContinuousAt F.extend x := by
-  sorry
+  sorry -- **Issue #30**
 
 open MeasureTheory
 
@@ -196,16 +196,16 @@ lemma oneDivOneSub_apply (F : CumulativeDistributionFunction) (x : EReal) :
 
 lemma oneDivOneSub_continuousAt_bot (F : CumulativeDistributionFunction) :
     ContinuousAt F.oneDivOneSub ⊥ := by
-  sorry
+  sorry -- **Issue #31**
 
 lemma oneDivOneSub_continuousAt_top (F : CumulativeDistributionFunction) :
     ContinuousAt F.oneDivOneSub ⊤ := by
-  sorry
+  sorry -- **Issue #31**
 
 lemma oneDivOneSub_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     (hx : ContinuousAt F x) :
     ContinuousAt F.oneDivOneSub x := by
-  sorry
+  sorry -- **Issue #31**
 
 lemma oneDivOneSub_affine (F : CumulativeDistributionFunction)
     (A : orientationPreservingAffineEquiv) :
@@ -313,16 +313,16 @@ lemma oneDivNegLog_apply_ofReal_of_pos_of_lt_one (F : CumulativeDistributionFunc
 
 lemma oneDivNegLog_continuousAt_bot (F : CumulativeDistributionFunction) :
     ContinuousAt F.oneDivNegLog ⊥ := by
-  sorry
+  sorry -- **Issue #32**
 
 lemma oneDivNegLog_continuousAt_top (F : CumulativeDistributionFunction) :
     ContinuousAt F.oneDivNegLog ⊤ := by
-  sorry
+  sorry -- **Issue #32**
 
 lemma oneDivNegLog_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     (hx : ContinuousAt F x) :
     ContinuousAt F.oneDivNegLog x := by
-  sorry
+  sorry -- **Issue #32**
 
 lemma oneDivNegLog_affine (F : CumulativeDistributionFunction)
     (A : orientationPreservingAffineEquiv) :
