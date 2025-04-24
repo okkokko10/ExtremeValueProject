@@ -186,10 +186,10 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
     intro x y x_le_y
     simpa using (mul_le_mul_iff_of_pos_left a_pos).mpr x_le_y
   · intro mono
-    have key := mono ((by linarith) : (0:ℝ) ≤ 1)
+    have key := mono zero_le_one
     simp only [mul_zero, zero_add, mul_one, le_add_iff_nonneg_left] at key
     have a_nonzero : a ≠ 0 := by exact coefs_of_field_fst_ne_zero A
-    exact lt_of_le_of_ne key a_nonzero.symm
+    exact lt_of_le_of_ne' key a_nonzero
 
 -- TODO: Generalize to canonically linearly ordered fields?
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
