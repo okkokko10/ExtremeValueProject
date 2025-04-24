@@ -176,57 +176,20 @@ def AffineEquiv.IsOrientationPreserving (A : ℝ ≃ᵃ[ℝ] ℝ) : Prop :=
 an increasing function. -/
 lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.IsOrientationPreserving ↔ Monotone (fun x ↦ A x) := by
-  have w1 (x:ℝ) := AffineMap.apply_eq_of_field A x
-
   unfold IsOrientationPreserving
   set a := A.toAffineMap.coefs_of_field.1
   set b := A.toAffineMap.coefs_of_field.2
-  conv => {
-    right; right; intro x
-    tactic => {
-      change _ = a * x + b
-      exact AffineMap.apply_eq_of_field A x
-    }
-  }
-  conv => {
-    right
-    tactic => {
-      change _ = Monotone fun x => a * x
-      simp only [eq_iff_iff]
-      constructor
-      · intro r
-        have out := Monotone.add_const r (-b)
-        simp only [add_neg_cancel_right] at out
-        exact out
-      · intro r
-        exact Monotone.add_const r (b)
-    }
-  }
+  have in_other_words (x) : A x = a * x + b := AffineMap.apply_eq_of_field A x
+  simp_rw [in_other_words]
   constructor
   · intro a_pos
-    intro x y xy
-    dsimp
-    exact (mul_le_mul_iff_of_pos_left a_pos).mpr xy
-  ·
-    intro r
-    by_contra a_nonpos
-    simp only [not_lt] at a_nonpos
-    have cont := r a_nonpos
-    simp only [mul_zero] at cont
-    have aa_zero :  a * a = 0 := by
-      have aa_nonneg : 0 ≤ a * a := by
-        rw [←sq]
-        exact (sq_nonneg a)
-      set aa := a * a
-      by_contra aa_nonzero
-      have a1 : 0 < aa := by exact lt_of_le_of_ne aa_nonneg fun a => aa_nonzero (id (Eq.symm a))
-      exact a1.not_le cont
-
-    have a_zero : a = 0 := by
-      exact zero_eq_mul_self.mp (id (Eq.symm aa_zero))
+    intro x y x_le_y
+    simpa using (mul_le_mul_iff_of_pos_left a_pos).mpr x_le_y
+  · intro mono
+    have key := mono ((by linarith) : (0:ℝ) ≤ 1)
+    simp only [mul_zero, zero_add, mul_one, le_add_iff_nonneg_left] at key
     have a_nonzero : a ≠ 0 := by exact coefs_of_field_fst_ne_zero A
-    exact a_nonzero a_zero
-  -- **Issue #2**
+    exact lt_of_le_of_ne key a_nonzero.symm
 
 -- TODO: Generalize to canonically linearly ordered fields?
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
