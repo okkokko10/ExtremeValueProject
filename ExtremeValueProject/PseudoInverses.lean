@@ -150,6 +150,65 @@ lemma rcInv_eq_lcInv_dual (F : R → S) :
 
 variable {F : R → S}
 
+lemma lcInv_le_of_apply_ge {x : R} {y : S} (h : y ≤ F x) :
+    lcInv F y ≤ x :=
+  sInf_le h
+
+lemma lcInv_ge_of_apply_lt {x : R} {y : S} (F_mono : Monotone F) (h : F x < y) :
+    x ≤ lcInv F y := by
+  apply le_sInf
+  intro b hb
+  by_contra con
+  exact lt_irrefl _ <| (hb.trans (F_mono (not_le.mp con).le)).trans_lt h
+
+lemma forall_apply_ge_of_lcInv_le {x : R} {y : S} (F_mono : Monotone F) (h : lcInv F y ≤ x)
+    {x' : R} (x_lt_x' : x < x') :
+    y ≤ F x' := by
+  by_contra con
+  have obs (z : R) (hz : z ∈ {z | y ≤ F z}) : x' ≤ z := by
+    by_contra con'
+    exact lt_irrefl _ <| ((not_le.mp con).trans_le hz).trans_le (F_mono (not_le.mp con').le)
+  exact lt_irrefl _ <| (h.trans_lt x_lt_x').trans_le (le_sInf obs)
+
+lemma forall_apply_lt_of_lcInv_ge {x : R} {y : S} (h : x ≤ lcInv F y) {x' : R} (x'_lt_x : x' < x) :
+    F x' < y := by
+  by_contra con
+  have key := sInf_le (show x' ∈ {z | y ≤ F z} from not_lt.mp con)
+  exact lt_irrefl _ <| (key.trans_lt x'_lt_x).trans_le h
+
+lemma lcInv_lt_iff_exists_apply_ge {x : R} {y : S} :
+    lcInv F y < x ↔ ∃ x' < x, y ≤ F x' := by
+  rw [lcInv, sInf_lt_iff]
+  exact ⟨fun ⟨a, ha, a_lt⟩ ↦ ⟨a, a_lt, ha⟩, fun ⟨a, a_lt, ha⟩ ↦ ⟨a, ha, a_lt⟩⟩
+
+lemma exists_apply_lt_of_lcInv_gt [DenselyOrdered R] {x : R} {y : S} (h : x < lcInv F y) :
+    ∃ x' > x, F x' < y := by
+  obtain ⟨w, x_lt_w, w_lt⟩ := exists_between h
+  by_contra con
+  simp only [gt_iff_lt, not_exists, not_and, not_lt] at con
+  exact lt_irrefl _ <| (lcInv_le_of_apply_ge (con w x_lt_w)).trans_lt w_lt
+
+lemma lcInv_gt_of_exists_apply_lt [DenselyOrdered R] (F_mono : Monotone F) {x : R} {y : S}
+    {x' : R} (x_lt_x' : x' > x) (h : F x' < y) :
+    x < lcInv F y := by
+  obtain ⟨w, x_lt_w, w_lt_x'⟩ := exists_between x_lt_x'
+  by_contra con
+  have bad : w ∈ lowerBounds {x | y ≤ F x} := by
+    intro a ha
+    by_contra con'
+    exact lt_irrefl _ <|
+          ((ha.trans (F_mono (not_le.mp con').le)).trans (F_mono w_lt_x'.le)).trans_lt h
+  exact lt_irrefl _ <| (((isGLB_sInf {x | y ≤ F x}).2 bad).trans (not_lt.mp con)).trans_lt x_lt_w
+
+/-- Note: The forward implication holds without monotonicity assumption;
+see `exists_apply_lt_of_lcInv_gt`. -/
+lemma lcInv_gt_iff_exists_apply_lt [DenselyOrdered R] (F_mono : Monotone F) {x : R} {y : S} :
+    x < lcInv F y ↔ ∃ x' > x, F x' < y := by
+  constructor
+  · exact exists_apply_lt_of_lcInv_gt
+  · intro ⟨x', x_lt_x', h⟩
+    apply lcInv_gt_of_exists_apply_lt F_mono x_lt_x' h
+
 /-- The function `lcInv F` is increasing. -/
 lemma lcInv_mono (F : R → S) :
     Monotone (lcInv F) := by
