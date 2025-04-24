@@ -195,7 +195,58 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
-  mul_mem' := by sorry -- **Issue #3**
+  mul_mem' := by
+    intro a b ha hb
+    set a1 := a.toAffineMap.coefs_of_field.1
+    set a2 := a.toAffineMap.coefs_of_field.2
+    set b1 := b.toAffineMap.coefs_of_field.1
+    set b2 := b.toAffineMap.coefs_of_field.2
+    set ab1 := (a*b).toAffineMap.coefs_of_field.1 with ab1_def
+    set ab2 := (a*b).toAffineMap.coefs_of_field.2
+    set ab := a*b
+
+    have ab_def: ab = fun x ↦ a (b x) := by rfl
+
+    have ww(x) : ab x = (a1 * (b1 * x + b2) + a2) := by
+      repeat rw [←AffineEquiv.apply_eq_of_field]
+      rfl
+    -- have ww(x) : a x * b x = (a1 * x + a2) * (b1 * x + b2) := by
+    --   repeat rw [←AffineEquiv.apply_eq_of_field]
+    have ww2(x) : (ab1 * x + ab2) = (a1 * (b1 * x + b2) + a2) := by
+      rw [←ww,AffineEquiv.apply_eq_of_field]
+
+    set a1b1 := a1 * b1
+    have a1b1_nonzero : a1b1 ≠ 0 := by
+      have a0 := AffineEquiv.coefs_of_field_fst_ne_zero a
+      have b0 := AffineEquiv.coefs_of_field_fst_ne_zero b
+      exact mul_ne_zero a0 b0
+
+
+    have ab_equal:= AffineEquiv.mkOfCoefs_of_field a1b1_nonzero (a1 * b2 + a2)
+    have ab_equal:= AffineEquiv.mkOfCoefs_of_field a1b1_nonzero (a1 * b2 + a2)
+    have www : ab_equal = ab := by
+      rw [AffineMap.mkOfCoefs_of_field_apply_eq]
+    have ww3(x) : ab x = ((a1 * b1) * x + (a1 * b2 + a2)) := by
+      ring_nf at ww ⊢
+      exact ww x
+
+    have ww4 : ab1 = a1 * b1 := by
+
+
+      sorry
+
+
+
+
+
+
+
+    change AffineEquiv.IsOrientationPreserving _ at ha hb ⊢
+    unfold AffineEquiv.IsOrientationPreserving
+
+    simp_rw [AffineEquiv.isOrientationPreserving_iff_mono] at ha hb ⊢
+    have := Monotone.mul ha hb
+    sorry -- **Issue #3**
   one_mem' := by sorry -- **Issue #3**
   inv_mem' := by sorry -- **Issue #3**
 
