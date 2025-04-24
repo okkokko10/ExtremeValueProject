@@ -176,7 +176,20 @@ def AffineEquiv.IsOrientationPreserving (A : ℝ ≃ᵃ[ℝ] ℝ) : Prop :=
 an increasing function. -/
 lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.IsOrientationPreserving ↔ Monotone (fun x ↦ A x) := by
-  sorry -- **Issue #2**
+  unfold IsOrientationPreserving
+  set a := A.toAffineMap.coefs_of_field.1
+  set b := A.toAffineMap.coefs_of_field.2
+  have in_other_words (x) : A x = a * x + b := AffineMap.apply_eq_of_field A x
+  simp_rw [in_other_words]
+  constructor
+  · intro a_pos
+    intro x y x_le_y
+    simpa using (mul_le_mul_iff_of_pos_left a_pos).mpr x_le_y
+  · intro mono
+    have key := mono zero_le_one
+    simp only [mul_zero, zero_add, mul_one, le_add_iff_nonneg_left] at key
+    have a_nonzero : a ≠ 0 := by exact coefs_of_field_fst_ne_zero A
+    exact lt_of_le_of_ne' key a_nonzero
 
 -- TODO: Generalize to canonically linearly ordered fields?
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
