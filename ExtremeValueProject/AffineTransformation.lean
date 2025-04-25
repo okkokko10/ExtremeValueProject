@@ -196,11 +196,9 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
   mul_mem' := by
-    intro a b ha hb
-    change AffineEquiv.IsOrientationPreserving _ at  ha hb ⊢
-    simp_rw [AffineEquiv.isOrientationPreserving_iff_mono] at ha hb ⊢
-    have key := Monotone.comp ha hb
-    exact key
+    intro _ _ ha hb
+    rw [mem_def,AffineEquiv.isOrientationPreserving_iff_mono] at ha hb ⊢ -- Question: which is better, this or `at *`?
+    apply Monotone.comp ha hb -- why does `apply` work but `exact` doesn't?
   one_mem' := by sorry -- **Issue #3**
   inv_mem' := by sorry -- **Issue #3**
 
