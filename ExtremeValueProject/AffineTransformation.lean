@@ -199,7 +199,11 @@ noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] �
     intro _ _ ha hb
     rw [mem_def,AffineEquiv.isOrientationPreserving_iff_mono] at ha hb ⊢ -- Question: which is better, this or `at *`?
     apply Monotone.comp ha hb -- why does `apply` work but `exact` doesn't?
-  one_mem' := by sorry -- **Issue #3**
+  one_mem' := by
+    rw [mem_def, AffineEquiv.one_def]
+    unfold AffineEquiv.IsOrientationPreserving AffineMap.coefs_of_field
+    simp [AffineEquiv.coe_refl_to_affineMap, AffineMap.id_linear,
+      LinearMap.ringLmapEquivSelf_apply, LinearMap.id_coe, id_eq, zero_lt_one]
   inv_mem' := by sorry -- **Issue #3**
 
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
