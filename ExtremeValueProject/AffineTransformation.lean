@@ -204,7 +204,12 @@ noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] �
     unfold AffineEquiv.IsOrientationPreserving AffineMap.coefs_of_field
     simp [AffineEquiv.coe_refl_to_affineMap, AffineMap.id_linear,
       LinearMap.ringLmapEquivSelf_apply, LinearMap.id_coe, id_eq, zero_lt_one]
-  inv_mem' := by sorry -- **Issue #3**
+  inv_mem' := by
+    intro x hx
+    rw [mem_def] at hx ⊢
+    unfold AffineEquiv.IsOrientationPreserving at hx ⊢
+    rw [AffineEquiv.inv_coefs_of_field_fst]
+    exact Right.inv_pos.mpr hx
 
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
