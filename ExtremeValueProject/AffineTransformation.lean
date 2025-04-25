@@ -196,7 +196,7 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
   mul_mem' := by
-    simp_rw [mem_def,AffineEquiv.isOrientationPreserving_iff_mono]
+    simp_rw [mem_def, AffineEquiv.isOrientationPreserving_iff_mono]
     exact Monotone.comp
   one_mem' := Real.zero_lt_one
   inv_mem' := by
