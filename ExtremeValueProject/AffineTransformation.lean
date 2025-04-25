@@ -196,22 +196,12 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
   mul_mem' := by
-    intro _ _ ha hb
-    rw [mem_def,AffineEquiv.isOrientationPreserving_iff_mono] at ha hb ⊢ -- Question: which is better, this or `at *`?
-    apply Monotone.comp ha hb -- why does `apply` work but `exact` doesn't?
-  one_mem' := by
-    rw [mem_def]
-    unfold AffineEquiv.IsOrientationPreserving
-    have key : (1 : (ℝ ≃ᵃ[ℝ] ℝ)).toAffineMap.coefs_of_field.1 = 1 := by rfl
-    rw [key]
-    exact Real.zero_lt_one
+    simp_rw [mem_def,AffineEquiv.isOrientationPreserving_iff_mono]
+    exact Monotone.comp
+  one_mem' := Real.zero_lt_one
   inv_mem' := by
     intro x hx
-    rw [mem_def] at hx ⊢
-    unfold AffineEquiv.IsOrientationPreserving at hx ⊢
-    rw [AffineEquiv.inv_coefs_of_field_fst]
-    exact Right.inv_pos.mpr hx
-
+    apply AffineEquiv.inv_coefs_of_field_fst x ▸ Right.inv_pos.mpr hx
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
     Continuous (A : ℝ → ℝ) := by
