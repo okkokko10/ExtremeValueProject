@@ -5,9 +5,7 @@ Authors: Kalle Kytölä, ...
 -/
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.OrdContinuous
-import Mathlib.Topology.Order.Basic
-
-
+import Mathlib.Topology.Order.DenselyOrdered
 
 open Set
 
@@ -15,10 +13,106 @@ noncomputable section order_continuity_vs_continuity
 /-!
 # Left/right-order-continuous functions are (topologically) left/right-continuous
 
-This is (mostly?) in PR #23309 to Mathlib.
+Below is an extended version of PR #23309 to Mathlib: here we do the pointwise
+`ContinuousAt` case with weaker assumptions, and the converse implication as well.
+These are auxiliary results for the ExtremeValueProject.
 -/
 
 section ConditionallyCompleteLinearOrder
+
+variable {R S : Type} [LinearOrder R] [LinearOrder S] [DenselyOrdered R]
+
+lemma forall_isLUB_imp_isLUB_image_iff_isLUB_image_Iio {f : R → S} (f_mono : Monotone f) {x : R} :
+    (∀ (s : Set R), IsLUB s x → IsLUB (f '' s) (f x)) ↔ IsLUB (f '' Iio x) (f x) := by
+  constructor
+  · intro f_lcont
+    exact f_lcont _ isLUB_Iio
+  · intro h s hx
+    refine ⟨by simpa [mem_upperBounds] using fun a ha ↦ f_mono (hx.1 ha), ?_⟩
+    intro y hy
+    apply h.2
+    simp only [mem_lowerBounds, mem_upperBounds, mem_image, forall_exists_index, and_imp,
+               forall_apply_eq_imp_iff₂] at hy ⊢
+    intro a a_lt
+    obtain ⟨b, b_in_s, hb⟩ : ∃ b ∈ s, a < b := by rwa [mem_Iio, lt_isLUB_iff hx] at a_lt
+    by_contra con
+    apply lt_irrefl _ <| (not_le.mp con).trans_le <| (f_mono hb.le).trans (hy b b_in_s)
+
+lemma forall_isGLB_imp_isGLB_image_iff_isGLB_image_Ioi {f : R → S} (f_mono : Monotone f) {x : R} :
+    (∀ (s : Set R), IsGLB s x → IsGLB (f '' s) (f x)) ↔ IsGLB (f '' Ioi x) (f x) :=
+  forall_isLUB_imp_isLUB_image_iff_isLUB_image_Iio (R := Rᵒᵈ) (S := Sᵒᵈ) <|
+    by exact fun _ _ hx ↦ f_mono hx
+
+lemma leftOrdContinuous_iff_forall_isLUB_image_Iio {f : R → S} (f_mono : Monotone f) :
+    LeftOrdContinuous f ↔ ∀ (x : R), IsLUB (f '' Iio x) (f x) := by
+  simp_rw [← forall_isLUB_imp_isLUB_image_iff_isLUB_image_Iio f_mono, LeftOrdContinuous]
+  aesop
+
+lemma rightOrdContinuous_iff_forall_isGLB_image_Ioi {f : R → S} (f_mono : Monotone f) :
+    RightOrdContinuous f ↔ ∀ (x : R), IsGLB (f '' Ioi x) (f x) :=
+  leftOrdContinuous_iff_forall_isLUB_image_Iio (R := Rᵒᵈ) (S := Sᵒᵈ) <|
+    by exact fun _ _ hx ↦ f_mono hx
+
+open Topology
+
+lemma Monotone.isLUB_image_Iio_of_continuousWithinAt_Iic' {R S : Type*}
+    [PartialOrder R] [TopologicalSpace R] [OrderTopology R]
+    [PartialOrder S] [TopologicalSpace S] [OrderTopology S] [ClosedIicTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R}
+    (hx : (𝓝[<] x).NeBot) (f_cont : ContinuousWithinAt f (Iic x) x) :
+    IsLUB (f '' Iio x) (f x) := by
+  rw [← continuousWithinAt_Iio_iff_Iic] at f_cont
+  refine ⟨?_, ?_⟩
+  · simpa [mem_upperBounds] using fun a ha ↦ f_mono ha.le
+  · simp only [mem_lowerBounds, mem_upperBounds, mem_image, mem_Iio, forall_exists_index,
+               and_imp, forall_apply_eq_imp_iff₂]
+    intro y hy
+    apply le_of_tendsto_of_frequently f_cont
+    apply Filter.frequently_iff.mpr
+    intro U hU
+    obtain ⟨t, ht⟩ := Filter.Eventually.exists (Filter.inter_mem hU self_mem_nhdsWithin)
+    exact ⟨t, ht.1, hy _ ht.2⟩
+
+lemma Monotone.isLUB_image_Iio_of_continuousWithinAt_Iic {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
+    [PartialOrder S] [TopologicalSpace S] [OrderTopology S] [ClosedIicTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hx : ¬ IsMin x)
+    (f_cont : ContinuousWithinAt f (Iic x) x) :
+    IsLUB (f '' Iio x) (f x) := by
+  apply f_mono.isLUB_image_Iio_of_continuousWithinAt_Iic' _ f_cont
+  apply mem_closure_iff_nhdsWithin_neBot.mp
+  rw [closure_Iio' (Iio_nonempty.mpr hx)]
+  exact right_mem_Iic
+
+lemma Monotone.continuousWithinAt_Iic_of_isLUB_image_Iio {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R]
+    [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hf : IsLUB (f '' Iio x) (f x)) :
+    ContinuousWithinAt f (Iic x) x := by
+  rw [ContinuousWithinAt, OrderTopology.topology_eq_generate_intervals (α := S)]
+  simp_rw [TopologicalSpace.tendsto_nhds_generateFrom_iff, mem_nhdsWithin]
+  rintro V ⟨z, rfl | rfl⟩ hxz
+  -- The case `V = Ioi z`.
+  · obtain ⟨_, ⟨a, hax, rfl⟩, hza⟩ := (lt_isLUB_iff <| hf).mp hxz
+    exact ⟨Ioi a, isOpen_Ioi, hax, fun b hab ↦ hza.trans_le <| f_mono hab.1.le⟩
+  -- The case `V = Iio z`.
+  · exact ⟨univ, isOpen_univ, trivial, fun a ha ↦ (f_mono ha.2).trans_lt hxz⟩
+
+lemma Monotone.continuousWithinAt_Iic_iff_isLUB_image_Iio' {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R]
+    [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hx : (𝓝[<] x).NeBot) :
+    ContinuousWithinAt f (Iic x) x ↔ IsLUB (f '' Iio x) (f x) :=
+  ⟨isLUB_image_Iio_of_continuousWithinAt_Iic' f_mono hx,
+   f_mono.continuousWithinAt_Iic_of_isLUB_image_Iio⟩
+
+lemma Monotone.continuousWithinAt_Iic_iff_isLUB_image_Iio {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
+    [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hx : ¬ IsMin x) :
+    ContinuousWithinAt f (Iic x) x ↔ IsLUB (f '' Iio x) (f x) :=
+  ⟨isLUB_image_Iio_of_continuousWithinAt_Iic f_mono hx,
+   f_mono.continuousWithinAt_Iic_of_isLUB_image_Iio⟩
 
 variable {X : Type*} [ConditionallyCompleteLinearOrder X] [TopologicalSpace X] [OrderTopology X]
 variable {Y : Type*} [ConditionallyCompleteLinearOrder Y] [TopologicalSpace Y] [OrderTopology Y]
@@ -28,15 +122,8 @@ variable [DenselyOrdered X] {f : X → Y} {x : X}
 the function is between conditionally complete linear orders with order topologies, and the domain
 is densely ordered. -/
 lemma LeftOrdContinuous.continuousWithinAt_Iic (hf : LeftOrdContinuous f) :
-    ContinuousWithinAt f (Iic x) x := by
-  rw [ContinuousWithinAt, OrderTopology.topology_eq_generate_intervals (α := Y)]
-  simp_rw [TopologicalSpace.tendsto_nhds_generateFrom_iff, mem_nhdsWithin]
-  rintro V ⟨z, rfl | rfl⟩ hxz
-  -- The case `V = Ioi z`.
-  · obtain ⟨_, ⟨a, hax, rfl⟩, hza⟩ := (lt_isLUB_iff <| hf isLUB_Iio).mp hxz
-    exact ⟨Ioi a, isOpen_Ioi, hax, fun b hab ↦ hza.trans_le <| hf.mono hab.1.le⟩
-  -- The case `V = Iio z`.
-  · exact ⟨univ, isOpen_univ, trivial, fun a ha ↦ (hf.mono ha.2).trans_lt hxz⟩
+    ContinuousWithinAt f (Iic x) x :=
+  Monotone.continuousWithinAt_Iic_of_isLUB_image_Iio hf.mono (hf isLUB_Iio)
 
 /-- An order-theoretically right-continuous function is topologically right-continuous, assuming
 the function is between conditionally complete linear orders with order topologies, and the domain
