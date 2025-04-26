@@ -195,10 +195,13 @@ lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
-  mul_mem' := by sorry -- **Issue #3**
-  one_mem' := by sorry -- **Issue #3**
-  inv_mem' := by sorry -- **Issue #3**
-
+  mul_mem' := by
+    simp_rw [mem_def, AffineEquiv.isOrientationPreserving_iff_mono]
+    exact Monotone.comp
+  one_mem' := Real.zero_lt_one
+  inv_mem' := by
+    intro x hx
+    apply AffineEquiv.inv_coefs_of_field_fst x ▸ Right.inv_pos.mpr hx
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
     Continuous (A : ℝ → ℝ) := by
