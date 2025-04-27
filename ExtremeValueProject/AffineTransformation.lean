@@ -225,11 +225,8 @@ noncomputable def affineTransform
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
   mono' := by
-    suffices Monotone fun x ↦  A⁻¹.val x by apply Monotone.comp F.mono' this
-    -- simp only [InvMemClass.coe_inv]
-    suffices (A.val)⁻¹.IsOrientationPreserving by
-      exact (AffineEquiv.isOrientationPreserving_iff_mono (↑A)⁻¹).mp this
-    exact orientationPreservingAffineEquiv.inv_mem A.mem
+    suffices Monotone A⁻¹.val by exact Monotone.comp F.mono' this
+    exact (AffineEquiv.isOrientationPreserving_iff_mono A⁻¹.val).mp A⁻¹.property
   right_continuous' := by
 
     have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x) : Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
@@ -258,13 +255,10 @@ noncomputable def affineTransform
         exact qx.ne q_def
 
     intro x
-
-    set B := A⁻¹
-    apply ContinuousWithinAt.comp
-    · exact StieltjesFunction.right_continuous F (B.val x)
-    · exact Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous B)
-    · rw [orientationPreserving_image_Ici]
-      exact Set.mapsTo_image B.val (Set.Ici x)
+    exact ContinuousWithinAt.comp
+      (StieltjesFunction.right_continuous F (A⁻¹.val x))
+      (Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous _))
+      (orientationPreserving_image_Ici _ _ ▸ Set.mapsTo_image _ _)
 
 
   tendsto_atTop := sorry -- **Issue #4**
