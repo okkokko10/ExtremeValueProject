@@ -231,34 +231,21 @@ noncomputable def affineTransform
       exact (AffineEquiv.isOrientationPreserving_iff_mono (↑A)⁻¹).mp this
     exact orientationPreservingAffineEquiv.inv_mem A.mem
   right_continuous' := by
-    intro x
-    set g := (fun x => F (A⁻¹.val x)) with g_def
 
-    have w := orientationPreservingAffineEquiv.inv_mem A.mem
-    simp only [←InvMemClass.coe_inv] at w
-    set B := (A)⁻¹ with B_def
-    have Fcont (y): ContinuousWithinAt (F) (Set.Ici y) y := by
-      exact StieltjesFunction.right_continuous F y
-    have Bcont := orientationPreservingAffineEquiv.continuous B
-    change g = F ∘ B at g_def
-    set B' := (B.val).toEquiv --with B'_def
-    have Bcont' : ContinuousWithinAt (⇑B') (Set.Ici x) x := Continuous.continuousWithinAt Bcont
-
-    set F' := F.toStieltjesFunction.toFun --with F'_def
-    have FcontB := Fcont (B' x)
-
-    have ima: B' '' (Set.Ici x) = (Set.Ici (B' x)) := by
+    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x) : Set.Ici (B.val.toEquiv x) = B.val.toEquiv '' (Set.Ici x) := by
+      symm
       ext z
       simp only [Set.mem_image_equiv, Set.mem_Ici]
+      set B' := (B.val).toEquiv
+      have B_preserves : ↑B ∈ orientationPreservingAffineEquiv := by exact SetLike.coe_mem B
       have monoB: Monotone B' := by
         have t2: B' = fun x ↦ B.val x := rfl
         rw [t2,←AffineEquiv.isOrientationPreserving_iff_mono B]
-        exact w
+        exact B_preserves
 
       set q := (B'.symm z) with q_def
       have q_use: B' q = z := by exact Equiv.apply_symm_apply B' z
       rw [←q_use]
-      -- refine le_iff_le_iff_lt_iff_lt.mpr ?_
       constructor
       · intro r
         exact monoB r
@@ -269,15 +256,19 @@ noncomputable def affineTransform
         rw [←q_use,←equ,Equiv.symm_apply_apply] at q_def
         exact qx.ne q_def
 
+    intro x
 
-    rw [←ima] at FcontB
-    rw [g_def]
-    -- #check ContinuousWithinAt.comp
-    apply ContinuousWithinAt.comp
-    exact FcontB
-    exact Bcont'
-
-    refine Set.mapsTo_image (⇑B') (Set.Ici x)
+    set B := (A)⁻¹ with B_def
+    rw [show (fun x => F (A⁻¹.val x)) = F ∘ B by rfl]
+    set B' := B.val.toEquiv
+    have FcontB := StieltjesFunction.right_continuous F (B' x)
+    have Bcont' : ContinuousWithinAt (B') (Set.Ici x) x :=
+      Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous B)
+    set F' := F.toStieltjesFunction.toFun
+    apply ContinuousWithinAt.comp FcontB Bcont'
+    have IciBx : Set.Ici (B' x) = B' '' (Set.Ici x) := orientationPreserving_image_Ici B x
+    rw [IciBx]
+    exact Set.mapsTo_image (⇑B') (Set.Ici x)
 
 
   tendsto_atTop := sorry -- **Issue #4**
