@@ -216,7 +216,6 @@ section affine_transform_of_cdf
 
 namespace CumulativeDistributionFunction
 
-
 /-- The action of orientation preserving affine isomorphisms on cumulative distribution
 functions, so that for `A : orientationPreservingAffineEquiv` and
 `F : CumulativeDistributionFunction` we have `(A • F)(x) = F(A⁻¹ x)`. -/
