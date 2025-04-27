@@ -223,7 +223,12 @@ noncomputable def affineTransform
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
-  mono' := sorry -- **Issue #4** (recall `AffineEquiv.isOrientationPreserving_iff_mono`)
+  mono' := by
+    suffices Monotone fun x ↦  A⁻¹.val x by apply Monotone.comp F.mono' this
+    -- simp only [InvMemClass.coe_inv]
+    suffices (A.val)⁻¹.IsOrientationPreserving by
+      exact (AffineEquiv.isOrientationPreserving_iff_mono (↑A)⁻¹).mp this
+    exact orientationPreservingAffineEquiv.inv_mem A.mem
   right_continuous' := sorry -- **Issue #4**
   tendsto_atTop := sorry -- **Issue #4**
   tendsto_atBot := sorry -- **Issue #4**
