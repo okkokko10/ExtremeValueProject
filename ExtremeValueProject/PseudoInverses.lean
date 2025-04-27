@@ -479,7 +479,9 @@ lemma Equiv.monotone_of_monotone_symm {R S : Type*} [PartialOrder R] [LinearOrde
     Monotone φ :=
   φ.symm.monotone_symm symm_mono
 
-lemma comp_lcInv (F : R → S) (φ : S ≃ S) (hφ : Monotone φ) :
+variable {T : Type*} [CompleteLinearOrder T]
+
+lemma comp_lcInv (F : R → S) (φ : S ≃ T) (hφ : Monotone φ) :
     lcInv (φ ∘ F) = (lcInv F) ∘ φ.symm := by
   ext y
   simp only [lcInv, Function.comp_apply]
@@ -487,17 +489,37 @@ lemma comp_lcInv (F : R → S) (φ : S ≃ S) (hφ : Monotone φ) :
   ext x
   exact ⟨fun h' ↦ by simpa using (φ.monotone_symm hφ) h', fun h ↦ by simpa using hφ h⟩
 
-lemma symm_comp_lcInv (F : R → S) (φ : S ≃ S) (hφ : Monotone φ) :
+lemma symm_comp_lcInv (F : R → S) (φ : T ≃ S) (hφ : Monotone φ) :
     lcInv (φ.symm ∘ F) = (lcInv F) ∘ φ :=
   comp_lcInv _ _ (φ.monotone_symm hφ)
 
-lemma comp_rcInv (F : R → S) (φ : S ≃ S) (hφ : Monotone φ) :
+lemma comp_rcInv (F : R → S) (φ : S ≃ T) (hφ : Monotone φ) :
     rcInv (φ ∘ F) = (rcInv F) ∘ φ.symm :=
-  comp_lcInv (R := Rᵒᵈ) (S := Sᵒᵈ) F φ (fun _ _ hx ↦ by exact hφ hx)
+  comp_lcInv (R := Rᵒᵈ) (S := Sᵒᵈ) (T := Tᵒᵈ) F φ (fun _ _ hx ↦ by exact hφ hx)
 
-lemma symm_comp_rcInv (F : R → S) (φ : S ≃ S) (hφ : Monotone φ) :
+lemma symm_comp_rcInv (F : R → S) (φ : T ≃ S) (hφ : Monotone φ) :
     rcInv (φ.symm ∘ F) = (rcInv F) ∘ φ :=
   comp_rcInv _ _ (φ.monotone_symm hφ)
+
+lemma lcInv_comp_symm (φ : R ≃ T) (hφ : RightOrdContinuous φ) :
+    lcInv (F ∘ φ.symm) = φ ∘ (lcInv F) := by
+  ext y
+  simp only [lcInv, Function.comp_apply, RightOrdContinuous.map_sInf' hφ _]
+  congr
+  ext x
+  simp
+
+lemma lcInv_comp (φ : T ≃ R) (hφ : RightOrdContinuous φ.symm) :
+    lcInv (F ∘ φ) = φ.symm ∘ (lcInv F) :=
+  lcInv_comp_symm F φ.symm hφ
+
+lemma rcInv_comp_symm (φ : R ≃ T) (hφ : LeftOrdContinuous φ) :
+    rcInv (F ∘ φ.symm) = φ ∘ (rcInv F) :=
+  lcInv_comp_symm (R := Rᵒᵈ) (S := Sᵒᵈ) (T := Tᵒᵈ) F φ hφ
+
+lemma rcInv_comp (φ : T ≃ R) (hφ : LeftOrdContinuous φ.symm) :
+    rcInv (F ∘ φ) = φ.symm ∘ (rcInv F) :=
+  rcInv_comp_symm F φ.symm hφ
 
 section DenselyOrdered
 
