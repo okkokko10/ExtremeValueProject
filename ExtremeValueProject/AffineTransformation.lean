@@ -233,11 +233,7 @@ noncomputable def affineTransform
       ext z
       simp only [Set.mem_image_equiv, Set.mem_Ici]
       set B' := (B.val).toEquiv
-      have B_preserves : ↑B ∈ orientationPreservingAffineEquiv := by exact SetLike.coe_mem B
-      have monoB: Monotone B' := by
-        have t2: B' = fun x ↦ B.val x := rfl
-        rw [t2,←AffineEquiv.isOrientationPreserving_iff_mono B]
-        exact B_preserves
+      have monoB: Monotone B' := (B.val.isOrientationPreserving_iff_mono.mp B.property)
 
       set q := (B'.symm z) with q_def
       have q_use: B' q = z := by exact Equiv.apply_symm_apply B' z
@@ -260,7 +256,6 @@ noncomputable def affineTransform
 
 
   tendsto_atTop := by
-    rw [show (fun x => F (A⁻¹.val x)) = F ∘ A⁻¹.val by rfl]
     apply Filter.Tendsto.comp
     · exact F.tendsto_atTop
     · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
@@ -269,7 +264,15 @@ noncomputable def affineTransform
         use (A.val b)
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
 
-  tendsto_atBot := sorry -- **Issue #4**
+  tendsto_atBot := by
+    apply Filter.Tendsto.comp
+    · exact F.tendsto_atBot
+    · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone ?A_inv_is_bottom_unbounded
+      -- look, ?A_inv_is_monotone is already defined
+      · intro b
+        use (A.val b)
+        rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
+
 
 @[simp] lemma affineTransform_apply_eq
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
