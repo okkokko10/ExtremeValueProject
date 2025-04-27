@@ -232,7 +232,8 @@ noncomputable def affineTransform
     exact orientationPreservingAffineEquiv.inv_mem A.mem
   right_continuous' := by
 
-    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x) : Set.Ici (B.val.toEquiv x) = B.val.toEquiv '' (Set.Ici x) := by
+    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x) : Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
+      change Set.Ici (B.val.toEquiv x) = B.val.toEquiv '' (Set.Ici x)
       symm
       ext z
       simp only [Set.mem_image_equiv, Set.mem_Ici]
@@ -258,17 +259,12 @@ noncomputable def affineTransform
 
     intro x
 
-    set B := (A)⁻¹ with B_def
-    rw [show (fun x => F (A⁻¹.val x)) = F ∘ B by rfl]
-    set B' := B.val.toEquiv
-    have FcontB := StieltjesFunction.right_continuous F (B' x)
-    have Bcont' : ContinuousWithinAt (B') (Set.Ici x) x :=
-      Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous B)
-    set F' := F.toStieltjesFunction.toFun
-    apply ContinuousWithinAt.comp FcontB Bcont'
-    have IciBx : Set.Ici (B' x) = B' '' (Set.Ici x) := orientationPreserving_image_Ici B x
-    rw [IciBx]
-    exact Set.mapsTo_image (⇑B') (Set.Ici x)
+    set B := A⁻¹
+    apply ContinuousWithinAt.comp
+    · exact StieltjesFunction.right_continuous F (B.val x)
+    · exact Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous B)
+    · rw [orientationPreserving_image_Ici]
+      exact Set.mapsTo_image B.val (Set.Ici x)
 
 
   tendsto_atTop := sorry -- **Issue #4**
