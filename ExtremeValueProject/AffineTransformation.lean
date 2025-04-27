@@ -229,7 +229,119 @@ noncomputable def affineTransform
     suffices (A.val)⁻¹.IsOrientationPreserving by
       exact (AffineEquiv.isOrientationPreserving_iff_mono (↑A)⁻¹).mp this
     exact orientationPreservingAffineEquiv.inv_mem A.mem
-  right_continuous' := sorry -- **Issue #4**
+  right_continuous' := by
+    intro x
+    set g := (fun x => F (A⁻¹.val x)) with g_def
+
+    have w := orientationPreservingAffineEquiv.inv_mem A.mem
+    simp only [←InvMemClass.coe_inv] at w
+    set B := (A)⁻¹ with B_def
+    have Fcont (y): ContinuousWithinAt (F) (Set.Ici y) y := by
+      exact StieltjesFunction.right_continuous F y
+    have Bcont := orientationPreservingAffineEquiv.continuous B
+    change g = F ∘ B at g_def
+    set B' := (B.val).toEquiv --with B'_def
+    have Bcont' : ContinuousWithinAt (⇑B') (Set.Ici x) x := Continuous.continuousWithinAt Bcont
+
+
+    have ima: B' '' (Set.Ici x) = (Set.Ici (B' x)) := by
+      ext z
+      simp only [Set.mem_image_equiv, Set.mem_Ici]
+      have monoB: Monotone B' := by
+        have t2: B' = fun x ↦ B.val x := rfl
+        rw [t2,←AffineEquiv.isOrientationPreserving_iff_mono B]
+        exact w
+
+      set q := (B'.symm z) with q_def
+      have q_use: B' q = z := by exact Equiv.apply_symm_apply B' z
+      rw [←q_use]
+      -- refine le_iff_le_iff_lt_iff_lt.mpr ?_
+      constructor
+      · intro r
+        exact monoB r
+      · intro l
+        by_contra qx
+        simp only [not_le] at qx
+        have equ: B' x = B' q := le_antisymm l (monoB qx.le)
+        rw [←q_use,←equ,Equiv.symm_apply_apply] at q_def
+        exact qx.ne q_def
+
+      -- have : B'.symm = B'⁻¹ := rfl
+      -- rw [this]
+      -- set www := B'⁻¹ z with www_def
+
+      -- reduce
+      -- simp
+
+      -- -- simp_rw [←AffineMap.mkOfCoefs_of_field_eq_inv]
+      -- #check AffineEquiv.inv_coefs_of_field_fst
+      -- unfold B'
+      -- simp
+      -- rw [B_def]
+      -- -- simp only [InvMemClass.coe_inv, AffineEquiv.symm_toEquiv, AffineEquiv.coe_toEquiv]
+
+    set F' := F.toStieltjesFunction.toFun --with F'_def
+    -- clear * - g_def
+    have FcontB := Fcont (B' x)
+    rw [←ima] at FcontB
+    rw [g_def]
+
+    unfold ContinuousWithinAt at FcontB ⊢
+    unfold Filter.Tendsto at FcontB ⊢
+
+    -- #check nhdsWithin_le_comap
+    simp
+    rw [←Filter.map_compose]
+    simp only [Function.comp_apply]
+    suffices
+        Filter.map F' (nhdsWithin (B' x) (⇑B' '' Set.Ici x))
+        = Filter.map F' (Filter.map (⇑B') (nhdsWithin x (Set.Ici x))) by
+      exact le_of_eq_of_le (id (Eq.symm this)) FcontB
+    suffices
+        (nhdsWithin (B' x) (⇑B' '' Set.Ici x))
+        = (Filter.map (⇑B') (nhdsWithin x (Set.Ici x))) by
+      exact congrArg (Filter.map F') this
+
+    #check Ioo_mem_nhdsGE_of_mem
+    rw [ima]
+    ext s
+    simp only [Filter.mem_map]
+
+    rw [nhdsWithin_eq]
+    -- have : nhds x = (⨅ s ∈ { Ioo | x ∈ s ∧ IsOpen s }, Filter.principal s) := by
+    --   sorry
+    -- have : (nhdsWithin x (Set.Ici x)) =
+    --     (⨅ s ∈ { s  | x ∈ s ∧ IsOpen s }, Filter.principal s) ⊓ (Filter.principal (Set.Ici x))
+    --     := by
+    --   unfold nhdsWithin
+    --   rw [nhds_def]
+
+    --   sorry
+    -- apply FcontB.trans'
+    -- rw [Filter.map_le_map_iff]
+
+    -- rw [Filter.map_le_iff_le_comap]
+    -- apply nhdsWithin_le_comap
+
+    -- rw [←Filter.Tendsto]
+
+
+    -- rw [Filter.le_def]
+    -- simp_rw [Filter.mem_map]
+    -- intros X aa
+    -- rw [Set.preimage_comp]
+    -- set Y := (F' ⁻¹' X)
+
+    -- #check nhdsWithin
+    -- #check nhdsWithin_le_of_mem aa
+    -- rw [Filter.nhd]
+
+    -- exact Continuous.continuousWithinAt Bcont
+
+    --
+
+
+    sorry -- **Issue #4**
   tendsto_atTop := sorry -- **Issue #4**
   tendsto_atBot := sorry -- **Issue #4**
 
