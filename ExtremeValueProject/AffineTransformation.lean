@@ -216,7 +216,7 @@ section affine_transform_of_cdf
 
 namespace CumulativeDistributionFunction
 
-set_option linter.unusedTactic false in
+
 /-- The action of orientation preserving affine isomorphisms on cumulative distribution
 functions, so that for `A : orientationPreservingAffineEquiv` and
 `F : CumulativeDistributionFunction` we have `(A • F)(x) = F(A⁻¹ x)`. -/
@@ -226,49 +226,41 @@ noncomputable def affineTransform
   toFun := fun x ↦ F (A⁻¹.val x)
   mono' := F.mono'.comp (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
   right_continuous' := by
-
-    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x) : Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
+    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x : ℝ) :
+        Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
       change Set.Ici (B.val.toEquiv x) = B.val.toEquiv '' (Set.Ici x)
       symm
       ext z
       simp only [Set.mem_image_equiv, Set.mem_Ici]
       set B' := (B.val).toEquiv
       have monoB: Monotone B' := (B.val.isOrientationPreserving_iff_mono.mp B.property)
-
       set q := (B'.symm z) with q_def
-      have q_use: B' q = z := by exact Equiv.apply_symm_apply B' z
+      have q_use : B' q = z := Equiv.apply_symm_apply B' z
       rw [←q_use]
       constructor
-      · intro r
-        exact monoB r
-      · intro l
+      · apply monoB
+      · intro le_image
         by_contra qx
         simp only [not_le] at qx
-        have equ: B' x = B' q := le_antisymm l (monoB qx.le)
-        rw [←q_use,←equ,Equiv.symm_apply_apply] at q_def
-        exact qx.ne q_def
-
+        have equ : B' x = B' q := le_antisymm le_image (monoB qx.le)
+        have q_eq_x : q = x := Equiv.symm_apply_apply B' x ▸ (equ ▸ q_use) ▸ q_def
+        exact qx.ne q_eq_x
     intro x
     exact ContinuousWithinAt.comp
       (StieltjesFunction.right_continuous F (A⁻¹.val x))
-      (Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous _))
-      (orientationPreserving_image_Ici _ _ ▸ Set.mapsTo_image _ _)
-
-
+      (Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous A⁻¹))
+      (orientationPreserving_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
   tendsto_atTop := by
-    apply Filter.Tendsto.comp
-    · exact F.tendsto_atTop
+    apply Filter.Tendsto.comp F.tendsto_atTop
     · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
       · exact (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
       · intro b
         use (A.val b)
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
-
   tendsto_atBot := by
-    apply Filter.Tendsto.comp
-    · exact F.tendsto_atBot
-    · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone ?A_inv_is_bottom_unbounded
-      -- look, ?A_inv_is_monotone is already defined
+    apply Filter.Tendsto.comp F.tendsto_atBot
+    · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone' ?A_inv_is_bottom_unbounded
+      · exact (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
       · intro b
         use (A.val b)
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
