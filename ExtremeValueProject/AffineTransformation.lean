@@ -290,8 +290,7 @@ noncomputable instance instMulActionOrientationPreservingAffineEquiv :
 /-- An affine transform of a c.d.f. is degenerate iff the c.d.f. itself is degenerate. -/
 lemma affine_isDegenerate_iff
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
-    (A • F).IsDegenerate ↔ F.IsDegenerate := by
-  sorry -- **Issue #5**
+    (A • F).IsDegenerate ↔ F.IsDegenerate := Iff.symm A.val.toEquiv.forall_congr_left
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if the c.d.f. itself is continuous
 at `x`. -/
