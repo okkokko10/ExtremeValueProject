@@ -56,9 +56,8 @@ lemma rightOrdContinuous_iff_forall_isGLB_image_Ioi {f : R → S} (f_mono : Mono
 open Topology
 
 lemma Monotone.isLUB_image_Iio_of_continuousWithinAt_Iic' {R S : Type*}
-    [PartialOrder R] [TopologicalSpace R] [OrderTopology R]
-    [PartialOrder S] [TopologicalSpace S] [OrderTopology S] [ClosedIicTopology S]
-    {f : R → S} (f_mono : Monotone f) {x : R}
+    [PartialOrder R] [TopologicalSpace R] [PartialOrder S] [TopologicalSpace S]
+    [ClosedIicTopology S] {f : R → S} (f_mono : Monotone f) {x : R}
     (hx : (𝓝[<] x).NeBot) (f_cont : ContinuousWithinAt f (Iic x) x) :
     IsLUB (f '' Iio x) (f x) := by
   rw [← continuousWithinAt_Iio_iff_Iic] at f_cont
@@ -75,7 +74,7 @@ lemma Monotone.isLUB_image_Iio_of_continuousWithinAt_Iic' {R S : Type*}
 
 lemma Monotone.isLUB_image_Iio_of_continuousWithinAt_Iic {R S : Type*}
     [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
-    [PartialOrder S] [TopologicalSpace S] [OrderTopology S] [ClosedIicTopology S]
+    [PartialOrder S] [TopologicalSpace S] [ClosedIicTopology S]
     {f : R → S} (f_mono : Monotone f) {x : R} (hx : ¬ IsMin x)
     (f_cont : ContinuousWithinAt f (Iic x) x) :
     IsLUB (f '' Iio x) (f x) := by
@@ -287,6 +286,15 @@ lemma lcInv_gt_of_exists_apply_lt [DenselyOrdered R] (F_mono : Monotone F) {x : 
           ((ha.trans (F_mono (not_le.mp con').le)).trans (F_mono w_lt_x'.le)).trans_lt h
   exact lt_irrefl _ <| (((isGLB_sInf {x | y ≤ F x}).2 bad).trans (not_lt.mp con)).trans_lt x_lt_w
 
+lemma apply_lt_of_lt_lcInv {F : R → S} {y : S} {x : R} (hx : x < lcInv F y) :
+    F x < y := by
+  by_contra con
+  exact lt_irrefl _ <| hx.trans_le (sInf_le (not_lt.mp con))
+
+lemma lt_apply_of_rcInv_lt {F : R → S} {y : S} {x : R} (hx : rcInv F y < x) :
+    y < F x :=
+  apply_lt_of_lt_lcInv (R := Rᵒᵈ) (S := Sᵒᵈ) hx
+
 /-- Note: The forward implication holds without monotonicity assumption;
 see `exists_apply_lt_of_lcInv_gt`. -/
 lemma lcInv_gt_iff_exists_apply_lt [DenselyOrdered R] (F_mono : Monotone F) {x : R} {y : S} :
@@ -477,5 +485,69 @@ lemma rcInv_comp_symm (φ : R ≃ R) (hφ : LeftOrdContinuous φ) :
 lemma rcInv_comp (φ : R ≃ R) (hφ : LeftOrdContinuous φ.symm) :
     rcInv (F ∘ φ) = φ.symm ∘ (rcInv F) :=
   rcInv_comp_symm F φ.symm hφ
+
+section DenselyOrdered
+
+variable [DenselyOrdered R]
+
+lemma LeftOrdContinuous.self_lcInv_le {F : R → S} (F_lcont : LeftOrdContinuous F) (y : S) :
+    F (lcInv F y) ≤ y := by
+  apply (F_lcont (isLUB_Iio (a := (lcInv F y)))).2
+  simpa [mem_upperBounds] using fun x hx ↦ (apply_lt_of_lt_lcInv hx).le
+
+lemma RightOrdContinuous.self_rcInv_ge {F : R → S} {y : S} (F_rcont : RightOrdContinuous F) :
+    y ≤ F (rcInv F y) :=
+  LeftOrdContinuous.self_lcInv_le (R := Rᵒᵈ) (S := Sᵒᵈ) F_rcont y
+
+lemma RightOrdContinuous.self_lcInv_ge {F : R → S} (F_rcont : RightOrdContinuous F) (y : S) :
+    y ≤ F (lcInv F y) := by
+  apply (F_rcont (isGLB_Ioi (a := (lcInv F y)))).2
+  simp only [mem_lowerBounds, mem_image, mem_Ioi, forall_exists_index, and_imp,
+             forall_apply_eq_imp_iff₂]
+  intro x hx
+  rw [lcInv, sInf_lt_iff] at hx
+  obtain ⟨z, hz, z_lt_x⟩ := hx
+  exact hz.trans (F_rcont.mono z_lt_x.le)
+
+lemma LeftOrdContinuous.self_rcInv_le {F : R → S} (F_lcont : LeftOrdContinuous F) (y : S) :
+    F (rcInv F y) ≤ y :=
+  RightOrdContinuous.self_lcInv_ge (R := Rᵒᵈ) (S := Sᵒᵈ) F_lcont y
+
+end DenselyOrdered
+
+section OrderTopology
+
+open Topology Filter
+
+lemma lcMod_apply_eq_self_apply' [TopologicalSpace R] [TopologicalSpace S] [OrderTopology S]
+    {F : R → S} (F_mono : Monotone F) {x : R}
+    (hFx : ContinuousAt F x) (lt_x_neBot : (𝓝[<] x).NeBot) :
+    lcMod F x = F x := by
+  apply le_antisymm (lcMod_apply_le_self_apply F_mono x)
+  have aux : Filter.Tendsto F (𝓝[<] x) (𝓝 (F x)) := tendsto_nhdsWithin_of_tendsto_nhds hFx
+  apply le_of_tendsto_of_frequently aux (b := lcMod F x)
+  apply Eventually.frequently
+  filter_upwards [self_mem_nhdsWithin] with z hz using le_lcMod_apply_of_lt F hz
+
+lemma lcMod_apply_eq_self_apply [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
+    [TopologicalSpace S] [OrderTopology S] {F : R → S}
+    (F_mono : Monotone F) {x : R} (hFx : ContinuousAt F x) (x_ne_bot : ¬ IsMin x) :
+    lcMod F x = F x := by
+  apply lcMod_apply_eq_self_apply' F_mono hFx
+  exact nhdsWithin_Iio_self_neBot' (Iio_nonempty.mpr x_ne_bot)
+
+lemma rcMod_apply_eq_self_apply' [TopologicalSpace R] [TopologicalSpace S] [OrderTopology S]
+    {F : R → S} (F_mono : Monotone F) (x : R)
+    (hFx : ContinuousAt F x) (gt_x_neBot : (𝓝[>] x).NeBot) :
+    rcMod F x = F x :=
+  lcMod_apply_eq_self_apply' (R := Rᵒᵈ) (S := Sᵒᵈ) (fun _ _ hx ↦ by exact F_mono hx) hFx gt_x_neBot
+
+lemma rcMod_apply_eq_self_apply [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
+    [TopologicalSpace S] [OrderTopology S] {F : R → S}
+    (F_mono : Monotone F) (x : R) (hFx : ContinuousAt F x) (x_ne_top : ¬ IsMax x) :
+    rcMod F x = F x :=
+  lcMod_apply_eq_self_apply (R := Rᵒᵈ) (S := Sᵒᵈ) (fun _ _ hx ↦ by exact F_mono hx) hFx x_ne_top
+
+end OrderTopology
 
 end pseudoinverses
