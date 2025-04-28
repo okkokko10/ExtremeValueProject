@@ -234,7 +234,7 @@ noncomputable def affineTransform
       have B_Binv (z) : B.val (B.val⁻¹ z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
       have Binv_B (z) : B.val⁻¹ (B.val z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
       have B_mono : Monotone (B.val) := orientationPreservingAffineEquiv.monotone B
-      have Binv_mono : Monotone (B⁻¹.val) :=orientationPreservingAffineEquiv.monotone B⁻¹
+      have Binv_mono : Monotone (B⁻¹.val) := orientationPreservingAffineEquiv.monotone B⁻¹
       ext z
       refine ⟨fun hBz ↦ ?_, fun hBiz ↦ ?_⟩
       · refine ⟨B.val⁻¹ z, by simpa [Binv_B] using Binv_mono hBz, B_Binv _⟩
