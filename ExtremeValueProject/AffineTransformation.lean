@@ -202,6 +202,7 @@ noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] �
   inv_mem' := by
     intro x hx
     apply AffineEquiv.inv_coefs_of_field_fst x ▸ Right.inv_pos.mpr hx
+
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
     Continuous (A : ℝ → ℝ) := by
@@ -241,25 +242,23 @@ noncomputable def affineTransform
       · obtain ⟨w, hw, Bw_eq⟩ := hBiz
         simpa [← Bw_eq] using B_mono hw
     intro x
-    exact ContinuousWithinAt.comp
-      (StieltjesFunction.right_continuous F (A⁻¹.val x))
-      (Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous A⁻¹))
+    exact (F.right_continuous (A⁻¹.val x)).comp
+      (orientationPreservingAffineEquiv.continuous A⁻¹).continuousWithinAt
       (orientationPreservingAffineEquiv_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
   tendsto_atTop := by
     apply Filter.Tendsto.comp F.tendsto_atTop
     · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
-      · exact (orientationPreservingAffineEquiv.monotone A⁻¹)
+      · exact orientationPreservingAffineEquiv.monotone A⁻¹
       · intro b
-        use (A.val b)
+        use A.val b
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
   tendsto_atBot := by
     apply Filter.Tendsto.comp F.tendsto_atBot
     · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone' ?A_inv_is_bottom_unbounded
-      · exact (orientationPreservingAffineEquiv.monotone A⁻¹)
+      · exact orientationPreservingAffineEquiv.monotone A⁻¹
       · intro b
-        use (A.val b)
+        use A.val b
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
-
 
 @[simp] lemma affineTransform_apply_eq
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
