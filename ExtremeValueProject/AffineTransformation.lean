@@ -208,6 +208,10 @@ lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffi
   apply (AffineMap.continuous_iff (R := ℝ) (E := ℝ) (F := ℝ) (f := A)).mpr
   exact LinearMap.continuous_of_finiteDimensional _
 
+lemma orientationPreservingAffineEquiv.monotone (A : orientationPreservingAffineEquiv) :
+    Monotone (A : ℝ → ℝ) :=
+  (AffineEquiv.isOrientationPreserving_iff_mono ..).mp A.prop
+
 end affine
 
 
@@ -223,43 +227,35 @@ noncomputable def affineTransform
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
-  mono' := F.mono'.comp (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
+  mono' := F.mono'.comp (orientationPreservingAffineEquiv.monotone A⁻¹)
   right_continuous' := by
-    have orientationPreserving_image_Ici (B : ↥orientationPreservingAffineEquiv) (x : ℝ) :
+    have orientationPreservingAffineEquiv_image_Ici (B : orientationPreservingAffineEquiv) (x : ℝ) :
         Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
-      change Set.Ici (B.val.toEquiv x) = B.val.toEquiv '' (Set.Ici x)
-      symm
+      have B_Binv (z) : B.val (B.val⁻¹ z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      have Binv_B (z) : B.val⁻¹ (B.val z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      have B_mono : Monotone (B.val) := orientationPreservingAffineEquiv.monotone B
+      have Binv_mono : Monotone (B⁻¹.val) :=orientationPreservingAffineEquiv.monotone B⁻¹
       ext z
-      simp only [Set.mem_image_equiv, Set.mem_Ici]
-      set B' := (B.val).toEquiv
-      have monoB: Monotone B' := (B.val.isOrientationPreserving_iff_mono.mp B.property)
-      set q := (B'.symm z) with q_def
-      have q_use : B' q = z := Equiv.apply_symm_apply B' z
-      rw [←q_use]
-      constructor
-      · apply monoB
-      · intro le_image
-        by_contra qx
-        simp only [not_le] at qx
-        have equ : B' x = B' q := le_antisymm le_image (monoB qx.le)
-        have q_eq_x : q = x := Equiv.symm_apply_apply B' x ▸ (equ ▸ q_use) ▸ q_def
-        exact qx.ne q_eq_x
+      refine ⟨fun hBz ↦ ?_, fun hBiz ↦ ?_⟩
+      · refine ⟨B.val⁻¹ z, by simpa [Binv_B] using Binv_mono hBz, B_Binv _⟩
+      · obtain ⟨w, hw, Bw_eq⟩ := hBiz
+        simpa [← Bw_eq] using B_mono hw
     intro x
     exact ContinuousWithinAt.comp
       (StieltjesFunction.right_continuous F (A⁻¹.val x))
       (Continuous.continuousWithinAt (orientationPreservingAffineEquiv.continuous A⁻¹))
-      (orientationPreserving_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
+      (orientationPreservingAffineEquiv_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
   tendsto_atTop := by
     apply Filter.Tendsto.comp F.tendsto_atTop
     · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
-      · exact (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
+      · exact (orientationPreservingAffineEquiv.monotone A⁻¹)
       · intro b
         use (A.val b)
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
   tendsto_atBot := by
     apply Filter.Tendsto.comp F.tendsto_atBot
     · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone' ?A_inv_is_bottom_unbounded
-      · exact (A⁻¹.val.isOrientationPreserving_iff_mono.mp A⁻¹.property)
+      · exact (orientationPreservingAffineEquiv.monotone A⁻¹)
       · intro b
         use (A.val b)
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
