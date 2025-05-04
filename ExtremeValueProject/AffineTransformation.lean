@@ -176,21 +176,42 @@ def AffineEquiv.IsOrientationPreserving (A : ℝ ≃ᵃ[ℝ] ℝ) : Prop :=
 an increasing function. -/
 lemma AffineEquiv.isOrientationPreserving_iff_mono (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.IsOrientationPreserving ↔ Monotone (fun x ↦ A x) := by
-  sorry -- **Issue #2**
+  unfold IsOrientationPreserving
+  set a := A.toAffineMap.coefs_of_field.1
+  set b := A.toAffineMap.coefs_of_field.2
+  have in_other_words (x) : A x = a * x + b := AffineMap.apply_eq_of_field A x
+  simp_rw [in_other_words]
+  constructor
+  · intro a_pos
+    intro x y x_le_y
+    simpa using (mul_le_mul_iff_of_pos_left a_pos).mpr x_le_y
+  · intro mono
+    have key := mono zero_le_one
+    simp only [mul_zero, zero_add, mul_one, le_add_iff_nonneg_left] at key
+    have a_nonzero : a ≠ 0 := by exact coefs_of_field_fst_ne_zero A
+    exact lt_of_le_of_ne' key a_nonzero
 
 -- TODO: Generalize to canonically linearly ordered fields?
 /-- The subgroup of affine isomorphishs ℝ → ℝ which are orientation preserving. -/
 noncomputable def orientationPreservingAffineEquiv : Subgroup (ℝ ≃ᵃ[ℝ] ℝ) where
   carrier := AffineEquiv.IsOrientationPreserving
-  mul_mem' := by sorry -- **Issue #3**
-  one_mem' := by sorry -- **Issue #3**
-  inv_mem' := by sorry -- **Issue #3**
+  mul_mem' := by
+    simp_rw [mem_def, AffineEquiv.isOrientationPreserving_iff_mono]
+    exact Monotone.comp
+  one_mem' := Real.zero_lt_one
+  inv_mem' := by
+    intro x hx
+    apply AffineEquiv.inv_coefs_of_field_fst x ▸ Right.inv_pos.mpr hx
 
 /-- Orientation preserving affine isomorphisms ℝ → ℝ are continuous. -/
 lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffineEquiv) :
     Continuous (A : ℝ → ℝ) := by
   apply (AffineMap.continuous_iff (R := ℝ) (E := ℝ) (F := ℝ) (f := A)).mpr
   exact LinearMap.continuous_of_finiteDimensional _
+
+lemma orientationPreservingAffineEquiv.monotone (A : orientationPreservingAffineEquiv) :
+    Monotone (A : ℝ → ℝ) :=
+  (AffineEquiv.isOrientationPreserving_iff_mono ..).mp A.prop
 
 end affine
 
@@ -207,10 +228,37 @@ noncomputable def affineTransform
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
-  mono' := sorry -- **Issue #4** (recall `AffineEquiv.isOrientationPreserving_iff_mono`)
-  right_continuous' := sorry -- **Issue #4**
-  tendsto_atTop := sorry -- **Issue #4**
-  tendsto_atBot := sorry -- **Issue #4**
+  mono' := F.mono'.comp (orientationPreservingAffineEquiv.monotone A⁻¹)
+  right_continuous' := by
+    have orientationPreservingAffineEquiv_image_Ici (B : orientationPreservingAffineEquiv) (x : ℝ) :
+        Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
+      have B_Binv (z) : B.val (B.val⁻¹ z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      have Binv_B (z) : B.val⁻¹ (B.val z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      have B_mono : Monotone (B.val) := orientationPreservingAffineEquiv.monotone B
+      have Binv_mono : Monotone (B⁻¹.val) := orientationPreservingAffineEquiv.monotone B⁻¹
+      ext z
+      refine ⟨fun hBz ↦ ?_, fun hBiz ↦ ?_⟩
+      · refine ⟨B.val⁻¹ z, by simpa [Binv_B] using Binv_mono hBz, B_Binv _⟩
+      · obtain ⟨w, hw, Bw_eq⟩ := hBiz
+        simpa [← Bw_eq] using B_mono hw
+    intro x
+    exact (F.right_continuous (A⁻¹.val x)).comp
+      (orientationPreservingAffineEquiv.continuous A⁻¹).continuousWithinAt
+      (orientationPreservingAffineEquiv_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
+  tendsto_atTop := by
+    apply Filter.Tendsto.comp F.tendsto_atTop
+    · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
+      · exact orientationPreservingAffineEquiv.monotone A⁻¹
+      · intro b
+        use A.val b
+        rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
+  tendsto_atBot := by
+    apply Filter.Tendsto.comp F.tendsto_atBot
+    · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone' ?A_inv_is_bottom_unbounded
+      · exact orientationPreservingAffineEquiv.monotone A⁻¹
+      · intro b
+        use A.val b
+        rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
 
 @[simp] lemma affineTransform_apply_eq
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
@@ -241,8 +289,7 @@ noncomputable instance instMulActionOrientationPreservingAffineEquiv :
 /-- An affine transform of a c.d.f. is degenerate iff the c.d.f. itself is degenerate. -/
 lemma affine_isDegenerate_iff
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
-    (A • F).IsDegenerate ↔ F.IsDegenerate := by
-  sorry -- **Issue #5**
+    (A • F).IsDegenerate ↔ F.IsDegenerate := Iff.symm A.val.toEquiv.forall_congr_left
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if the c.d.f. itself is continuous
 at `x`. -/
