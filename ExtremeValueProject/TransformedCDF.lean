@@ -103,6 +103,10 @@ lemma extend_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     ContinuousAt F.extend x := by
   sorry -- **Issue #30**
 
+lemma extend_continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
+    ContinuousAt F.extend x ↔ ContinuousAt F x := by
+  sorry -- (maybe could be done together with issue 30)
+
 open MeasureTheory
 
 /-- If `F` is the c.d.f. of a probability measure `μ`, then `F x = μ (-∞, x]` for all `x ∈ ℝ`.
@@ -194,6 +198,10 @@ lemma oneDivOneSub_apply (F : CumulativeDistributionFunction) (x : EReal) :
     F.oneDivOneSub x = 1 / (1 - ENNReal.ofReal (F x)) :=
   rfl
 
+lemma oneDivOneSub_mono (F : CumulativeDistributionFunction) :
+    Monotone F.oneDivOneSub :=
+  oneDivOneSubAux_mono.comp F.extend_mono
+
 lemma oneDivOneSub_continuousAt_bot (F : CumulativeDistributionFunction) :
     ContinuousAt F.oneDivOneSub ⊥ := by
   sorry -- **Issue #31**
@@ -207,6 +215,10 @@ lemma oneDivOneSub_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     ContinuousAt F.oneDivOneSub x := by
   sorry -- **Issue #31**
 
+lemma oneDivOneSub_continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
+    ContinuousAt F.oneDivOneSub x ↔ ContinuousAt F x := by
+  sorry -- (maybe could be done together with issue 31)
+
 lemma oneDivOneSub_affine (F : CumulativeDistributionFunction)
     (A : orientationPreservingAffineEquiv) :
     ((A • F).oneDivOneSub) = F.oneDivOneSub ∘ (A⁻¹ : ℝ ≃ᵃ[ℝ] ℝ).extend := by
@@ -219,13 +231,9 @@ def rcInvOneDivOneSub (F : CumulativeDistributionFunction) :
     ℝ≥0∞ → EReal :=
   rcInv (F.oneDivOneSub)
 
-lemma rcInvOneDivOneSub_continuousAt_bot (F : CumulativeDistributionFunction) :
-    ContinuousAt F.rcInvOneDivOneSub ⊥ := by
-  sorry
-
-lemma rcInvOneDivOneSub_continuousAt_top (F : CumulativeDistributionFunction) :
-    ContinuousAt F.rcInvOneDivOneSub ⊤ := by
-  sorry
+lemma rcInvOneDivOneSub_mono (F : CumulativeDistributionFunction) :
+    Monotone F.rcInvOneDivOneSub :=
+  rcInv_mono F.oneDivOneSub
 
 -- TODO: What is the good statement about continuity of F.rcInvOneDivOneSub at `u ∈ (1,+∞)`?
 -- The hypothesis should be continuity and local increase of `F` at `F⁻¹ (1 - 1/u)`?
@@ -286,6 +294,10 @@ lemma oneDivNegLog_apply (F : CumulativeDistributionFunction) (x : EReal) :
     F.oneDivNegLog ⊤ = ⊤ := by
   simp [oneDivNegLog]
 
+lemma oneDivNegLog_mono (F : CumulativeDistributionFunction) :
+    Monotone F.oneDivNegLog :=
+  oneDivNegLogAux_mono.comp F.extend_mono
+
 /-- A rewrite lemma for `CumulativeDistributionFunction.oneDivNegLog` in terms of `Real.log`
 (assuming the c.d.f. value is positive, `F x > 0`, so real logarithm is well behaved).
 Note, however, that this cannot be written with division in `ℝ` if `F x = 1`, because
@@ -324,6 +336,10 @@ lemma oneDivNegLog_continuousAt (F : CumulativeDistributionFunction) {x : ℝ}
     ContinuousAt F.oneDivNegLog x := by
   sorry -- **Issue #32**
 
+lemma oneDivNegLog_continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
+    ContinuousAt F.oneDivNegLog x ↔ ContinuousAt F x := by
+  sorry -- (maybe could be done together with issue 32)
+
 lemma oneDivNegLog_affine (F : CumulativeDistributionFunction)
     (A : orientationPreservingAffineEquiv) :
     ((A • F).oneDivNegLog) = F.oneDivNegLog ∘ (A⁻¹ : ℝ ≃ᵃ[ℝ] ℝ).extend := by
@@ -336,13 +352,9 @@ def rcInvOneDivNegLog (F : CumulativeDistributionFunction) :
     ℝ≥0∞ → EReal :=
   rcInv (F.oneDivNegLog)
 
-lemma rcInvOneDivNegLog_continuousAt_bot (F : CumulativeDistributionFunction) :
-    ContinuousAt F.rcInvOneDivNegLog ⊥ := by
-  sorry
-
-lemma rcInvOneDivNegLog_continuousAt_top (F : CumulativeDistributionFunction) :
-    ContinuousAt F.rcInvOneDivNegLog ⊤ := by
-  sorry
+lemma rcInvOneDivNegLog_mono (F : CumulativeDistributionFunction) :
+    Monotone F.rcInvOneDivNegLog :=
+  rcInv_mono F.oneDivNegLog
 
 lemma rcInvOneDivNegLog_affine (F : CumulativeDistributionFunction)
     (A : orientationPreservingAffineEquiv) :
