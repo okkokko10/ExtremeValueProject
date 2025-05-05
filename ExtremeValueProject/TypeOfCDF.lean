@@ -34,32 +34,6 @@ lemma orientationPreservingAffineEquiv.mkOfCoefs_val {a : ℝ} (a_pos : 0 < a) (
     (mkOfCoefs a_pos b).val = AffineEquiv.mkOfCoefs_of_field a_pos.ne.symm b :=
   rfl
 
-lemma AffineMap.coefsOfField_fst_eq_div_sub {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜)
-    {x y : 𝕜} (hxy : x ≠ y) :
-    A.coefs_of_field.1 = (A y - A x) / (y - x) := by
-  have key : A y - A x = A.coefs_of_field.1 * (y - x) := by simp [apply_eq_of_field A, mul_sub]
-  exact eq_div_of_mul_eq (sub_ne_zero_of_ne hxy.symm) key.symm
-
-lemma AffineMap.coefsOfField_snd_eq_apply_sub_mul {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜) (x : 𝕜) :
-    A.coefs_of_field.2 = A x - A.coefs_of_field.1 * x :=
-  eq_sub_of_add_eq' (apply_eq_of_field A x).symm
-
-lemma AffineMap.ext_of_coefsOfField {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜}
-    (h : A₁.coefs_of_field = A₂.coefs_of_field) :
-    A₁ = A₂ := by
-  ext x ; simp [apply_eq_of_field, h]
-
-/-- If two affine self-maps from a field coincide at two points, then they are equal. -/
-lemma AffineMap.ext_of_apply₂ {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜} {x y : 𝕜} (hxy : x ≠ y)
-    (hx : A₁ x = A₂ x) (hy : A₁ y = A₂ y) :
-    A₁ = A₂ := by
-  apply ext_of_coefsOfField
-  have obs₁ := A₁.coefsOfField_fst_eq_div_sub hxy
-  rw [hx, hy, ← A₂.coefsOfField_fst_eq_div_sub hxy] at obs₁
-  have obs₂ := A₁.coefsOfField_snd_eq_apply_sub_mul x
-  rw [obs₁, hx, ← A₂.coefsOfField_snd_eq_apply_sub_mul x] at obs₂
-  exact Prod.ext obs₁ obs₂
-
 namespace CumulativeDistributionFunction
 
 lemma exists₂_continuousAt_of_not_isDegenerate

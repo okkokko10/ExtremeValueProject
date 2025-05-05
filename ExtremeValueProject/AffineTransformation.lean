@@ -36,6 +36,32 @@ lemma AffineMap.apply_eq_of_field {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[�
     simp [AffineMap.coefs_of_field]
   · simp
 
+lemma AffineMap.coefsOfField_fst_eq_div_sub {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜)
+    {x y : 𝕜} (hxy : x ≠ y) :
+    A.coefs_of_field.1 = (A y - A x) / (y - x) := by
+  have key : A y - A x = A.coefs_of_field.1 * (y - x) := by simp [apply_eq_of_field A, mul_sub]
+  exact eq_div_of_mul_eq (sub_ne_zero_of_ne hxy.symm) key.symm
+
+lemma AffineMap.coefsOfField_snd_eq_apply_sub_mul {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜) (x : 𝕜) :
+    A.coefs_of_field.2 = A x - A.coefs_of_field.1 * x :=
+  eq_sub_of_add_eq' (apply_eq_of_field A x).symm
+
+lemma AffineMap.ext_of_coefsOfField {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜}
+    (h : A₁.coefs_of_field = A₂.coefs_of_field) :
+    A₁ = A₂ := by
+  ext x ; simp [apply_eq_of_field, h]
+
+/-- If two affine self-maps from a field coincide at two points, then they are equal. -/
+lemma AffineMap.ext_of_apply₂ {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜} {x y : 𝕜} (hxy : x ≠ y)
+    (hx : A₁ x = A₂ x) (hy : A₁ y = A₂ y) :
+    A₁ = A₂ := by
+  apply ext_of_coefsOfField
+  have obs₁ := A₁.coefsOfField_fst_eq_div_sub hxy
+  rw [hx, hy, ← A₂.coefsOfField_fst_eq_div_sub hxy] at obs₁
+  have obs₂ := A₁.coefsOfField_snd_eq_apply_sub_mul x
+  rw [obs₁, hx, ← A₂.coefsOfField_snd_eq_apply_sub_mul x] at obs₂
+  exact Prod.ext obs₁ obs₂
+
 /-- An affine equivalence `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b` for the values `a b : 𝕜`
 which are obtained by `AffineEquiv.toAffineMap.coefs_of_field`. -/
 lemma AffineEquiv.apply_eq_of_field {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) (x : 𝕜) :
@@ -214,6 +240,112 @@ lemma orientationPreservingAffineEquiv.continuous (A : orientationPreservingAffi
 lemma orientationPreservingAffineEquiv.monotone (A : orientationPreservingAffineEquiv) :
     Monotone (A : ℝ → ℝ) :=
   (AffineEquiv.isOrientationPreserving_iff_mono ..).mp A.prop
+
+/-- A designated type for orientation preserving affine isomorphisms of `ℝ`. -/
+def AffineIncrEquiv := {A : ℝ ≃ᵃ[ℝ] ℝ // A.IsOrientationPreserving}
+
+def AffineIncrEquiv.mk {A : ℝ ≃ᵃ[ℝ] ℝ} (hA : A.IsOrientationPreserving) :
+    AffineIncrEquiv :=
+  ⟨A, hA⟩
+
+noncomputable def AffineIncrEquiv.mkOfCoefs {a : ℝ} (a_pos : 0 < a) (b : ℝ) :
+    AffineIncrEquiv :=
+  ⟨AffineEquiv.mkOfCoefs_of_field a_pos.ne.symm b, by
+    simp [AffineEquiv.IsOrientationPreserving, a_pos]⟩
+
+noncomputable def AffineIncrEquiv.coefs (A : AffineIncrEquiv) :=
+  A.val.toAffineMap.coefs_of_field
+
+lemma AffineIncrEquiv.coefs_mkOfCoefs {a : ℝ} (a_pos : 0 < a) (b : ℝ) :
+    (AffineIncrEquiv.mkOfCoefs a_pos b).coefs = ⟨a, b⟩ := by
+  ext <;> simp_all [mkOfCoefs, coefs]
+
+@[simp] lemma AffineIncrEquiv.coefs_fst_mkOfCoefs {a : ℝ} (a_pos : 0 < a) (b : ℝ) :
+    (AffineIncrEquiv.mkOfCoefs a_pos b).coefs.1 = a := by
+  simp [AffineIncrEquiv.coefs_mkOfCoefs]
+
+@[simp] lemma AffineIncrEquiv.coefs_snd_mkOfCoefs {a : ℝ} (a_pos : 0 < a) (b : ℝ) :
+    (AffineIncrEquiv.mkOfCoefs a_pos b).coefs.2 = b := by
+  simp [AffineIncrEquiv.coefs_mkOfCoefs]
+
+lemma AffineIncrEquiv.mem_orientationPreservingAffineEquiv (A : AffineIncrEquiv) :
+    A.val ∈ orientationPreservingAffineEquiv := by
+  simp
+
+instance : Group AffineIncrEquiv where
+  mul A₁ A₂ := ⟨A₁.val * A₂.val, orientationPreservingAffineEquiv.mul_mem
+                  A₁.mem_orientationPreservingAffineEquiv A₂.mem_orientationPreservingAffineEquiv⟩
+  mul_assoc A₁ A₂ A₃ := rfl
+  one := ⟨1, orientationPreservingAffineEquiv.one_mem⟩
+  one_mul A := rfl
+  mul_one A := rfl
+  npow_zero A := rfl
+  npow_succ A n := rfl
+  inv A := ⟨A.val⁻¹,
+            orientationPreservingAffineEquiv.inv_mem A.mem_orientationPreservingAffineEquiv⟩
+  div_eq_mul_inv A₁ A₂ := rfl
+  zpow_zero' A := rfl
+  zpow_succ' A n := rfl
+  zpow_neg' A n := rfl
+  inv_mul_cancel A := by
+    apply Subtype.ext
+    exact inv_mul_cancel A.val
+
+instance : EquivLike AffineIncrEquiv ℝ ℝ where
+  coe A := A.val
+  inv A := A⁻¹.val
+  left_inv A := AffineEquiv.equivLike.left_inv A.val
+  right_inv A := AffineEquiv.equivLike.right_inv A.val
+  coe_injective' A₁ A₂ hA hAinv := by
+    apply Subtype.ext
+    exact AffineEquiv.coeFn_inj.mp hA
+
+@[ext] lemma AffineIncrEquiv.ext {A₁ A₂ : AffineIncrEquiv} (h : ∀ x, A₁ x = A₂ x) :
+    A₁ = A₂ :=
+  Subtype.ext <| AffineEquiv.ext h
+
+@[simp] lemma AffineIncrEquiv.apply_eq (A : AffineIncrEquiv) (x : ℝ) :
+    A x = A.coefs.1 * x + A.coefs.2 :=
+  A.val.apply_eq_of_field x
+
+instance : TopologicalSpace AffineIncrEquiv :=
+  TopologicalSpace.induced (fun A ↦ (A : ℝ → ℝ)) (by infer_instance)
+
+lemma AffineIncrEquiv.continuous_apply (x : ℝ) :
+    Continuous fun (A : AffineIncrEquiv) ↦ A x :=
+  Continuous.comp (_root_.continuous_apply x) continuous_induced_dom
+
+lemma AffineIncrEquiv.continuous_iff_forall_continuous_apply {Z : Type*} [TopologicalSpace Z]
+    (φ : Z → AffineIncrEquiv):
+    Continuous φ ↔ ∀ x, Continuous fun z ↦ φ z x := by
+  rw [continuous_induced_rng]
+  refine ⟨?_, ?_⟩
+  · intro h x
+    exact Continuous.comp (_root_.continuous_apply x) h
+  · intro h
+    exact continuous_pi h
+
+lemma AffineIncrEquiv.coefs_fst_eq_div_sub (A : AffineIncrEquiv)
+    {x y : ℝ} (hxy : x ≠ y) :
+    A.coefs.1 = (A y - A x) / (y - x) :=
+  A.val.toAffineMap.coefsOfField_fst_eq_div_sub hxy
+
+lemma AffineIncrEquiv.coefs_snd_eq_apply_sub_mul (A : AffineIncrEquiv) (x : ℝ) :
+    A.coefs.2 = A x - A.coefs.1 * x :=
+  A.val.toAffineMap.coefsOfField_snd_eq_apply_sub_mul x
+
+lemma AffineIncrEquiv.ext_of_coefs {A₁ A₂ : AffineIncrEquiv} (h : A₁.coefs = A₂.coefs) :
+    A₁ = A₂ := by
+  ext x
+  simp [h]
+
+lemma AffineIncrEquiv.continuous_coefs_fst :
+    Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.1 := by
+  sorry
+
+lemma AffineIncrEquiv.continuous_coefs_snd :
+    Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.2 := by
+  sorry
 
 end affine
 
