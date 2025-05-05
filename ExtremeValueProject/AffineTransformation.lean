@@ -398,9 +398,40 @@ section affine_transform_of_cdf
 namespace CumulativeDistributionFunction
 
 /-- The action of orientation preserving affine isomorphisms on cumulative distribution
-functions, so that for `A : orientationPreservingAffineEquiv` and
-`F : CumulativeDistributionFunction` we have `(A • F)(x) = F(A⁻¹ x)`. -/
+functions, so that for `A : AffineIncrEquiv` and `F : CumulativeDistributionFunction` we have
+`(A • F)(x) = F(A⁻¹ x)`. -/
 noncomputable def affineTransform
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) :
+    CumulativeDistributionFunction where
+  toFun := fun x ↦ F (A⁻¹ x)
+  mono' := F.mono'.comp (A⁻¹).mono
+  right_continuous' := by
+    have orientationPreservingAffineEquiv_image_Ici (B : AffineIncrEquiv) (x : ℝ) :
+        Set.Ici (B x) = B '' (Set.Ici x) := by
+      have B_Binv (z) : B (B⁻¹ z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      have Binv_B (z) : B⁻¹ (B z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+      ext z
+      refine ⟨fun hBz ↦ ?_, fun hBiz ↦ ?_⟩
+      · refine ⟨B⁻¹ z, by simpa only [Binv_B] using (B⁻¹).mono hBz, B_Binv z⟩
+      · obtain ⟨w, hw, Bw_eq⟩ := hBiz
+        simpa [← Bw_eq] using B.mono hw
+    intro x
+    exact (F.right_continuous (A⁻¹ x)).comp
+      (orientationPreservingAffineEquiv.continuous A⁻¹).continuousWithinAt
+      (orientationPreservingAffineEquiv_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
+  tendsto_atTop := by
+    apply Filter.Tendsto.comp F.tendsto_atTop
+    · refine Monotone.tendsto_atTop_atTop (A⁻¹).mono ?A_inv_is_top_unbounded
+      intro b
+      refine ⟨A b, le_of_eq <| EquivLike.inv_apply_eq_iff_eq_apply.mp rfl⟩
+  tendsto_atBot := by
+    apply Filter.Tendsto.comp F.tendsto_atBot
+    · refine Monotone.tendsto_atBot_atBot (A⁻¹).mono ?A_inv_is_bottom_unbounded
+      · intro b
+        refine ⟨A b, le_of_eq <| EquivLike.apply_inv_apply ..⟩
+
+/-
+noncomputable def affineTransform'
     (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
     CumulativeDistributionFunction where
   toFun := fun x ↦ F (A⁻¹.val x)
@@ -435,63 +466,62 @@ noncomputable def affineTransform
       · intro b
         use A.val b
         rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
+-/
 
 @[simp] lemma affineTransform_apply_eq
-    (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
-    (F.affineTransform A) x = F ((A⁻¹ : ℝ ≃ᵃ[ℝ] ℝ) x) := rfl
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ):
+    (F.affineTransform A) x = F (A⁻¹ x) := rfl
 
 lemma affineTransform_mul_apply_eq_comp
-    (F : CumulativeDistributionFunction) (A B : orientationPreservingAffineEquiv) :
+    (F : CumulativeDistributionFunction) (A B : AffineIncrEquiv) :
     F.affineTransform (A * B) = (F.affineTransform B).affineTransform A := rfl
 
 @[simp] lemma affineTransform_one_apply (F : CumulativeDistributionFunction) :
     F.affineTransform 1 = F := rfl
 
 /-- The action of orientation preserving affine isomorphisms on cumulative distribution
-functions, so that for `A : orientationPreservingAffineEquiv` and
-`F : CumulativeDistributionFunction` we have `(A • F)(x) = F(A⁻¹ x)`. -/
+functions, so that for `A : AffineIncrEquiv` and `F : CumulativeDistributionFunction` we
+have `(A • F)(x) = F(A⁻¹ x)`. -/
 noncomputable instance instMulActionOrientationPreservingAffineEquiv :
-    MulAction orientationPreservingAffineEquiv CumulativeDistributionFunction where
+    MulAction AffineIncrEquiv CumulativeDistributionFunction where
   smul A F := F.affineTransform A
   one_smul _ := rfl
   mul_smul _ _ _ := rfl
 
 @[simp] lemma mulAction_apply_eq
-    (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ):
-    (A • F) x = F ((A⁻¹ : ℝ ≃ᵃ[ℝ] ℝ) x) := rfl
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ):
+    (A • F) x = F (A⁻¹ x) := rfl
 
 -- Lemma: If X is a ℝ-valued random variable with c.d.f. F, then the c.d.f. of A • X is A • F.
 
 /-- An affine transform of a c.d.f. is degenerate iff the c.d.f. itself is degenerate. -/
 lemma affine_isDegenerate_iff
-    (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
-    (A • F).IsDegenerate ↔ F.IsDegenerate := Iff.symm A.val.toEquiv.forall_congr_left
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) :
+    (A • F).IsDegenerate ↔ F.IsDegenerate :=
+  Iff.symm A.val.toEquiv.forall_congr_left
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if the c.d.f. itself is continuous
 at `x`. -/
 lemma affine_continuousAt_of_continuousAt
     {F : CumulativeDistributionFunction} {x : ℝ} (F_cont : ContinuousAt F x)
-    (A : orientationPreservingAffineEquiv) :
-    ContinuousAt (A • F) ((A : ℝ ≃ᵃ[ℝ] ℝ) x) := by
-  have ha := (A : ℝ ≃ᵃ[ℝ] ℝ)⁻¹.continuous_of_finiteDimensional
-  let f := fun x ↦ (A : ℝ ≃ᵃ[ℝ] ℝ)⁻¹ x
-  rw [show (A • F).toStieltjesFunction = F ∘ f from rfl]
-  have h_simp : f ((A : ℝ ≃ᵃ[ℝ] ℝ) x) = x := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
-  rw[← h_simp] at F_cont
-  exact ContinuousAt.comp F_cont ha.continuousAt
+    (A : AffineIncrEquiv) :
+    ContinuousAt (A • F) (A x) := by
+  apply ContinuousAt.comp _ ((A⁻¹).val.continuous_of_finiteDimensional).continuousAt
+  convert F_cont
+  exact EquivLike.apply_inv_apply ..
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if and only if the c.d.f. itself is
 continuous at `x`. -/
 lemma affine_continuousAt_iff
-    (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) (x : ℝ) :
-    ContinuousAt (A • F) x ↔ ContinuousAt F ((A⁻¹ : ℝ ≃ᵃ[ℝ] ℝ) x) := by
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ) :
+    ContinuousAt (A • F) x ↔ ContinuousAt F (A⁻¹ x) := by
   constructor
   · intro AF_cont
     convert affine_continuousAt_of_continuousAt AF_cont A⁻¹
     simp
   · intro F_cont
     convert affine_continuousAt_of_continuousAt F_cont A
-    exact (@AffineEquiv.apply_symm_apply ℝ ℝ ℝ ℝ ℝ _ _ _ _ _ _ _ A x).symm
+    exact EquivLike.inv_apply_eq_iff_eq_apply.mp rfl
 
 end CumulativeDistributionFunction
 
@@ -576,7 +606,7 @@ lemma AffineEquiv.extend_symm_cancel (A : ℝ ≃ᵃ[ℝ] ℝ) (x : EReal) :
   rw [symm_apply_apply]
   rfl
 
-/-- Extend an affine equivalence `ℝ → ℝ` to and equivalence `[-∞,+∞] → [-∞,+∞]`. -/
+/-- Extend an affine equivalence `ℝ → ℝ` to an equivalence `[-∞,+∞] → [-∞,+∞]`. -/
 noncomputable def AffineEquiv.extend (A : ℝ ≃ᵃ[ℝ] ℝ) : EReal ≃ EReal where
   toFun := A.toAffineMap.extend
   invFun := A.symm.toAffineMap.extend
@@ -591,13 +621,34 @@ noncomputable def AffineEquiv.extend (A : ℝ ≃ᵃ[ℝ] ℝ) : EReal ≃ EReal
     A.extend ⊤ = if 0 < A.toAffineMap.coefs_of_field.1 then ⊤ else ⊥ :=
   AffineEquiv.extend_top' A
 
-@[simp] lemma AffineEquiv.extend_ofReal (A : ℝ ≃ᵃ[ℝ] ℝ) (x : ℝ):
+@[simp] lemma AffineEquiv.extend_ofReal (A : ℝ ≃ᵃ[ℝ] ℝ) (x : ℝ) :
     A.extend x = A x :=
   rfl
 
 @[simp] lemma AffineEquiv.extend_symm (A : ℝ ≃ᵃ[ℝ] ℝ) :
     A.extend.symm = A.symm.extend := by
   rfl
+
+/-- Extend an orientation-preserving affine equivalence `ℝ → ℝ` to an
+equivalence `[-∞,+∞] → [-∞,+∞]`. -/
+noncomputable abbrev AffineIncrEquiv.extend (A : AffineIncrEquiv) : EReal ≃ EReal :=
+    A.val.extend
+
+@[simp] lemma AffineIncrEquiv.extend_bot (A : AffineIncrEquiv) :
+    A.extend ⊥ = ⊥ := by
+  simpa using A.isOrientationPreserving
+
+@[simp] lemma AffineIncrEquiv.extend_top (A : AffineIncrEquiv) :
+    A.extend ⊤ = ⊤ := by
+  simpa using A.isOrientationPreserving
+
+@[simp] lemma AffineIncrEquiv.extend_ofReal (A : AffineIncrEquiv) (x : ℝ) :
+    A.extend x = A x :=
+  rfl
+
+@[simp] lemma AffineIncrEquiv.extend_symm (A : AffineIncrEquiv) :
+    A.extend.symm = (A⁻¹).extend :=
+  AffineEquiv.extend_symm A.val
 
 end extend
 
