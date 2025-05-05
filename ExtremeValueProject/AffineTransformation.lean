@@ -244,6 +244,9 @@ lemma orientationPreservingAffineEquiv.monotone (A : orientationPreservingAffine
 /-- A designated type for orientation preserving affine isomorphisms of `ℝ`. -/
 def AffineIncrEquiv := {A : ℝ ≃ᵃ[ℝ] ℝ // A.IsOrientationPreserving}
 
+lemma AffineIncrEquiv.isOrientationPreserving (A : AffineIncrEquiv) :
+    A.val.IsOrientationPreserving := A.prop
+
 def AffineIncrEquiv.mk {A : ℝ ≃ᵃ[ℝ] ℝ} (hA : A.IsOrientationPreserving) :
     AffineIncrEquiv :=
   ⟨A, hA⟩
@@ -308,12 +311,34 @@ instance : EquivLike AffineIncrEquiv ℝ ℝ where
     A x = A.coefs.1 * x + A.coefs.2 :=
   A.val.apply_eq_of_field x
 
+lemma AffineIncrEquiv.mul_apply_eq_comp_apply (A₁ A₂ : AffineIncrEquiv) (x : ℝ) :
+    (A₁ * A₂) x = A₁ (A₂ x) :=
+  rfl
+
+lemma AffineIncrEquiv.mono (A : AffineIncrEquiv) :
+    Monotone A :=
+  (AffineEquiv.isOrientationPreserving_iff_mono A.val).mp A.isOrientationPreserving
+
+/-- We endow the space of orientation-preserving affine isomorphisms of `ℝ` with the topology
+of pointwise convergence. (This coincides with the topology of convergence of the coefficients,
+see `AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs`). -/
 instance : TopologicalSpace AffineIncrEquiv :=
   TopologicalSpace.induced (fun A ↦ (A : ℝ → ℝ)) (by infer_instance)
 
 lemma AffineIncrEquiv.continuous_apply (x : ℝ) :
     Continuous fun (A : AffineIncrEquiv) ↦ A x :=
   Continuous.comp (_root_.continuous_apply x) continuous_induced_dom
+
+lemma AffineIncrEquiv.isEmbedding_coeFun :
+    IsEmbedding (fun (A : AffineIncrEquiv) ↦ (A : ℝ → ℝ)) where
+  eq_induced := rfl
+  injective A₁ A₂ hA := by simp_all
+
+lemma AffineIncrEquiv.tendsto_nhds_iff_forall_tendsto_apply {ι : Type*} {L : Filter ι}
+    (As : ι → AffineIncrEquiv) (A : AffineIncrEquiv) :
+    L.Tendsto As (𝓝 A) ↔ ∀ x, L.Tendsto (fun i ↦ As i x) (𝓝 (A x)) := by
+  rw [AffineIncrEquiv.isEmbedding_coeFun.tendsto_nhds_iff]
+  exact tendsto_pi_nhds
 
 lemma AffineIncrEquiv.continuous_iff_forall_continuous_apply {Z : Type*} [TopologicalSpace Z]
     (φ : Z → AffineIncrEquiv):
@@ -346,6 +371,23 @@ lemma AffineIncrEquiv.continuous_coefs_fst :
 lemma AffineIncrEquiv.continuous_coefs_snd :
     Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.2 := by
   sorry
+
+lemma AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs {ι : Type*} {L : Filter ι}
+    {As : ι → AffineIncrEquiv} (A : AffineIncrEquiv):
+    L.Tendsto As (𝓝 A) ↔
+      L.Tendsto (fun i ↦ (As i).coefs.1) (𝓝 A.coefs.1) ∧
+      L.Tendsto (fun i ↦ (As i).coefs.2) (𝓝 A.coefs.2) := by
+  constructor
+  · intro As_lim
+    refine ⟨?_, ?_⟩
+    · apply Tendsto.comp AffineIncrEquiv.continuous_coefs_fst.continuousAt As_lim
+    · apply Tendsto.comp AffineIncrEquiv.continuous_coefs_snd.continuousAt As_lim
+  · intro ⟨h₁, h₂⟩
+    apply (tendsto_nhds_iff_forall_tendsto_apply ..).mpr
+    intro x
+    simp only [apply_eq]
+    apply Tendsto.add _ h₂
+    exact Tendsto.mul h₁ tendsto_const_nhds
 
 end affine
 
