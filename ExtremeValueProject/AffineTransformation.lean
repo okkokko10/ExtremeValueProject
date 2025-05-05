@@ -13,6 +13,8 @@ import Mathlib.Topology.Metrizable.CompletelyMetrizable
 
 
 
+
+
 section affine
 
 open Topology Filter Set
@@ -297,7 +299,12 @@ lemma affine_continuousAt_of_continuousAt
     {F : CumulativeDistributionFunction} {x : ℝ} (F_cont : ContinuousAt F x)
     (A : orientationPreservingAffineEquiv) :
     ContinuousAt (A • F) ((A : ℝ ≃ᵃ[ℝ] ℝ) x) := by
-  sorry -- **Issue #6**
+  have ha := (A : ℝ ≃ᵃ[ℝ] ℝ)⁻¹.continuous_of_finiteDimensional
+  let f := fun x ↦ (A : ℝ ≃ᵃ[ℝ] ℝ)⁻¹ x
+  rw [show (A • F).toStieltjesFunction = F ∘ f from rfl]
+  have h_simp : f ((A : ℝ ≃ᵃ[ℝ] ℝ) x) = x := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
+  rw[← h_simp] at F_cont
+  exact ContinuousAt.comp F_cont ha.continuousAt
 
 /-- An affine transform of a c.d.f. is continuious at `A x` if and only if the c.d.f. itself is
 continuous at `x`. -/
