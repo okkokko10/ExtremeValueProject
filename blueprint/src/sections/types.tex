@@ -35,9 +35,9 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 
 \begin{lemma}[Unique affine relation among two nondegenerate c.d.f.s]
   \label{lem:unique-affine-relation-cdf}
-  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
-  % \lean{}
-  % \leanok
+  \uses{def:cdf, def:degenerate-cdf, lem:oriented-affine-action-on-cdf}
+  \lean{CumulativeDistributionFunction.unique_orientationPreservingAffineEquiv_smul_eq_not_isDegenerate}
+  \leanok
   Let $F, G$ be two c.d.f.s of the same type, and $A \in \OriAffR$
   an affine isomorphism such that $G = A.F$. If $F$ is nondegenerate,
   then $A$ is the only element of $\OriAffR$ for which the
@@ -47,15 +47,18 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   % \uses{}
   % \leanok
   Since $F$ is nondegenerate, we can find two different points $x_1 < x_2$
-  such that $0 < F(x_1) < F(x_2) < 1$. By right continuity of $F$, we can
+  such that $0 < F(x_1) < F(x_2) \le 1$. By right continuity of $F$, we can
   assume these points to be taken minimal with the given values, i.e.,
   $x_j = \inf \big\{ x \in \bR \; \big| \; F(x) = F(x_j) \big\}$ for
   $j=1,2$.
 
   The assumption $G = A.F$ means $G(x) = F \big( A^{-1}(x) \big)$ for all $x \in \bR$.
-  Therefore $G \big( A(x_1) \big) = F(x_1) < F(x_2) = G \big( A(x_1) \big)$
-  and also $A(x_j) = \inf \big\{ y \in \bR \; \big| \; G(y) = F(x_j) \big\}$ for
-  $j=1,2$.
+  Therefore $G \big( A(x_1) \big) = F(x_1) < F(x_2) = G \big( A(x_2) \big)$.
+  We also get $A(x_j) = \inf \big\{ y \in \bR \; \big| \; G(y) = F(x_j) \big\}$ for
+  $j=1,2$ by strict monotonicity and bijectivity of $A$
+  (if, for example, there would exist a $y'_2 < A(x_2)$ such that $G(y'_2) = F(x_2)$,
+  then the point $x'_2 = A^{-1}(y'_2) < x_2$ would be such that
+  $F\big(A^{-1}(y'_2)\big) = G(y'_2) = F(x_2)$, contradicting the minimality of $x_2$).
 
   If $\widetilde{A} \in \OriAffR$ is also such that $G = \widetilde{A}.F$, then
   the same holds for it:
@@ -72,12 +75,114 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   Therefore we must have $\widetilde{A} = A$.
 \end{proof}
 
+\begin{lemma}[Degeneration by shrinking affine transformations]
+  \label{lem:degenerate-shrinking-limit}
+  \uses{def:cdf-degenerate, lem:oriented-affine-action-on-cdf}
+  \lean{CumulativeDistributionFunction.isDegenerate_of_tendsto_shrinking}
+  \leanok
+  Let $(F_n)_{n \in \bN}$ be a sequence of c.d.f.s which converges to a c.d.f. $G$,
+  $F_n \tendsinlaw G$. Consider affine transformations of the form $A_n(x) = a_n x + b_n$,
+  with $a_n > 0$ and $b_n \in \bR$, such that $a_n \to 0$ and $b_n \to \beta \in \bR$
+  as $n \to \infty$. Then $A_n . F_n \tendsinlaw \widetilde{G}$, where
+  $\widetilde{G}$ is the degenerate c.d.f. of the delta mass at $\beta$.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  It suffices to prove that for any $x < \beta$ we have $\widetilde{G}(x) = 0$
+  and for any $x > \beta$ we have $\widetilde{G}(x) = 1$.
+
+  Let us focus on the latter, so let $x > \beta$. Let also $\eps > 0$; we will prove
+  that $\widetilde{G}(x) > 1 - \eps$, and the claim will follow.
+
+  By density of continuity points of $\widetilde{G}$, we can choose $x'$ such that
+  $\beta < x' < x$ and $\widetilde{G}$ is continuous at $x'$. Then the assumed
+  convergence $A_n . F_n \tendsinlaw \widetilde{G}$ implies that
+  $(A_n . F_n)(x') \to \widetilde{G}(x')$. Since $\widetilde{G}(x) \ge \widetilde{G}(x')$,
+  it suffices to prove that $\widetilde{G}(x') > 1 - \eps$.
+
+  Since $G$ is a c.d.f., we can choose a continuity point $z$ of $G$
+  large enough so that $G(z) > 1 - \eps$.
+  Then by the assumed convergence $F_n \tendsinlaw G$, we have
+  $F_n(z) \to G(z)$. By definition we have
+  \begin{align*}
+    (A_n . F_n)(A_n(z)) \; = \; F_n \big( A_n^{-1} (A_n(z)) \big) \; = \; F_n(z)
+      \; \longrightarrow \; G(z) . %\; > \;  1-\eps .
+  \end{align*}
+  Note that $A_n(z) = a_n z + b_n \to \beta$ as $n \to \infty$ by the assumptions
+  $a_n \to 1$ and $b_n \to \beta$. In particular, for $n$ large enough,
+  we have $A_n(z) < x'$.
+  Therefore, for $n$ large enough
+  \begin{align*}
+    F_n(z) \; = \; (A_n . F_n) \big( A_n(z) \big) \; \le \; (A_n . F_n)(x') .
+  \end{align*}
+  The LHS tends to $G(z)$ and the RHS tends to $\widetilde{G}(x')$,
+  showing
+  \begin{align*}
+    1 - \eps \; < \; G(z) \; \le \; \widetilde{G}(x') \; \le \; \widetilde{G}(x) .
+  \end{align*}
+  This concludes the proof that $\widetilde{G}(x) = 1$ for all $x > \beta$.
+
+  The proof that $\widetilde{G}(x) = 0$ for all $x < \beta$ is similar.
+\end{proof}
+
+\begin{lemma}[Impossibility of expanding affine transformations]
+  \label{lem:impossible-expanding-limit}
+  \uses{def:cdf, lem:oriented-affine-action-on-cdf}
+  \lean{CumulativeDistributionFunction.not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate}
+  \leanok
+  Let $(F_n)_{n \in \bN}$ be a sequence of c.d.f.s which converges to a nondegenerate
+  c.d.f. $G$, $F_n \tendsinlaw G$. Consider affine transformations of the form $A_n(x) = a_n x + b_n$,
+  with $a_n > 0$ and $b_n \in \bR$, such that $a_n \to +\infty$
+  as $n \to \infty$. Then $A_n . F_n$ cannot converge to any c.d.f.
+\end{lemma}
+\begin{proof}
+  \uses{lem:exists-two-nontrivial-continuity-pts-cdf}
+  % \leanok
+  Since $G$ is assumed nondegenerate, by Lemma~\ref{lem:exists-two-nontrivial-continuity-pts-cdf}
+  we can pick two continuity points $x_1 < x_2$
+  of $G$ such that $0 < G(x_1) \le G(x_2) < 1$. Then from the assumption
+  $F_n \tendsinlaw G$ we get $F_n(x_1) \to G(x_1)$ and $F_n(x_2) \to G(x_2)$.
+
+  Assume, by way of contradiction, that we have convergence
+  $A_n . F \tendsinlaw \widetilde{G}$ to some c.d.f. $\widetilde{G}$.
+
+  We claim that then $\big(A_n(x_1)\big)_{n \in \bN}$ is bounded from below and
+  $\big(A_n(x_2)\big)_{n \in \bN}$ is bounded from above.
+  Since
+  \begin{align*}
+    a_n = \frac{A_n(x_2) - A_n(x_1)}{x_2 - x_1} ,
+  \end{align*}
+  this will show that $(a_n)_{n \in \bN}$ is bounded from above, contradicting
+  the assumption $a_n \to +\infty$, and finishing the proof.
+
+  To show that $\big(A_n(x_1)\big)_{n \in \bN}$ is bounded from below,
+  choose a continuity point $z$ of $\widetilde{G}$ such that
+  $\widetilde{G}(z) < G(x_1)$. Then the assumed convergence
+  $A_n . F \tendsinlaw \widetilde{G}$ implies
+  $(A_n . F)(z) \to \widetilde{G}(z)$.
+  On the other hand, if $\big(A_n(x_1)\big)_{n \in \bN}$ is not
+  bounded from below, then along some subsequence $(n_k)_{k \in \bN}$ of indices
+  we have $A_{n_k}(x_1) < z$, and for those indices we then have
+  \begin{align*}
+    F_{n_k}(x_1) \; = \; (A_{n_k} . F_{n_k}) \big( A_{n_k}(x_1) \big)
+      \; \le \; (A_{n_k} . F_{n_k})(z) .
+  \end{align*}
+  The LHS tends to $G(x_1)$ as $k \to \infty$, whereas the RHS tends
+  to $\widetilde{G}(z)$. We get $G(x_1) \le \widetilde{G}(z)$, contradicting
+  the choice of $z$. This shows that $\big(A_n(x_1)\big)_{n \in \bN}$ must
+  in fact be bounded from below.
+
+  The proof that $\big(A_n(x_2)\big)_{n \in \bN}$ must be bounded from above
+  is similar.
+\end{proof}
+
 \begin{theorem}[Convergence to types]
   \label{thm:convergence-to-types}
-  \uses{def:cdf, lem:oriented-affine-action-on-cdf, def:cdf-type}
+  \uses{def:degenerate-cdf, lem:oriented-affine-action-on-cdf, def:cdf-type}
   % \lean{}
   % \leanok
-  Suppose that $(F_n)_{n \in \bN}$  is a sequence of
+  Suppose that $(F_n)_{n \in \bN}$ is a sequence of
   c.d.f.s which converges to a nondegenerate c.d.f. $G$, i.e.,
   $F_n \tendsinlaw G$ as $n \to \infty$.
   Let $(A_n)_{n \in \bN}$ be a sequence of oriented
@@ -89,15 +194,81 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   and $(b_n)_{n \in \bN}$ are bounded sequences.
 
   If $\widetilde{G}$ is nondegenerate, then
-  $A_n \to A \in \OriAffR$ and $A.\widetilde{G} = G$.
+  $A_n \to A \in \OriAffR$ and $A.G = \widetilde{G}$.
   In particular $G$ and $\widetilde{G}$ are of the same type.
   Moreover, $A$ is the unique affine transformation for which
-  the equality $A.\widetilde{G} = G$ holds.
+  the equality $A.G = \widetilde{G}$ holds.
 \end{theorem}
 \begin{proof}
-  \uses{lem:unique-affine-relation-cdf}
+  \uses{lem:impossible-expanding-limit, lem:degenerate-shrinking-limit,
+    lem:unique-affine-relation-cdf}
   % \leanok
-  \ldots
+  Let us first argue that $(a_n)_{n \in \bN}$ are bounded.
+  If not, then by passing to a subsequence, we have $a_{n_k} \to +\infty$.
+  But since $F_{n_k} \tendsinlaw G$ and $G$ is nondegenerate,
+  it contradicts Lemma~\ref{lem:impossible-expanding-limit}
+  to have $A_{n_k} . F_{n_k} \tendsinlaw \widetilde{G}$.
+  Therefore $(a_n)_{n \in \bN}$ must be bounded: there exists
+  some $M>0$ such that $a_n \le M$ for all $n \in \bN$.
+
+  Let us then argue that $(b_n)_{n \in \bN}$ is bounded.
+  If not, then we can extract a subsequence such
+  that either $b_{n_k} \to -\infty$ or $b_{n_k} \to +\infty$.
+  Let us prove the impossibility of the second one, the first is similar.
+  So assume that $b_{n_k} \to +\infty$.
+  Since $G$ is nondegenerate, we may pick a continuity point $x_0$
+  of $G$ such that $0 < G(x_0) < 1$. Then we have $F_n(x_0) \to G(x_0)$
+  by the assumption $F_n \tendsinlaw G$.
+  We may also pick a continuity point $z$ of $\widetilde{G}$
+  such that $\widetilde{G}(z) > G(x_0)$. Then we have
+  $(A_n.F_n)(z) \to \widetilde{G}(z)$
+  by the assumption $A_n.F_n \tendsinlaw \widetilde{G}$.
+  But $A_{n_k}(x_0) = a_{n_k} x_0 + b_{n_k} \to +\infty$, since $0 < a_{n_k} \le M$
+  and $b_{n_k} \to +\infty$. Therefore we have for all large enough $k$
+  that $A_{n_k}(x_0) > z$. And then
+  \begin{align*}
+    (A_{n_k}.F_{n_k})(z) \; \le \; (A_{n_k}.F_{n_k})\big(A_{n_k}(x_0)\big) \; = \; F_{n_k}(x_0) .
+  \end{align*}
+  The LHS tends to $\widetilde{G}(z)$ as $k \to \infty$, and the RHS tends to $G(x_0)$.
+  Therefore we get $\widetilde{G}(z) \le G(x_0)$, contradicting the choice of $z$.
+  This shows that we cannot have $b_{n_k} \to +\infty$. Similarly one proves that
+  we cannot have $b_{n_k} \to -\infty$. We conclude that $(b_n)_{n \in \bN}$
+  is indeed bounded.
+
+  From now on, suppose furthermore that also $\widetilde{G}$ is nondegenerate.
+  We claim that then $(a_n)_{n \in \bN}$ is bounded away from $0$:
+  for some $\eps > 0$ we have $a_n \ge \eps$ for all $n \in \bN$.
+  If not, then we could extract a subsequence such that $a_{n_k} \to 0$
+  and also $b_n \to \beta$ (since $b_n$ is bounded).
+  But since $F_{n_k} \tendsinlaw G$ and $G$ is nondegenerate,
+  from Lemma~\ref{lem:degenerate-shrinking-limit}
+  we would get $A_{n_k} . F_{n_k} \tendsinlaw \widetilde{G}_0$,
+  where $\widetilde{G}_0$ is degenerate. But by assumption
+  $A_{n_k} . F_{n_k} \tendsinlaw \widetilde{G}$, where
+  $\widetilde{G}$ is nondegenerate; this is impossible by uniqueness
+  of limits for convergence in distribution. Therefore
+  $(a_n)_{n \in \bN}$ must indeed be bounded away from $0$.
+
+  Note that since $(a_n)_{n \in \bN}$ is bounded away from $0$ and $+\infty$,
+  and $(b_n)_{n \in \bN}$ is bounded, we can extract a subsequence such that
+  $a_{n_k} \to \alpha \in (0,+\infty)$ and $b_{n_k} \to \beta \in \bR$.
+  By assumption, we have $A_{n_k} . F_{n_k} \tendsinlaw \widetilde{G}$.
+  But since $A_{n_k} \to A$ where $A(x) = \alpha x + \beta$
+  and we have also assumed $F_{n_k} \tendsinlaw G$, this implies by
+  continuity that $A_{n_k} . F_{n_k} \tendsinlaw A . G$.
+  By uniqueness of limits, we get $A . G = \widetilde{G}$.
+
+  To prove that in fact $A_n \to A$, not just along a subsequence, note the
+  following. From any subsequence $A_{n_k}$, we can extract a further
+  convergent subsequence of values of $a_{n_{k_\ell}}$ and $b_{n_{k_\ell}}$
+  values as above, with limits $\alpha' \in (0,+\infty)$
+  and $\beta' \in \bR$. The same argument as above shows that
+  $A' . G = \widetilde{G}$ where $A'(x) = \alpha' x + \beta'$.
+  Lemma~\ref{lem:unique-affine-relation-cdf} then says that we must have
+  $A' = A$, i.e., $\alpha' = \alpha$ and $\beta' = \beta$. Since any
+  subsequence has a convergent further subsequence with the same limit,
+  the entire sequence must converge, $A_n \to A$.
+  The proof is complete.
 \end{proof}
 
 \begin{theorem}[Convergence to types again]

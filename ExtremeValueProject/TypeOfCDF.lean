@@ -14,11 +14,6 @@ open Topology Filter
 
 open scoped Topology
 
-lemma CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate
-    (F : CumulativeDistributionFunction) (hF : ¬ F.IsDegenerate) :
-    ∃ x₁ x₂, (0 < F x₁) ∧ (F x₁ < F x₂) ∧ (F x₂ < 1)
-              ∧ (ContinuousAt F x₁) ∧ (ContinuousAt F x₂) := by
-  sorry
 
 /-- Construct an orientation preserving affine isomorphism `x ↦ a * x + b` of `ℝ` from
 coefficients `a > 0` and `b ∈ ℝ`. -/
@@ -39,15 +34,54 @@ lemma orientationPreservingAffineEquiv.mkOfCoefs_val {a : ℝ} (a_pos : 0 < a) (
     (mkOfCoefs a_pos b).val = AffineEquiv.mkOfCoefs_of_field a_pos.ne.symm b :=
   rfl
 
+lemma AffineMap.coefsOfField_fst_eq_div_sub {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜)
+    {x y : 𝕜} (hxy : x ≠ y) :
+    A.coefs_of_field.1 = (A y - A x) / (y - x) := by
+  have key : A y - A x = A.coefs_of_field.1 * (y - x) := by simp [apply_eq_of_field A, mul_sub]
+  exact eq_div_of_mul_eq (sub_ne_zero_of_ne hxy.symm) key.symm
+
+lemma AffineMap.coefsOfField_snd_eq_apply_sub_mul {𝕜 : Type*} [Field 𝕜] (A : 𝕜 →ᵃ[𝕜] 𝕜) (x : 𝕜) :
+    A.coefs_of_field.2 = A x - A.coefs_of_field.1 * x :=
+  eq_sub_of_add_eq' (apply_eq_of_field A x).symm
+
+lemma AffineMap.ext_of_coefsOfField {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜}
+    (h : A₁.coefs_of_field = A₂.coefs_of_field) :
+    A₁ = A₂ := by
+  ext x ; simp [apply_eq_of_field, h]
+
+/-- If two affine self-maps from a field coincide at two points, then they are equal. -/
+lemma AffineMap.ext_of_apply₂ {𝕜 : Type*} [Field 𝕜] {A₁ A₂ : 𝕜 →ᵃ[𝕜] 𝕜} {x y : 𝕜} (hxy : x ≠ y)
+    (hx : A₁ x = A₂ x) (hy : A₁ y = A₂ y) :
+    A₁ = A₂ := by
+  apply ext_of_coefsOfField
+  have obs₁ := A₁.coefsOfField_fst_eq_div_sub hxy
+  rw [hx, hy, ← A₂.coefsOfField_fst_eq_div_sub hxy] at obs₁
+  have obs₂ := A₁.coefsOfField_snd_eq_apply_sub_mul x
+  rw [obs₁, hx, ← A₂.coefsOfField_snd_eq_apply_sub_mul x] at obs₂
+  exact Prod.ext obs₁ obs₂
+
+namespace CumulativeDistributionFunction
+
+lemma exists₂_continuousAt_of_not_isDegenerate
+    (F : CumulativeDistributionFunction) (hF : ¬ F.IsDegenerate) :
+    ∃ x₁ x₂, (x₁ < x₂) ∧ (0 < F x₁) ∧ (F x₂ < 1) ∧ (ContinuousAt F x₁) ∧ (ContinuousAt F x₂) := by
+  sorry -- **Issue #38**
+
+lemma unique_orientationPreservingAffineEquiv_smul_eq_not_isDegenerate
+    {F G : CumulativeDistributionFunction} {A₁ A₂ : orientationPreservingAffineEquiv}
+    (hG : ¬ G.IsDegenerate) (h₁ : A₁ • F = G) (h₂ : A₂ • F = G) :
+    A₁ = A₂ := by
+  sorry -- **Issue #39**
+
 open orientationPreservingAffineEquiv in
 /-- If we have c.d.f. convergence `Fₙ → G` and `Aₙ • Fₙ → G'`, where `Aₙ(x) = aₙ * x + bₙ`
 with `aₙ → 0` and `bₙ → β`, then `G'(x) = 0` for all `x < β`. -/
-lemma CumulativeDistributionFunction.apply_eq_zero_of_tendsto_of_lt
+lemma apply_eq_zero_of_tendsto_of_lt
     {F : ℕ → CumulativeDistributionFunction} {G G' : CumulativeDistributionFunction}
     {a : ℕ → ℝ} (a_pos : ∀ n, 0 < a n) {b : ℕ → ℝ} {β : ℝ}
     (a_lim : Tendsto a atTop (𝓝 0)) (b_lim : Tendsto b atTop (𝓝 β))
     (F_lim : ∀ x, ContinuousAt G x → Tendsto (fun n ↦ F n x) atTop (𝓝 (G x)))
-    (F_lim' : ∀ x, ContinuousAt G x →
+    (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x)))
     {x : ℝ} (x_lt : x < β) :
     G x = 0 := by
@@ -56,12 +90,12 @@ lemma CumulativeDistributionFunction.apply_eq_zero_of_tendsto_of_lt
 open orientationPreservingAffineEquiv in
 /-- If we have c.d.f. convergence `Fₙ → G` and `Aₙ • Fₙ → G'`, where `Aₙ(x) = aₙ * x + bₙ`
 with `aₙ → 0` and `bₙ → β`, then `G'(x) = 1` for all `x > β`. -/
-lemma CumulativeDistributionFunction.apply_eq_one_of_tendsto_of_gt
+lemma apply_eq_one_of_tendsto_of_gt
     {F : ℕ → CumulativeDistributionFunction} {G G' : CumulativeDistributionFunction}
     {a : ℕ → ℝ} (a_pos : ∀ n, 0 < a n) {b : ℕ → ℝ} {β : ℝ}
     (a_lim : Tendsto a atTop (𝓝 0)) (b_lim : Tendsto b atTop (𝓝 β))
     (F_lim : ∀ x, ContinuousAt G x → Tendsto (fun n ↦ F n x) atTop (𝓝 (G x)))
-    (F_lim' : ∀ x, ContinuousAt G x →
+    (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x)))
     {x : ℝ} (x_gt : β < x) :
     G x = 1 := by
@@ -70,12 +104,12 @@ lemma CumulativeDistributionFunction.apply_eq_one_of_tendsto_of_gt
 open orientationPreservingAffineEquiv in
 /-- If we have c.d.f. convergence `Fₙ → G` and `Aₙ • Fₙ → G'`, where `Aₙ(x) = aₙ * x + bₙ`
 with `aₙ → 0` and `bₙ → β`, then `G'` is degenerate (a delta mass at `β`). -/
-lemma CumulativeDistributionFunction.isDegenerate_of_tendsto
+lemma isDegenerate_of_tendsto_shrinking
     {F : ℕ → CumulativeDistributionFunction} {G G' : CumulativeDistributionFunction}
     {a : ℕ → ℝ} (a_pos : ∀ n, 0 < a n) {b : ℕ → ℝ} {β : ℝ}
     (a_lim : Tendsto a atTop (𝓝 0)) (b_lim : Tendsto b atTop (𝓝 β))
     (F_lim : ∀ x, ContinuousAt G x → Tendsto (fun n ↦ F n x) atTop (𝓝 (G x)))
-    (F_lim' : ∀ x, ContinuousAt G x →
+    (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x))) :
     G.IsDegenerate := by
   rw [isDegenerate_iff]
@@ -102,6 +136,20 @@ lemma CumulativeDistributionFunction.isDegenerate_of_tendsto
     exact apply_eq_zero_of_tendsto_of_lt a_pos a_lim b_lim F_lim F_lim' hx
   · intro x hx
     exact apply_eq_one_of_tendsto_of_gt a_pos a_lim b_lim F_lim F_lim' hx
+
+open orientationPreservingAffineEquiv in
+/-- If we have c.d.f. convergence `Fₙ → G` where `G` is nondegenerate and if `Aₙ`
+is a sequence of oriented affine isomorphisms with scaling coefficients `aₙ → +∞`,
+then `Aₙ • Fₙ` cannot converge to any c.d.f. -/
+lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
+    {F : ℕ → CumulativeDistributionFunction} {G G' : CumulativeDistributionFunction}
+    (F_lim : ∀ x, ContinuousAt G x → Tendsto (fun n ↦ F n x) atTop (𝓝 (G x)))
+    (hG : ¬ G.IsDegenerate) {A : ℕ → orientationPreservingAffineEquiv}
+    (a_lim : Tendsto (fun n ↦ (A n).val.toAffineMap.coefs_of_field.1) atTop atTop) :
+    ¬ ∀ x, ContinuousAt G' x → Tendsto (fun n ↦ ((A n) • (F n)) x) atTop (𝓝 (G' x)) := by
+  sorry -- **Issue #40**
+
+end CumulativeDistributionFunction
 
 end preliminaries_for_type_of_cdf
 

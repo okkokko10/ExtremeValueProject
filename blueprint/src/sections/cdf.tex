@@ -289,3 +289,24 @@
   A comparison of these conditions shows that $F$ is also continuous from the left
   at $x$ if and only if $\PRmeas[\set{x}] = 0$.
 \end{proof}
+
+\begin{lemma}[A pair of nontrivial continuity points of nondegenerate c.d.f.]
+  \label{lem:exists-two-nontrivial-continuity-pts-cdf}
+  \uses{def:degenerate-cdf}
+  \lean{CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate}
+  \leanok
+  Let $G$ be a nondegenerate c.d.f. Then there exists
+  continuity points $x_1 < x_2$ of $G$ such that
+  $0 < G(x_1) \le G(x_2) < 1$.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  Since $G$ is nondegenerate, there exists some $x_0 \in \bR$ such that
+  $0 < G(x_0) < 1$. Since $G$ is continuous from the right, for some
+  small $\delta > 0$ we have that $0 < G(x) < 1$ for
+  all $x \in [x_0,x_0+\delta)$. Since the continuity points of $G$
+  are dense, from any nonempty open interval we may pick a continuity point.
+  First pick a continuity point $x_1 \in (x_0,x_0+\delta)$,
+  and then pick another continuity point $x_2 \in (x_1,x_0+\delta)$.
+\end{proof}
