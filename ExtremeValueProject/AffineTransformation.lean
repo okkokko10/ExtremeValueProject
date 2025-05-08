@@ -388,11 +388,11 @@ lemma AffineIncrEquiv.ext_of_coefs {A₁ A₂ : AffineIncrEquiv} (h : A₁.coefs
 
 @[simp] lemma AffineIncrEquiv.coefs_fst_mul (A₁ A₂ : AffineIncrEquiv) :
     (A₁ * A₂).coefs.1 = A₁.coefs.1 * A₂.coefs.1 := by
-  sorry -- **Issue 41**
+  sorry -- **Issue 43**
 
 @[simp] lemma AffineIncrEquiv.coefs_snd_mul (A₁ A₂ : AffineIncrEquiv) :
     (A₁ * A₂).coefs.2 = A₁.coefs.1 * A₂.coefs.2 + A₁.coefs.2 := by
-  sorry -- **Issue 41**
+  sorry -- **Issue 43**
 
 lemma AffineIncrEquiv.continuous_coefs_fst :
     Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.1 := by
@@ -460,44 +460,6 @@ noncomputable def affineTransform
       · intro b
         refine ⟨A b, le_of_eq <| EquivLike.apply_inv_apply ..⟩
 
-/-
-noncomputable def affineTransform'
-    (F : CumulativeDistributionFunction) (A : orientationPreservingAffineEquiv) :
-    CumulativeDistributionFunction where
-  toFun := fun x ↦ F (A⁻¹.val x)
-  mono' := F.mono'.comp (orientationPreservingAffineEquiv.monotone A⁻¹)
-  right_continuous' := by
-    have orientationPreservingAffineEquiv_image_Ici (B : orientationPreservingAffineEquiv) (x : ℝ) :
-        Set.Ici (B.val x) = B.val '' (Set.Ici x) := by
-      have B_Binv (z) : B.val (B.val⁻¹ z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
-      have Binv_B (z) : B.val⁻¹ (B.val z) = z := (AffineEquiv.apply_eq_iff_eq_symm_apply _).mpr rfl
-      have B_mono : Monotone (B.val) := orientationPreservingAffineEquiv.monotone B
-      have Binv_mono : Monotone (B⁻¹.val) := orientationPreservingAffineEquiv.monotone B⁻¹
-      ext z
-      refine ⟨fun hBz ↦ ?_, fun hBiz ↦ ?_⟩
-      · refine ⟨B.val⁻¹ z, by simpa [Binv_B] using Binv_mono hBz, B_Binv _⟩
-      · obtain ⟨w, hw, Bw_eq⟩ := hBiz
-        simpa [← Bw_eq] using B_mono hw
-    intro x
-    exact (F.right_continuous (A⁻¹.val x)).comp
-      (orientationPreservingAffineEquiv.continuous A⁻¹).continuousWithinAt
-      (orientationPreservingAffineEquiv_image_Ici A⁻¹ x ▸ Set.mapsTo_image A⁻¹.val (Set.Ici x))
-  tendsto_atTop := by
-    apply Filter.Tendsto.comp F.tendsto_atTop
-    · refine Monotone.tendsto_atTop_atTop ?A_inv_is_monotone ?A_inv_is_top_unbounded
-      · exact orientationPreservingAffineEquiv.monotone A⁻¹
-      · intro b
-        use A.val b
-        rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
-  tendsto_atBot := by
-    apply Filter.Tendsto.comp F.tendsto_atBot
-    · refine Monotone.tendsto_atBot_atBot ?A_inv_is_monotone' ?A_inv_is_bottom_unbounded
-      · exact orientationPreservingAffineEquiv.monotone A⁻¹
-      · intro b
-        use A.val b
-        rw [InvMemClass.coe_inv,AffineEquiv.inv_def,AffineEquiv.symm_apply_apply]
--/
-
 @[simp] lemma affineTransform_apply_eq
     (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ):
     (F.affineTransform A) x = F (A⁻¹ x) := rfl
@@ -512,7 +474,7 @@ lemma affineTransform_mul_apply_eq_comp
 /-- The action of orientation preserving affine isomorphisms on cumulative distribution
 functions, so that for `A : AffineIncrEquiv` and `F : CumulativeDistributionFunction` we
 have `(A • F)(x) = F(A⁻¹ x)`. -/
-noncomputable instance instMulActionOrientationPreservingAffineEquiv :
+noncomputable instance instMulActionAffineIncrEquiv :
     MulAction AffineIncrEquiv CumulativeDistributionFunction where
   smul A F := F.affineTransform A
   one_smul _ := rfl
