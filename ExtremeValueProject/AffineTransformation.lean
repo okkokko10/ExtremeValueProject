@@ -303,6 +303,10 @@ instance : EquivLike AffineIncrEquiv ℝ ℝ where
     apply Subtype.ext
     exact AffineEquiv.coeFn_inj.mp hA
 
+@[simp] lemma AffineIncrEquiv.one_apply (x : ℝ) :
+    (1 : AffineIncrEquiv) x = x :=
+  rfl
+
 @[ext] lemma AffineIncrEquiv.ext {A₁ A₂ : AffineIncrEquiv} (h : ∀ x, A₁ x = A₂ x) :
     A₁ = A₂ :=
   Subtype.ext <| AffineEquiv.ext h
@@ -310,6 +314,12 @@ instance : EquivLike AffineIncrEquiv ℝ ℝ where
 @[simp] lemma AffineIncrEquiv.apply_eq (A : AffineIncrEquiv) (x : ℝ) :
     A x = A.coefs.1 * x + A.coefs.2 :=
   A.val.apply_eq_of_field x
+
+lemma AffineIncrEquiv.mkOfCoefs_eq_one :
+    (AffineIncrEquiv.mkOfCoefs zero_lt_one 0) = 1 := by
+  ext x
+  rw [one_apply]
+  simp
 
 lemma AffineIncrEquiv.mul_apply_eq_comp_apply (A₁ A₂ : AffineIncrEquiv) (x : ℝ) :
     (A₁ * A₂) x = A₁ (A₂ x) :=
@@ -359,10 +369,30 @@ lemma AffineIncrEquiv.coefs_snd_eq_apply_sub_mul (A : AffineIncrEquiv) (x : ℝ)
     A.coefs.2 = A x - A.coefs.1 * x :=
   A.val.toAffineMap.coefsOfField_snd_eq_apply_sub_mul x
 
+@[simp] lemma AffineIncrEquiv.coefs_fst_one :
+    (1 : AffineIncrEquiv).coefs.1 = 1 := by
+  rw [AffineIncrEquiv.coefs_fst_eq_div_sub 1 zero_ne_one]
+  simp only [one_apply]
+  simp
+
+@[simp] lemma AffineIncrEquiv.coefs_snd_one :
+    (1 : AffineIncrEquiv).coefs.2 = 0 := by
+  rw [AffineIncrEquiv.coefs_snd_eq_apply_sub_mul 1 0]
+  simp only [one_apply]
+  simp
+
 lemma AffineIncrEquiv.ext_of_coefs {A₁ A₂ : AffineIncrEquiv} (h : A₁.coefs = A₂.coefs) :
     A₁ = A₂ := by
   ext x
   simp [h]
+
+@[simp] lemma AffineIncrEquiv.coefs_fst_mul (A₁ A₂ : AffineIncrEquiv) :
+    (A₁ * A₂).coefs.1 = A₁.coefs.1 * A₂.coefs.1 := by
+  sorry -- **Issue 41**
+
+@[simp] lemma AffineIncrEquiv.coefs_snd_mul (A₁ A₂ : AffineIncrEquiv) :
+    (A₁ * A₂).coefs.2 = A₁.coefs.1 * A₂.coefs.2 + A₁.coefs.2 := by
+  sorry -- **Issue 41**
 
 lemma AffineIncrEquiv.continuous_coefs_fst :
     Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.1 := by
