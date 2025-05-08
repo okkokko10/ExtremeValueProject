@@ -93,11 +93,11 @@ instance : CoeFun CumulativeDistributionFunction (fun _ ↦ ℝ → ℝ) where
 
 lemma apply_nonneg (F : CumulativeDistributionFunction) (x : ℝ) :
     0 ≤ F x := by
-  sorry -- **Issue #9**
+  exact F.mono'.le_of_tendsto F.tendsto_atBot x
 
 lemma apply_le_one (F : CumulativeDistributionFunction) (x : ℝ) :
     F x ≤ 1 := by
-  sorry -- **Issue #9**
+  exact F.mono'.ge_of_tendsto F.tendsto_atTop x
 
 lemma apply_eq_measure_Iic (F : CumulativeDistributionFunction) (x : ℝ) :
     F x = ENNReal.toReal (F.measure (Iic x)) := by
