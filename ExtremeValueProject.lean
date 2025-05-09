@@ -10,6 +10,7 @@ import «ExtremeValueProject».LimitRelationManipulation
 import «ExtremeValueProject».OneParameterAffine
 import «ExtremeValueProject».OrderContinuity
 import «ExtremeValueProject».PseudoInverses
+import «ExtremeValueProject».SelfSimilarCDF
 import «ExtremeValueProject».TransformedCDF
 import «ExtremeValueProject».TypeOfCDF
 import «ExtremeValueProject».WeakConvergenceCDF

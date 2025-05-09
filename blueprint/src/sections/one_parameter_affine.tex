@@ -96,11 +96,26 @@
   % \leanok
 \end{proof}
 
+The above solutions to functional equations can be used to classify all
+one-parameter subgroups of the group of oriented affine isomorphisms of $\bR$.
+Such a subgroup can be given in a parametrized form as a group homomorphism
+$\bR \to \OriAffR$ (from the additive group $\bR$) or alternatively
+as group homomorphisms $(0,+\infty) \to \OriAffR$ (from the multiplicative
+group $(0,+\infty)$). The additive and multiplicative versions are
+related by the change of variable
+$\bR \ni t \leftrightarrow \lambda := e^t \in (0,+\infty)$
+(conversely, $t = \log(\lambda)$).
+\emph{(In Lean the type $\bR$ is more convenient than the type $(0,+\infty)$,
+so in formal statements we prefer the former choice.)}
+
 \begin{theorem}[One-parameter subgroups of affine isomorphisms of $\bR$]
   \label{thm:one-parameter-subgroups-of-affine-isomorphisms}
-  %\uses{def:}
+  \uses{def:oriented-affine-isomorphism, def:translation-subgroup, def:fixing-subgroup}
   % \lean{}
   % \leanok
+  \emph{[TODO: Switch to additive notation and $\bR$ rather than multiplicative
+  notation and $(0,+\infty)$, to match the most convenient formalized statements.]}
+
   Suppose that $t \mapsto A_t$ is a measurable homomorphism of multiplicative groups
   $(0,+\infty) \to \OriAffR$, i.e., for any $s, t > 0$ we have
   \begin{align*}

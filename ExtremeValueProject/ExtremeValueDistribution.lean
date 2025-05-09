@@ -101,6 +101,10 @@ noncomputable def standardGumbelCDF : CumulativeDistributionFunction where
   tendsto_atTop := sorry -- **Issue #13**
   tendsto_atBot := sorry -- **Issue #13**
 
+lemma standardGumbelCDF_apply_eq (x : ℝ) :
+    standardGumbelCDF x = Real.exp (-Real.exp (-x)) :=
+  rfl
+
 noncomputable def standardFrechetAux (ξ : ℝ) (x : ℝ) :=
   if x ≥ -ξ⁻¹ then 1 else Real.exp (-(1 + x * ξ)^((-ξ : ℝ)⁻¹))
 

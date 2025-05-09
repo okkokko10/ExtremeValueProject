@@ -70,3 +70,21 @@ theorem tendsto_of_forall_continuousAt_tendsto_cdf
   sorry -- **Issue #20** (a big one)
 
 end weak_convergence_cdf
+
+
+
+section levy_prokhorov_metric
+
+open MeasureTheory
+
+variable (F G :CumulativeDistributionFunction)
+
+--#check F.toStieltjesFunction.toMeasure
+
+example (F : CumulativeDistributionFunction) : ProbabilityMeasure ℝ := by
+
+  sorry
+
+#check MeasureTheory.LevyProkhorov (ProbabilityMeasure ℝ)
+
+end levy_prokhorov_metric
