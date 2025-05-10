@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Kalle Kytölä. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kalle Kytölä, Väinö Mäkelä
+Authors: Kalle Kytölä, Väinö Mäkelä, ...
 -/
 import ExtremeValueProject.CumulativeDistributionFunction
 import Mathlib.MeasureTheory.Measure.DiracProba
@@ -26,23 +26,17 @@ lemma isDegenerate_iff (F : CumulativeDistributionFunction) :
     F.IsDegenerate ↔ ∃ x₀, F.toFun = (Set.Ici x₀).indicator (fun _ ↦ 1) := by
   constructor
   · intro is_degen
-
     have obs (x : ℝ) : F x = 1 ↔ F x ≠ 0 := by
-      constructor
-      · intro h
-        exact ne_zero_of_eq_one h
-      · intro hx
-        cases is_degen x
-        · contradiction
-        · assumption
-
+      refine ⟨fun hx ↦ ne_zero_of_eq_one hx, fun hx ↦ ?_⟩
+      cases is_degen x
+      · contradiction
+      · assumption
     have reaches_zero : ∃ x : ℝ, F x = 0 := by
       by_contra! con
       simp only [← obs] at con
       have oops : (0 : ℝ) = 1 := tendsto_nhds_unique F.tendsto_atBot ?_
       · norm_num at oops
       · exact Tendsto.congr (fun x ↦ (con x).symm) tendsto_const_nhds
-
     have reaches_one : ∃ x : ℝ, F x = 1 := by
       by_contra! con
       have oops : (1 : ℝ) = 0 :=
@@ -51,13 +45,11 @@ lemma isDegenerate_iff (F : CumulativeDistributionFunction) :
       · intro x
         symm
         simpa only [con x, or_false] using is_degen x
-
     have bounded_below : BddBelow {x : ℝ | F x = 1} := by
       obtain ⟨x₀, h⟩ := reaches_zero
       use x₀
       intro x (hx : F x = 1)
       exact (Monotone.reflect_lt F.mono (by norm_num [h, hx])).le
-
     let x₀ := sInf {x : ℝ | F x = 1}
     have one_after_x₀ : ∀ x > x₀, F x = 1 := by
       intro x hx
@@ -70,7 +62,6 @@ lemma isDegenerate_iff (F : CumulativeDistributionFunction) :
     have one_at_x₀ : F x₀ = 1 := by
       rw [← F.rightLim_eq, ← csInf_singleton 1, ← one_after_x₀']
       exact Monotone.rightLim_eq_sInf F.mono NeBot.ne'
-
     use x₀
     funext x
     simp only [indicator, mem_Ici]
