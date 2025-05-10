@@ -32,6 +32,46 @@ noncomputable def AffineIncrEquiv.homOfIndex (α c : ℝ) :
     simp [add_mul, Real.exp_add]
     ring
 
+lemma AffineIncrEquiv.homOfIndex₀_zero (β : ℝ) :
+    homOfIndex₀ β (.ofAdd 0) = 1 :=
+  map_one ..
+
+lemma AffineIncrEquiv.homOfIndex₀_zero_apply (β : ℝ) (x : ℝ) :
+    homOfIndex₀ β (.ofAdd 0) x = x := by
+  simp
+
+lemma AffineIncrEquiv.homOfIndex₀_add (β : ℝ) (s₁ s₂ : ℝ) :
+    homOfIndex₀ β (s₁ + s₂) = homOfIndex₀ β s₁ * homOfIndex₀ β s₂ :=
+  map_mul ..
+
+@[simp] lemma AffineIncrEquiv.homOfIndex₀_add_apply {β : ℝ} {s₁ s₂ : ℝ} (x : ℝ) :
+    homOfIndex₀ β (s₁ + s₂) x = homOfIndex₀ β s₁ (homOfIndex₀ β s₂ x) := by
+  simp only [homOfIndex₀_add, mul_apply]
+
+lemma AffineIncrEquiv.conjugate_homOfIndex₀ (A : AffineIncrEquiv) (β : ℝ) (s : ℝ) :
+    A * homOfIndex₀ β s * A⁻¹ = homOfIndex₀ (β * A.coefs.1) s := by
+  sorry -- **Issue #46**
+
+lemma AffineIncrEquiv.homOfIndex_zero (α c : ℝ) :
+    homOfIndex α c (.ofAdd 0) = 1 :=
+  map_one ..
+
+lemma AffineIncrEquiv.homOfIndex_zero_apply (α c : ℝ) (x : ℝ) :
+    homOfIndex α c (.ofAdd 0) x = x := by
+  simp
+
+lemma AffineIncrEquiv.homOfIndex_add (α c : ℝ) (s₁ s₂ : ℝ) :
+    homOfIndex α c (s₁ + s₂) = homOfIndex α c s₁ * homOfIndex α c s₂ :=
+  map_mul ..
+
+@[simp] lemma AffineIncrEquiv.homOfIndex_add_apply {α c : ℝ} {s₁ s₂ : ℝ} (x : ℝ) :
+    homOfIndex α c (s₁ + s₂) x = homOfIndex α c s₁ (homOfIndex α c s₂ x) := by
+  simp only [homOfIndex_add, mul_apply]
+
+lemma AffineIncrEquiv.conjugate_homOfIndex (A : AffineIncrEquiv) (α c : ℝ) (s : ℝ) :
+    A * homOfIndex α c s * A⁻¹ = homOfIndex α (A c) s := by
+  sorry -- **Issue #46**
+
 /-- The one-parameter subgroup of `AffineIncrEquiv` consisting of elements `Aₛ` of the form
 `Aₛ x = x + β * s`, where `s ∈ ℝ`.
 (`β` is a real parameter: each `β ≠ 0` in fact gives the same subgroup) -/

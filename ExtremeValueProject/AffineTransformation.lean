@@ -329,6 +329,10 @@ lemma AffineIncrEquiv.mono (A : AffineIncrEquiv) :
     Monotone A :=
   (AffineEquiv.isOrientationPreserving_iff_mono A.val).mp A.isOrientationPreserving
 
+lemma AffineIncrEquiv.mul_apply (A₁ A₂ : AffineIncrEquiv) (x : ℝ) :
+    (A₁ * A₂) x = A₁ (A₂ x) :=
+  rfl
+
 /-- We endow the space of orientation-preserving affine isomorphisms of `ℝ` with the topology
 of pointwise convergence. (This coincides with the topology of convergence of the coefficients,
 see `AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs`). -/
