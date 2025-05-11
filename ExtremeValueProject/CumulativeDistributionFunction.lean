@@ -168,6 +168,11 @@ lemma tendsto_apply_of_tendsto_of_continuousAt {ι : Type*} {L : Filter ι}
   rw [ProbabilityMeasure.measure_cdf μ] at aux
   exact (ProbabilityMeasure.null_iff_toMeasure_null μ {x}).mpr aux
 
+lemma eq_of_forall_apply_eq_const_mul (F G : CumulativeDistributionFunction)
+    (c : ℝ) (h : ∀ x, F x = c * G x) :
+    F = G := by
+  sorry -- TODO: Create an issue?
+
 end CumulativeDistributionFunction
 
 end cdf_def

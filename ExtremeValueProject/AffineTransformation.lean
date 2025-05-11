@@ -329,10 +329,6 @@ lemma AffineIncrEquiv.mono (A : AffineIncrEquiv) :
     Monotone A :=
   (AffineEquiv.isOrientationPreserving_iff_mono A.val).mp A.isOrientationPreserving
 
-lemma AffineIncrEquiv.mul_apply (A₁ A₂ : AffineIncrEquiv) (x : ℝ) :
-    (A₁ * A₂) x = A₁ (A₂ x) :=
-  rfl
-
 /-- We endow the space of orientation-preserving affine isomorphisms of `ℝ` with the topology
 of pointwise convergence. (This coincides with the topology of convergence of the coefficients,
 see `AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs`). -/
@@ -465,7 +461,7 @@ noncomputable def affineTransform
         refine ⟨A b, le_of_eq <| EquivLike.apply_inv_apply ..⟩
 
 @[simp] lemma affineTransform_apply_eq
-    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ):
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ) :
     (F.affineTransform A) x = F (A⁻¹ x) := rfl
 
 lemma affineTransform_mul_apply_eq_comp
@@ -487,6 +483,13 @@ noncomputable instance instMulActionAffineIncrEquiv :
 @[simp] lemma mulAction_apply_eq
     (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ):
     (A • F) x = F (A⁻¹ x) := rfl
+
+@[simp] lemma mulAction_apply_eq_self_apply
+    (F : CumulativeDistributionFunction) (A : AffineIncrEquiv) (x : ℝ) :
+    (A • F) (A x) = F x := by
+  simp only [CumulativeDistributionFunction.mulAction_apply_eq]
+  congr
+  exact (EquivLike.inv_apply_eq_iff_eq_apply (e := A) (b := A x) (a := x)).mpr rfl
 
 -- Lemma: If X is a ℝ-valued random variable with c.d.f. F, then the c.d.f. of A • X is A • F.
 
