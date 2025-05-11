@@ -118,13 +118,6 @@ theorem gumbel_type_of_selfSimilar_index_zero
   simp only [neg_mul, log_neg_eq_log, neg_add_rev, neg_neg, exp_eq_exp, neg_inj]
   ring
 
-open AffineIncrEquiv in
-lemma frechet_type_of_selfSimilar_index_pos' {G : CumulativeDistributionFunction}
-    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_pos : 0 < α)
-    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) {x : ℝ} (hx : c ≤ x) :
-    G x = exp (-(((x - c) / ((-(log (G (c + 1)))) ^ α)) ^ (-α⁻¹))) := by
-  sorry
-
 open AffineIncrEquiv Topology Filter in
 lemma apply_eq_zero_of_lt_of_selfSimilar_index_pos' {G : CumulativeDistributionFunction}
     {α c : ℝ} (α_pos : 0 < α) (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s))
@@ -177,7 +170,58 @@ lemma apply_eq_zero_of_lt_of_selfSimilar_index_pos' {G : CumulativeDistributionF
   rw [← CumulativeDistributionFunction.mulAction_apply_eq, Gx_pow] -- (Avoid unwanted simping.)
   simp [h1]
 
--- theorem frechet_type_of_selfSimilar_index_pos
+open AffineIncrEquiv in
+lemma frechet_scale_pos_of_selfSimilar_index_pos' {G : CumulativeDistributionFunction}
+    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_pos : 0 < α)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) :
+    0 < (-(log (G (c + 1)))) ^ α := by
+  apply rpow_pos_of_pos
+  simp only [Left.neg_pos_iff]
+  apply log_neg
+  -- Both G(c+1)=0 and G(c+1)=1 lead to a contradiction with the nondegeneracy of G,
+  -- like in the proof of `apply_eq_zero_of_lt_of_selfSimilar_index_pos'`.
+  · sorry
+  · sorry
+
+open AffineIncrEquiv in
+lemma frechet_type_of_selfSimilar_index_pos' {G : CumulativeDistributionFunction}
+    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_pos : 0 < α)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) {x : ℝ} (hx : c < x) :
+    G x = exp (-(((x - c) / ((-(log (G (c + 1)))) ^ α)) ^ (-α⁻¹))) := by
+  sorry
+
+open AffineIncrEquiv in
+theorem frechet_type_of_selfSimilar_index_pos
+    {G : CumulativeDistributionFunction} (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_pos : 0 < α)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) :
+    G = (mkOfCoefs (frechet_scale_pos_of_selfSimilar_index_pos' G_nondeg α_pos hG) c)
+        • standardFrechetCDF (Right.inv_pos.mpr α_pos) := by
+  have scale_pos := frechet_scale_pos_of_selfSimilar_index_pos' G_nondeg α_pos hG
+  have scale_inv_pos : 0 < ((-log (G (c + 1))) ^ α)⁻¹ := Right.inv_pos.mpr scale_pos
+  set A := (mkOfCoefs (frechet_scale_pos_of_selfSimilar_index_pos' G_nondeg α_pos hG) c) with def_A
+  apply CumulativeDistributionFunction.eq_of_forall_dense_eq (dense_compl_singleton c)
+  intro x x_ne_c
+  by_cases hxc : x < c
+  · rw [apply_eq_zero_of_lt_of_selfSimilar_index_pos' α_pos hG hxc]
+    have Ainv_x_neg : A⁻¹ x < 0 := by
+      simp only [def_A, apply_eq, inv_coefs_fst, coefs_fst_mkOfCoefs, inv_coefs_snd,
+                 coefs_snd_mkOfCoefs, neg_mul, add_neg_lt_iff_lt_add, zero_add]
+      exact (mul_lt_mul_iff_of_pos_left scale_inv_pos).mpr hxc
+    simp only [CumulativeDistributionFunction.mulAction_apply_eq]
+    rw [standardFrechetCDF_apply_nonpos_eq]
+    exact Ainv_x_neg.le
+  · have hxc' : c < x := lt_of_le_of_ne (not_lt.mp hxc) fun h ↦ x_ne_c h.symm
+    rw [frechet_type_of_selfSimilar_index_pos' G_nondeg α_pos hG hxc']
+    have Ainv_x_pos : 0 < A⁻¹ x := by
+      simp only [def_A, apply_eq, inv_coefs_fst, coefs_fst_mkOfCoefs, inv_coefs_snd,
+                 coefs_snd_mkOfCoefs, neg_mul, lt_add_neg_iff_add_lt, zero_add]
+      exact (mul_lt_mul_iff_of_pos_left scale_inv_pos).mpr hxc'
+    simp only [CumulativeDistributionFunction.mulAction_apply_eq]
+    rw [standardFrechetCDF_apply_pos_eq _ Ainv_x_pos]
+    simp only [def_A, apply_eq, inv_coefs_fst, coefs_fst_mkOfCoefs, inv_coefs_snd,
+               coefs_snd_mkOfCoefs, neg_mul, rpow_eq_pow, exp_eq_exp, neg_inj]
+    congr
+    ring
 
 open AffineIncrEquiv in
 lemma weibull_type_of_selfSimilar_index_neg' {G : CumulativeDistributionFunction}

@@ -105,25 +105,41 @@ lemma standardGumbelCDF_apply_eq (x : ℝ) :
     standardGumbelCDF x = Real.exp (-Real.exp (-x)) :=
   rfl
 
-noncomputable def standardFrechetAux (ξ : ℝ) (x : ℝ) :=
-  if x ≥ -ξ⁻¹ then 1 else Real.exp (-(1 + x * ξ)^((-ξ : ℝ)⁻¹))
+noncomputable def standardFrechetAux (α : ℝ) (x : ℝ) :=
+  if x ≤ 0 then 0 else Real.exp (-(Real.rpow x (-α)))
 
-noncomputable def standardFrechetCDF {ξ : ℝ} (ξ_pos : 0 < ξ) : CumulativeDistributionFunction where
-  toFun := standardFrechetAux ξ
+noncomputable def standardFrechetCDF {α : ℝ} (α_pos : 0 < α) : CumulativeDistributionFunction where
+  toFun := standardFrechetAux α
   mono' := sorry
   right_continuous' := sorry
   tendsto_atTop := sorry
   tendsto_atBot := sorry
 
-noncomputable def standardWeibullAux (ξ : ℝ) (x : ℝ) :=
-  if x < -ξ⁻¹ then Real.exp (-(1 + x * ξ)^((-ξ : ℝ)⁻¹)) else 1
+lemma standardFrechetCDF_apply_pos_eq {α x : ℝ} (α_pos : 0 < α) (hx : 0 < x) :
+    standardFrechetCDF α_pos x = Real.exp (-(Real.rpow x (-α))) := by
+  simp [standardFrechetCDF, standardFrechetAux, hx]
 
-noncomputable def standardWeibullCDF {ξ : ℝ} (ξ_neg : ξ < 0) : CumulativeDistributionFunction where
-  toFun := standardWeibullAux ξ
+lemma standardFrechetCDF_apply_nonpos_eq {α x : ℝ} (α_pos : 0 < α) (hx : x ≤ 0) :
+    standardFrechetCDF α_pos x = 0 := by
+  simp [standardFrechetCDF, standardFrechetAux, hx]
+
+noncomputable def standardWeibullAux (α : ℝ) (x : ℝ) :=
+  if x < 0 then Real.exp (-(Real.rpow (-x) α)) else 1
+
+noncomputable def standardWeibullCDF {α : ℝ} (α_pos : 0 < α) : CumulativeDistributionFunction where
+  toFun := standardWeibullAux α
   mono' := sorry
   right_continuous' := sorry
   tendsto_atTop := sorry
   tendsto_atBot := sorry
+
+lemma standardWeibullCDF_apply_nonneg_eq {α x : ℝ} (α_pos : 0 < α) (hx : 0 ≤ x) :
+    standardWeibullCDF α_pos x = 1 := by
+  simp [standardWeibullCDF, standardWeibullAux, hx]
+
+lemma standardWeibullCDF_apply_neg_eq {α x : ℝ} (α_pos : 0 < α) (hx : x < 0) :
+    standardWeibullCDF α_pos x = Real.exp (-(Real.rpow (-x) α)) := by
+  simp [standardWeibullCDF, standardWeibullAux, hx]
 
 lemma isExtremeValueDistr_standardGumbelCDF :
     standardGumbelCDF.IsExtremeValueDistr := by
@@ -133,8 +149,8 @@ lemma isExtremeValueDistr_standardFrechetCDF {ξ : ℝ} (ξ_pos : 0 < ξ) :
     (standardFrechetCDF ξ_pos).IsExtremeValueDistr := by
   sorry
 
-lemma isExtremeValueDistr_standardWeibullCDF {ξ : ℝ} (ξ_neg : ξ < 0) :
-    (standardWeibullCDF ξ_neg).IsExtremeValueDistr := by
+lemma isExtremeValueDistr_standardWeibullCDF {ξ : ℝ} (ξ_pos : 0 < ξ) :
+    (standardWeibullCDF ξ_pos).IsExtremeValueDistr := by
   sorry
 
 end three_evds

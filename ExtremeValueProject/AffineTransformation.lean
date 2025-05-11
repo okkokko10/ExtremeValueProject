@@ -182,15 +182,15 @@ lemma AffineMap.mkOfCoefs_of_field_eq_inv {𝕜 : Type*} [Field 𝕜] (A : 𝕜 
   rw [AffineEquiv.mkOfCoefs_of_field_symm_apply_eq]
   ring
 
-/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b`
+/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` of the form `x ↦ a * x + b`
 is `y ↦ α * x + β` where `α = a⁻¹`. -/
 lemma AffineEquiv.inv_coefs_of_field_fst {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
     (A⁻¹).toAffineMap.coefs_of_field.1 = (A.toAffineMap.coefs_of_field.1)⁻¹ := by
   simp [← AffineMap.mkOfCoefs_of_field_eq_inv A]
 
-/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` is of the form `x ↦ a * x + b`
+/-- The inverse `A⁻¹` of an affine map `A : 𝕜 → 𝕜` of the form `x ↦ a * x + b`
 is `y ↦ α * x + β` where `β = - a⁻¹ * b`. -/
-lemma AffineMap.inv_coefs_of_field_fst {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) (x : 𝕜) :
+lemma AffineEquiv.inv_coefs_of_field_snd {𝕜 : Type*} [Field 𝕜] (A : 𝕜 ≃ᵃ[𝕜] 𝕜) :
     (A⁻¹).toAffineMap.coefs_of_field.2
       = -(A.toAffineMap.coefs_of_field.1)⁻¹ * A.toAffineMap.coefs_of_field.2 := by
   simp [← AffineMap.mkOfCoefs_of_field_eq_inv A]
@@ -393,6 +393,18 @@ lemma AffineIncrEquiv.ext_of_coefs {A₁ A₂ : AffineIncrEquiv} (h : A₁.coefs
 @[simp] lemma AffineIncrEquiv.coefs_snd_mul (A₁ A₂ : AffineIncrEquiv) :
     (A₁ * A₂).coefs.2 = A₁.coefs.1 * A₂.coefs.2 + A₁.coefs.2 := by
   sorry -- **Issue 43**
+
+/-- The inverse `A⁻¹` of an orientation-preserving affine map `A : ℝ → ℝ` of the
+form `x ↦ a * x + b` is `y ↦ α * x + β` where `α = a⁻¹`. -/
+@[simp] lemma AffineIncrEquiv.inv_coefs_fst (A : AffineIncrEquiv) :
+    (A⁻¹).coefs.1 = (A.coefs.1)⁻¹ :=
+  A.val.inv_coefs_of_field_fst
+
+/-- The inverse `A⁻¹` of an orientation-preserving affine map `A : ℝ → ℝ` of the
+form `x ↦ a * x + b` is `y ↦ α * x + β` where `β = - a⁻¹ * b`. -/
+@[simp] lemma AffineIncrEquiv.inv_coefs_snd (A : AffineIncrEquiv) :
+    (A⁻¹).coefs.2 = -(A.coefs.1)⁻¹ * A.coefs.2 :=
+  A.val.inv_coefs_of_field_snd
 
 lemma AffineIncrEquiv.continuous_coefs_fst :
     Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.1 := by

@@ -173,6 +173,11 @@ lemma eq_of_forall_apply_eq_const_mul (F G : CumulativeDistributionFunction)
     F = G := by
   sorry -- TODO: Create an issue?
 
+lemma eq_of_forall_dense_eq {S : Set ℝ} (S_dense : Dense S) (F G : CumulativeDistributionFunction)
+    (h : ∀ x ∈ S, F x = G x) :
+    F = G := by
+  sorry -- TODO: Create an issue?
+
 end CumulativeDistributionFunction
 
 end cdf_def
