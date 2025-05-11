@@ -848,8 +848,8 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \begin{lemma}[Self-similar continuous c.d.f. family characterization $\gamma < 0$]
   \label{lem:characterization-self-similar-family-neg-index}
   \uses{def:lem:oriented-affine-action-on-cdf}
-  % \lean{}
-  % \leanok
+  \lean{weibull_type_of_selfSimilar_index_neg', weibull_type_of_selfSimilar_index_neg}
+  \leanok
   Suppose that $G$ is a nondegenerate c.d.f. such that
   \begin{align*}
     G^{t} = A_t . G \qquad \text{ for any } t > 0 ,
@@ -874,6 +874,9 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   %  lem:solution-functional-eqn-translation-exp-zero}
   \uses{lem:fixing-subgroup-characterization}
   % \leanok
+
+  \emph{(Note: The Lean formalized statement uses the opposite sign of $\alpha$:
+  it is assumed that $\alpha < 0$ and $A_t(x) = t^{+\alpha} (x-c) + c$.)}
 
   Since $G$ is nondegenerate, there exists an $x_0 \in \bR$
   with $0 < G(x_0) < 1$. Write $q = -\log G(x_0) > 0$,

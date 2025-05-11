@@ -223,13 +223,6 @@ theorem frechet_type_of_selfSimilar_index_pos
     congr
     ring
 
-open AffineIncrEquiv in
-lemma weibull_type_of_selfSimilar_index_neg' {G : CumulativeDistributionFunction}
-    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_neg : α < 0)
-    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) {x : ℝ} (hx : x ≤ c) :
-    G x = exp (-(((c - x) / ((-(log (G (c - 1)))) ^ α)) ^ (-α⁻¹))) := by
-  sorry
-
 open AffineIncrEquiv Topology Filter in
 lemma apply_eq_one_of_gt_of_selfSimilar_index_neg' {G : CumulativeDistributionFunction}
     {α c : ℝ} (α_neg : α < 0) (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s))
@@ -238,6 +231,34 @@ lemma apply_eq_one_of_gt_of_selfSimilar_index_neg' {G : CumulativeDistributionFu
   -- (Compare with the proof of `apply_eq_zero_of_lt_of_selfSimilar_index_pos'`.)
   sorry -- **Issue ?**
 
--- theorem weibull_type_of_selfSimilar_index_neg
+open AffineIncrEquiv in
+lemma weibull_scale_pos_of_selfSimilar_index_neg' {G : CumulativeDistributionFunction}
+    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_neg : α < 0)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) :
+    0 < (-(log (G (c - 1)))) ^ (-α) := by
+  apply rpow_pos_of_pos
+  simp only [Left.neg_pos_iff]
+  apply log_neg
+  -- Both G(c-1)=0 and G(c-1)=1 lead to a contradiction with the nondegeneracy of G,
+  -- like in the proof of `apply_eq_zero_of_lt_of_selfSimilar_index_pos'`.
+  · sorry
+  · sorry
+
+open AffineIncrEquiv in
+lemma weibull_type_of_selfSimilar_index_neg' {G : CumulativeDistributionFunction}
+    (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_neg : α < 0)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) {x : ℝ} (hx : x ≤ c) :
+    G x = exp (-(((c - x) / ((-(log (G (c - 1)))) ^ α)) ^ (-α⁻¹))) := by
+  sorry
+
+example (ξ : ℝ) (hξ : ξ < 0) : 0 < -ξ⁻¹ := by simp [hξ]
+
+open AffineIncrEquiv in
+theorem weibull_type_of_selfSimilar_index_neg
+    {G : CumulativeDistributionFunction} (G_nondeg : ¬ G.IsDegenerate) {α c : ℝ} (α_neg : α < 0)
+    (hG : ∀ s, (homOfIndex α c s) • G = G.pow (exp_pos s)) :
+    G = (mkOfCoefs (weibull_scale_pos_of_selfSimilar_index_neg' G_nondeg α_neg hG) c)
+        • standardWeibullCDF (show 0 < -α⁻¹ by simp [α_neg]) := by
+  sorry
 
 end self_similar_cdf
