@@ -262,3 +262,79 @@ theorem weibull_type_of_selfSimilar_index_neg
   sorry
 
 end self_similar_cdf
+
+
+section self_simiarity_of_extreme_value_distributions
+
+open Real
+
+namespace CumulativeDistributionFunction.IsExtremeValueDistr
+
+theorem self_similar {G : CumulativeDistributionFunction}
+    (G_evd : G.IsExtremeValueDistr) :
+    ∃ (f : Multiplicative ℝ →* AffineIncrEquiv), f ≠ 1 ∧
+      (∀ (s : ℝ), f s • G = G.pow (exp_pos s)) := by
+  sorry
+
+open AffineIncrEquiv in
+/-- **Fisher-Tippett-Gnedenko theorem**:
+Any extreme value distribution is of Gumbel, Fréchet, or Weibull type.
+-/
+theorem classification {G : CumulativeDistributionFunction}
+    (G_evd : G.IsExtremeValueDistr) :
+    (∃ (A : AffineIncrEquiv), A • G = standardGumbelCDF) ∨
+      (∃ (A : AffineIncrEquiv) (ξ : ℝ) (hξ : 0 < ξ) , A • G = standardFrechetCDF hξ) ∨
+      (∃ (A : AffineIncrEquiv) (ξ : ℝ) (hξ : 0 < ξ) , A • G = standardWeibullCDF hξ) := by
+  obtain ⟨f, f_nontriv, hf⟩ := IsExtremeValueDistr.self_similar G_evd
+  cases' homomorphism_from_Real_characterization_of_nontrivial f_nontriv with h₀ h₁
+  · left -- **the Gumbel case**
+    obtain ⟨β, β_ne_zero, hβ⟩ := h₀
+    have β_pos : 0 < β := by
+      by_contra con -- β ≤ 0 is a contradiction with the self-similarity property and nondegeneracy
+      simp only [not_lt] at con
+      have β_neg : β < 0 := lt_of_le_of_ne con β_ne_zero
+      obtain ⟨x, hx⟩ : ∃ x, G x ≠ 0 ∧ G x ≠ 1 := by simpa [IsDegenerate] using G_evd.nondegenerate
+      have Gx_eq : (G x) ^ 2 = G x := by
+        have Gx_sq : (homOfIndex₀ β (Real.log 2) • G) x = (G x) ^ 2 := by
+          have selfsim := hβ ▸ hf
+          rw [← CumulativeDistributionFunction.npow_apply_eq G zero_lt_two x, selfsim (log 2)]
+          congr
+          simpa only [Nat.cast_ofNat] using exp_log zero_lt_two
+        have obs : (homOfIndex₀ β (Real.log 2))⁻¹ x > x := by
+          simp [show Real.log 2 * β < 0 from mul_neg_of_pos_of_neg (log_pos one_lt_two) β_neg]
+        apply le_antisymm
+        · exact pow_le_of_le_one (G.apply_nonneg x) (G.apply_le_one x) two_ne_zero
+        · simpa only [← Gx_sq] using G.mono obs.le
+      have Gx_eq_01 : G x = 0 ∨ G x = 1 := by
+        rw [← sub_eq_zero (b := (1 : ℝ)), ← mul_eq_zero]
+        linarith
+      cases' Gx_eq_01 with hGx₀ hGx₁
+      · exact hx.1 hGx₀
+      · exact hx.2 hGx₁
+    have key := gumbel_type_of_selfSimilar_index_zero G_evd.nondegenerate β_pos (hβ ▸ hf)
+    set A := (mkOfCoefs (Right.inv_pos.mpr β_pos) (-(log (- (log (G 0))))))
+      with def_A
+    refine ⟨A, ?_⟩
+    simpa using congr_arg (fun F ↦ A • F) key
+  · right -- Fréchet or Weibull case
+    obtain ⟨α, c, α_ne_zero, h⟩ := h₁
+    by_cases sign_α : 0 < α
+    · left -- **the Fréchet case**
+      have key := frechet_type_of_selfSimilar_index_pos G_evd.nondegenerate sign_α (h ▸ hf)
+      set A := (mkOfCoefs
+          (frechet_scale_pos_of_selfSimilar_index_pos' G_evd.nondegenerate sign_α (h ▸ hf)) c)
+        with def_A
+      refine ⟨A⁻¹, α⁻¹, by simp [sign_α], ?_⟩
+      simpa [← mul_smul] using congr_arg (fun F ↦ A⁻¹ • F) key
+    · right -- **the Weibull case**
+      have α_neg : α < 0 := lt_of_le_of_ne (not_lt.mp sign_α) α_ne_zero
+      have key := weibull_type_of_selfSimilar_index_neg G_evd.nondegenerate α_neg (h ▸ hf)
+      set A := (mkOfCoefs
+          (weibull_scale_pos_of_selfSimilar_index_neg' G_evd.nondegenerate α_neg (h ▸ hf)) c)
+        with def_A
+      refine ⟨A⁻¹, -α⁻¹, by simp [α_neg], ?_⟩
+      simpa [← mul_smul] using congr_arg (fun F ↦ A⁻¹ • F) key
+
+end CumulativeDistributionFunction.IsExtremeValueDistr
+
+end self_simiarity_of_extreme_value_distributions

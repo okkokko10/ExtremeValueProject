@@ -569,8 +569,8 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \begin{lemma}[Self-similarity of extreme value distributions]
   \label{lem:self-similarity-of-extreme-value-distributions}
   \uses{def:cdf, lem:oriented-affine-action-on-cdf, def:extr-val-distr}
-  % \lean{}
-  % \leanok
+  \lean{CumulativeDistributionFunction.IsExtremeValueDistr.self_similar}
+  \leanok
   %Let $F$ be a c.d.f.
   %
   %\emph{(Note that below we use
@@ -847,7 +847,7 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 
 \begin{lemma}[Self-similar continuous c.d.f. family characterization $\gamma < 0$]
   \label{lem:characterization-self-similar-family-neg-index}
-  \uses{def:lem:oriented-affine-action-on-cdf}
+  \uses{def:lem:oriented-affine-action-on-cdf, def:fixing-subgroup}
   \lean{weibull_type_of_selfSimilar_index_neg', weibull_type_of_selfSimilar_index_neg}
   \leanok
   Suppose that $G$ is a nondegenerate c.d.f. such that
@@ -924,21 +924,25 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \end{proof}
 
 
-\begin{theorem}[Three types of extreme value distributions]
+\begin{theorem}[Three types of extreme value distributions [Fisher-Tippett-Gnedenko]]
   \label{thm:three-types-of-extr-val-distr}
   \uses{def:extr-val-distr,
     def:std-Gumbel-cdf, def:std-Frechet-cdf, def:std-Weibull-cdf}
-  % \lean{}
-  % \leanok
-  Any extreme value distribution $G$ is of one of the following types:
+  \lean{CumulativeDistributionFunction.IsExtremeValueDistr.classification}
+  \leanok
+  For any extreme value distribution $G$, one of the following holds:
   \begin{description}
-    \item{($\GumbelCDF$)} \ldots
-    \item{($\FrechetCDF{{}}$)} \ldots
-    \item{($\WeibullCDF{{}}$)} \ldots
+    \item{($\GumbelCDF$)}
+      $G = A . \GumbelCDF$ for some $A \in \OriAffR$;
+    \item{($\FrechetCDF{{}}$)}
+      $G = A . \FrechetCDF{\alpha}$ for some $A \in \OriAffR$ and $\alpha > 0$;
+    \item{($\WeibullCDF{{}}$)}
+      $G = A . \WeibullCDF{\alpha}$ for some $A \in \OriAffR$ and $\alpha > 0$.
   \end{description}
-  In particular, $G$ has either the type of the Gumber c.d.f. $\GumbelCDF$,
-  the Fr\'echet c.d.f. $\FrechetCDF{\alpha}$ for some $\alpha > 0$, or
-  the Weibull c.d.f. $\WeibullCDF{\alpha}$ for some $\alpha > 0$.
+  In particular, the only three possible types of extreme value distributions
+  are the type of the Gumbel c.d.f., the type of
+  the Fr\'echet c.d.f. $\FrechetCDF{\alpha}$ for $\alpha > 0$, and
+  the type of the Weibull c.d.f. $\WeibullCDF{\alpha}$ for $\alpha > 0$.
 \end{theorem}
 \begin{proof}
   \uses{thm:one-parameter-subgroups-of-affine-isomorphisms,
@@ -946,6 +950,6 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
     lem:characterization-self-similar-family-zero-index,
     lem:characterization-self-similar-family-pos-index,
     lem:characterization-self-similar-family-neg-index}
-  % \leanok
+  \leanok
   \ldots
 \end{proof}

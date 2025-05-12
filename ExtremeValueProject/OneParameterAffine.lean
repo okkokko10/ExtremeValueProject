@@ -178,4 +178,28 @@ noncomputable def AffineIncrEquiv.subGroupOfIndex (α c : ℝ) :
     A ∈ subGroupOfIndex α c ↔ A c = c := by
   sorry -- **Issue 45**
 
+/-- Characterization of homomorphisms `f : ℝ → AffineIncrEquiv`. -/
+theorem AffineIncrEquiv.homomorphism_from_Real_characterization
+    (f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv) :
+    (∃ β, f = homOfIndex₀ β) ∨ (∃ α c, f = homOfIndex α c) := by
+  sorry -- TODO: Create issue.
+
+/-- Characterization of nontrivial homomorphisms `f : ℝ → AffineIncrEquiv`. -/
+theorem AffineIncrEquiv.homomorphism_from_Real_characterization_of_nontrivial
+    {f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv} (f_nontriv : ¬ f = 1) :
+    (∃ β, β ≠ 0 ∧ f = homOfIndex₀ β) ∨ (∃ α c, α ≠ 0 ∧ f = homOfIndex α c) := by
+  cases' homomorphism_from_Real_characterization f with h₀ h₁
+  · obtain ⟨β, hβ⟩ := h₀
+    refine Or.inl ⟨β, ?_, hβ⟩
+    by_contra maybe_zero
+    apply f_nontriv
+    ext x
+    simp [hβ, maybe_zero]
+  · obtain ⟨α, c, h⟩ := h₁
+    refine Or.inr ⟨α, c, ?_, h⟩
+    by_contra maybe_zero
+    apply f_nontriv
+    ext x
+    simp [h, maybe_zero]
+
 end one_parameter_subgroups_of_affine_transformations

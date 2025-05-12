@@ -20,6 +20,11 @@ def IsExtremeValueDistr (G : CumulativeDistributionFunction) : Prop :=
     ∃ (F : CumulativeDistributionFunction) (As : ℕ → AffineIncrEquiv),
       ∀ x, ContinuousAt G x → Tendsto (fun n ↦ ((As n • F) x)^n) atTop (𝓝 (G x))
 
+lemma IsExtremeValueDistr.nondegenerate
+    {G : CumulativeDistributionFunction} (G_evd : G.IsExtremeValueDistr) :
+    ¬G.IsDegenerate :=
+  G_evd.1
+
 /-- Orientation preserving affine transfroms of extreme value distributions are extreme value
 distributions. -/
 lemma IsExtremeValueDistr.affineTransform (G : CumulativeDistributionFunction)
