@@ -272,7 +272,7 @@ namespace CumulativeDistributionFunction.IsExtremeValueDistr
 
 theorem self_similar {G : CumulativeDistributionFunction}
     (G_evd : G.IsExtremeValueDistr) :
-    ∃ (f : Multiplicative ℝ →* AffineIncrEquiv), f ≠ 1 ∧
+    ∃ (f : Multiplicative ℝ →* AffineIncrEquiv), f ≠ 1 ∧ Measurable f ∧
       (∀ (s : ℝ), f s • G = G.pow (exp_pos s)) := by
   sorry
 
@@ -285,8 +285,8 @@ theorem classification {G : CumulativeDistributionFunction}
     (∃ (A : AffineIncrEquiv), A • G = standardGumbelCDF) ∨
       (∃ (A : AffineIncrEquiv) (ξ : ℝ) (hξ : 0 < ξ) , A • G = standardFrechetCDF hξ) ∨
       (∃ (A : AffineIncrEquiv) (ξ : ℝ) (hξ : 0 < ξ) , A • G = standardWeibullCDF hξ) := by
-  obtain ⟨f, f_nontriv, hf⟩ := IsExtremeValueDistr.self_similar G_evd
-  cases' homomorphism_from_Real_characterization_of_nontrivial f_nontriv with h₀ h₁
+  obtain ⟨f, f_nontriv, f_mble, hf⟩ := IsExtremeValueDistr.self_similar G_evd
+  cases' homomorphism_from_Real_characterization_of_nontrivial f_nontriv f_mble with h₀ h₁
   · left -- **the Gumbel case**
     obtain ⟨β, β_ne_zero, hβ⟩ := h₀
     have β_pos : 0 < β := by

@@ -275,6 +275,10 @@ lemma AffineIncrEquiv.mem_orientationPreservingAffineEquiv (A : AffineIncrEquiv)
     A.val ∈ orientationPreservingAffineEquiv := by
   simp
 
+lemma AffineIncrEquiv.coefs_fst_pos (A : AffineIncrEquiv) :
+    0 < A.coefs.1 :=
+  A.isOrientationPreserving
+
 instance : Group AffineIncrEquiv where
   mul A₁ A₂ := ⟨A₁.val * A₂.val, orientationPreservingAffineEquiv.mul_mem
                   A₁.mem_orientationPreservingAffineEquiv A₂.mem_orientationPreservingAffineEquiv⟩

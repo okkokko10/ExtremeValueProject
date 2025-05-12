@@ -178,17 +178,111 @@ noncomputable def AffineIncrEquiv.subGroupOfIndex (α c : ℝ) :
     A ∈ subGroupOfIndex α c ↔ A c = c := by
   sorry -- **Issue 45**
 
+/-- Functional equation for scaling coefficients of a homomorphism `f : ℝ → AffineIncrEquiv`. -/
+lemma AffineIncrEquiv.homomorphism_coef_eqn_fst
+    (f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv) (s₁ s₂ : ℝ) :
+    (f (s₁ + s₂)).coefs.1 = (f s₁).coefs.1 * (f s₂).coefs.1 := by
+  simp [show f (s₁ + s₂) = f s₁ * f s₂ by rw [← f.map_mul] ; rfl]
+
+/-- Functional equation for translation coefficients of a homomorphism `f : ℝ → AffineIncrEquiv`. -/
+lemma AffineIncrEquiv.homomorphism_coef_eqn_snd
+    (f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv) (s₁ s₂ : ℝ) :
+    (f (s₁ + s₂)).coefs.2 = (f s₁).coefs.1 * (f s₂).coefs.2 + (f s₁).coefs.2 := by
+  simp [show f (s₁ + s₂) = f s₁ * f s₂ by rw [← f.map_mul] ; rfl]
+
+open Real
+
+lemma eq_const_mul_of_additive_of_measurable {f : ℝ → ℝ}
+    (f_additive : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ + f s₂) (f_mble : Measurable f) :
+    ∃ α, f = fun s ↦ α * s := by
+  sorry
+
+lemma eq_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : ∀ s, 0 < f s)
+    (f_multiplicative : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ * f s₂) (f_mble : Measurable f) :
+    ∃ α, f = fun s ↦ exp (α * s) := by
+  let g := fun s ↦log (f s)
+  have f_eq_exp_g (s) : f s = exp (g s) := by
+    simpa [g] using (exp_log (f_pos s)).symm
+  have g_mble : Measurable g := measurable_log.comp f_mble
+  have g_additive (s₁ s₂) : g (s₁ + s₂) = g s₁ + g s₂ := by
+    simpa only [g, f_multiplicative] using log_mul (f_pos _).ne.symm (f_pos _).ne.symm
+  obtain ⟨α, key⟩ := eq_const_mul_of_additive_of_measurable g_additive g_mble
+  refine ⟨α, by ext s ; rw [f_eq_exp_g, key]⟩
+
+lemma eq_of_functional_eqn_of_ne_zero {f : ℝ → ℝ} {α : ℝ} (α_ne_zero : α ≠ 0)
+    (f_eqn : ∀ s₁ s₂, f (s₁ + s₂) = exp (α * s₁) * f s₂ + f s₁) (f_mble : Measurable f) :
+    ∃ c, f = fun s ↦ c * (1 - exp (α * s)) := by
+  sorry
+
+/-- We endow the space of orientation-preserving affine isomorphisms of `ℝ` with the Borel
+σ-algebra of the topology of pointwise convergence. -/
+instance : MeasurableSpace AffineIncrEquiv := borel AffineIncrEquiv
+
+instance : BorelSpace AffineIncrEquiv := ⟨rfl⟩
+
+lemma AffineIncrEquiv.measurable_coefs_fst :
+    Measurable (fun (A : AffineIncrEquiv) ↦ A.coefs.1) :=
+  continuous_coefs_fst.measurable
+
+lemma AffineIncrEquiv.measurable_coefs_snd :
+    Measurable (fun (A : AffineIncrEquiv) ↦ A.coefs.2) :=
+  continuous_coefs_snd.measurable
+
+lemma AffineIncrEquiv.continuous_mkOfCoefs :
+    Continuous fun (p : {a : ℝ // 0 < a} × ℝ) ↦ mkOfCoefs p.1.prop p.2 := by
+  apply (continuous_induced_rng ..).mpr
+  exact continuous_pi (by continuity)
+
+lemma AffineIncrEquiv.measurable_mkOfCoefs :
+    Measurable fun (p : {a : ℝ // 0 < a} × ℝ) ↦ mkOfCoefs p.1.prop p.2 := by
+  have _bs1 : BorelSpace {a : ℝ // 0 < a} := Subtype.borelSpace _
+  have _bs2 : BorelSpace ({a : ℝ // 0 < a} × ℝ) := Prod.borelSpace
+  exact continuous_mkOfCoefs.measurable
+
+lemma AffineIncrEquiv.continuous_of_continuous_coefs {Z : Type*} [TopologicalSpace Z]
+    {f : Z → AffineIncrEquiv} (f_fst_cont : Continuous fun z ↦ (f z).coefs.1)
+    (f_snd_cont : Continuous fun z ↦ (f z).coefs.2) :
+    Continuous f := by
+  convert AffineIncrEquiv.continuous_mkOfCoefs.comp <|
+    show Continuous fun z ↦ (⟨⟨(f z).coefs.1, (f z).isOrientationPreserving⟩, (f z).coefs.2⟩) by
+      continuity
+  ext z x
+  simp
+
+lemma AffineIncrEquiv.measurable_of_measurable_coefs {Z : Type*} [MeasurableSpace Z]
+    {f : Z → AffineIncrEquiv} (f_fst_cont : Measurable fun z ↦ (f z).coefs.1)
+    (f_snd_cont : Measurable fun z ↦ (f z).coefs.2) :
+    Measurable f := by
+  convert AffineIncrEquiv.measurable_mkOfCoefs.comp <|
+    show Measurable fun z ↦ (⟨⟨(f z).coefs.1, (f z).isOrientationPreserving⟩, (f z).coefs.2⟩) by
+      measurability
+  ext z x
+  simp
+
+instance : MeasurableSpace (Multiplicative ℝ) := borel (Multiplicative ℝ)
+
+instance : BorelSpace (Multiplicative ℝ) := ⟨rfl⟩
+
+lemma measurable_toAdd :
+    Measurable (fun (s : Multiplicative ℝ) ↦ s.toAdd) :=
+  continuous_toAdd.measurable
+
+lemma measurable_toMultiplicative :
+    Measurable (fun (s : ℝ) ↦ Multiplicative.ofAdd s) :=
+  continuous_ofAdd.measurable
+
 /-- Characterization of homomorphisms `f : ℝ → AffineIncrEquiv`. -/
 theorem AffineIncrEquiv.homomorphism_from_Real_characterization
-    (f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv) :
+    (f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv) (f_mble : Measurable f) :
     (∃ β, f = homOfIndex₀ β) ∨ (∃ α c, f = homOfIndex α c) := by
   sorry -- TODO: Create issue.
 
 /-- Characterization of nontrivial homomorphisms `f : ℝ → AffineIncrEquiv`. -/
 theorem AffineIncrEquiv.homomorphism_from_Real_characterization_of_nontrivial
-    {f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv} (f_nontriv : ¬ f = 1) :
+    {f : MonoidHom (Multiplicative ℝ) AffineIncrEquiv} (f_nontriv : ¬ f = 1)
+    (f_mble : Measurable f) :
     (∃ β, β ≠ 0 ∧ f = homOfIndex₀ β) ∨ (∃ α c, α ≠ 0 ∧ f = homOfIndex α c) := by
-  cases' homomorphism_from_Real_characterization f with h₀ h₁
+  cases' homomorphism_from_Real_characterization f f_mble with h₀ h₁
   · obtain ⟨β, hβ⟩ := h₀
     refine Or.inl ⟨β, ?_, hβ⟩
     by_contra maybe_zero
