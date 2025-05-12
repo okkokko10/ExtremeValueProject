@@ -192,12 +192,17 @@ lemma AffineIncrEquiv.homomorphism_coef_eqn_snd
 
 open Real
 
+/-- A measurable additive map ℝ → ℝ is linear.
+(The only measurable solutions to the Cauchy-Hamel functional equation are the obvious ones.) -/
 lemma eq_const_mul_of_additive_of_measurable {f : ℝ → ℝ}
     (f_additive : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ + f s₂) (f_mble : Measurable f) :
     ∃ α, f = fun s ↦ α * s := by
   sorry
 
-lemma eq_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : ∀ s, 0 < f s)
+/-- A measurable multiplicative map ℝ → (0,+∞) is of the form s ↦ exp(α * s) for some α ∈ ℝ.
+(The only measurable solutions to the multiplicative version of the Cauchy-Hamel functional
+equation are the obvious ones.) -/
+lemma eq_exp_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : ∀ s, 0 < f s)
     (f_multiplicative : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ * f s₂) (f_mble : Measurable f) :
     ∃ α, f = fun s ↦ exp (α * s) := by
   let g := fun s ↦log (f s)
@@ -210,7 +215,7 @@ lemma eq_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : �
   refine ⟨α, by ext s ; rw [f_eq_exp_g, key]⟩
 
 lemma eq_of_functional_eqn_of_ne_zero {f : ℝ → ℝ} {α : ℝ} (α_ne_zero : α ≠ 0)
-    (f_eqn : ∀ s₁ s₂, f (s₁ + s₂) = exp (α * s₁) * f s₂ + f s₁) (f_mble : Measurable f) :
+    (f_eqn : ∀ s₁ s₂, f (s₁ + s₂) = exp (α * s₁) * f s₂ + f s₁) :
     ∃ c, f = fun s ↦ c * (1 - exp (α * s)) := by
   sorry
 
