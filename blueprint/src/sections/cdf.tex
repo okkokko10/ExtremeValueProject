@@ -256,6 +256,8 @@
 % \end{definition}
 %
 
+\section{Miscellaneous results on cumulative distribution functions}
+
 \begin{lemma}[Continuity points of c.d.f.s are those which carry no point mass]
   \label{lem:cdf-continuity-pt-iff-measure-singleton}
   \uses{def:cdf}
@@ -309,4 +311,28 @@
   are dense, from any nonempty open interval we may pick a continuity point.
   First pick a continuity point $x_1 \in (x_0,x_0+\delta)$,
   and then pick another continuity point $x_2 \in (x_1,x_0+\delta)$.
+\end{proof}
+
+
+\begin{lemma}[Equality of c.d.f.s on a dense set suffices]
+  \label{lem:cdf-equal-on-dense}
+  \uses{def:cdf}
+  \lean{CumulativeDistributionFunction.eq_of_forall_dense_eq}
+  \leanok
+  Suppose that $F,G$ are two c.d.f.s and $S \subseteq \bR$ is a dense
+  subset of the real line. If $F(\xi) = G(\xi)$ for all $\xi \in S$,
+  then we have $F = G$.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  We must prove that for any $x \in \bR$ we have $F(x) = G(x)$.
+  But by right-continuity of c.d.f.s, density of $S$, and coincidence of
+  $F$ and $G$ on $S$, we have
+  \begin{align*}
+      F(x)
+    = \; & \lim_{\xi \to x^+ \text{ along $S$}} F(\xi) \\
+    = \; & \lim_{\xi \to x^+ \text{ along $S$}} G(\xi)
+    = \, G(x) .
+  \end{align*}
 \end{proof}
