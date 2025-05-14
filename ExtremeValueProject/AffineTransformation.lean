@@ -336,7 +336,8 @@ lemma AffineIncrEquiv.mono (A : AffineIncrEquiv) :
 /-- We endow the space of orientation-preserving affine isomorphisms of `ℝ` with the topology
 of pointwise convergence. (This coincides with the topology of convergence of the coefficients,
 see `AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs`). -/
-instance : TopologicalSpace AffineIncrEquiv :=
+instance instTopologicalSpaceAffineIncrEquiv :
+    TopologicalSpace AffineIncrEquiv :=
   TopologicalSpace.induced (fun A ↦ (A : ℝ → ℝ)) (by infer_instance)
 
 lemma AffineIncrEquiv.continuous_apply (x : ℝ) :
@@ -434,6 +435,27 @@ lemma AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs {ι : Type*} {L : Filter ι
     simp only [apply_eq]
     apply Tendsto.add _ h₂
     exact Tendsto.mul h₁ tendsto_const_nhds
+
+open Real in
+/-- The space of orientation-preserving affine isomorphisms of ℝ is homeomorphic to ℝ². -/
+noncomputable def AffineIncrEquiv.homeomorph_prod :
+    AffineIncrEquiv ≃ₜ ℝ × ℝ where
+  toFun A := ⟨log A.coefs.1, A.coefs.2⟩
+  invFun p := mkOfCoefs (exp_pos p.1) p.2
+  left_inv := by
+    sorry -- **Issue #53** (affine-metrizable)
+  right_inv := by
+    sorry -- **Issue #53** (affine-metrizable)
+  continuous_toFun := by
+    sorry -- **Issue #53** (affine-metrizable)
+  continuous_invFun := by
+    sorry -- **Issue #53** (affine-metrizable)
+
+/-- The topology of pointwise convergece on orientation-preserving affine isomorphisms of ℝ is
+metrizable. -/
+instance AffineIncrEquiv.metrizableSpace :
+    TopologicalSpace.MetrizableSpace AffineIncrEquiv :=
+  homeomorph_prod.isEmbedding.metrizableSpace
 
 end affine
 
@@ -590,10 +612,6 @@ lemma AffineEquiv.extend_top' (A : ℝ ≃ᵃ[ℝ] ℝ) :
   · simp only [ne_eq, not_lt] at *
     have hA' : A.toAffineMap.coefs_of_field.1 < 0 := lt_of_le_of_ne hA obs
     simp [AffineMap.extend, hA']
-
---lemma AffineEquiv.extend_ofReal' (A : ℝ ≃ᵃ[ℝ] ℝ) (x : ℝ) :
---    A.toAffineMap.extend x = A x :=
---  rfl
 
 lemma AffineEquiv.extend_symm_cancel (A : ℝ ≃ᵃ[ℝ] ℝ) (x : EReal) :
     A.symm.toAffineMap.extend (A.toAffineMap.extend x) = x := by

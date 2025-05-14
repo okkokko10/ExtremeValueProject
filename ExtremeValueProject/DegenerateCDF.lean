@@ -116,8 +116,7 @@ lemma diracProba_is_degenerate (x₀ : ℝ) :
 at some point x₀. -/
 lemma eq_diracProba_of_isDegenerate (μ : ProbabilityMeasure ℝ) (degen : μ.cdf.IsDegenerate) :
     ∃ x₀, μ = diracProba x₀ := by
-  rw [isDegenerate_iff] at degen
-  obtain ⟨x₀, h⟩ := degen
+  obtain ⟨x₀, h⟩ := (isDegenerate_iff ..).mp degen
   use x₀
   ext s hs
   rw [diracProba_toMeasure_apply, indicator, Pi.one_apply]
@@ -134,9 +133,7 @@ lemma eq_diracProba_of_isDegenerate (μ : ProbabilityMeasure ℝ) (degen : μ.cd
   have measure_x₀_eq_one : μ.toMeasure {x₀} = 1 := by
     rw [← Iic_diff_Iio_same,
         measure_diff Iio_subset_Iic_self nullMeasurableSet_Iio (measure_ne_top μ (Iio x₀)),
-        measure_Iic_eq_one,
-        measure_Iio_eq_zero,
-        tsub_zero]
+        measure_Iic_eq_one, measure_Iio_eq_zero, tsub_zero]
   have measure_eq_one_of_contains_x₀ {s : Set ℝ} (hx₀ : x₀ ∈ s) : μ.toMeasure s = 1 := by
     rw [← one_le_prob_iff, ← measure_x₀_eq_one]
     apply measure_mono

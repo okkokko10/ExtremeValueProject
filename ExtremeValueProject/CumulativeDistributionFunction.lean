@@ -148,6 +148,21 @@ noncomputable def equiv_probabilityMeasure :
     apply Subtype.ext
     apply μ.measure_cdf
 
+/-- The Borel probability measure on ℝ defined by a cumulative distribution function. -/
+noncomputable def probabilityMeasure (F : CumulativeDistributionFunction) :=
+    equiv_probabilityMeasure F
+
+@[simp] lemma probabilityMeasure_cdf_eq_self (F : CumulativeDistributionFunction) :
+    F.probabilityMeasure.cdf = F := by
+  change equiv_probabilityMeasure.symm (equiv_probabilityMeasure F) = F
+  simp
+
+@[simp] lemma _root_.MeasureTheory.ProbabilityMeasure.cdf_probabilityMeasure_eq_self
+    (μ : ProbabilityMeasure ℝ) :
+    μ.cdf.probabilityMeasure = μ := by
+  change equiv_probabilityMeasure (equiv_probabilityMeasure.symm μ) = μ
+  simp
+
 lemma continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
     ContinuousAt F x ↔ F.measure {x} = 0 := by
   rw [StieltjesFunction.measure_singleton]

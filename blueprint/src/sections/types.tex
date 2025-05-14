@@ -201,7 +201,7 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \end{theorem}
 \begin{proof}
   \uses{lem:impossible-expanding-limit, lem:degenerate-shrinking-limit,
-    lem:unique-affine-relation-cdf}
+    lem:unique-affine-relation-cdf, lem:action-on-cdf-continuous}
   % \leanok
   Let us first argue that $(a_n)_{n \in \bN}$ are bounded.
   If not, then by passing to a subsequence, we have $a_{n_k} \to +\infty$.
@@ -255,7 +255,7 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   By assumption, we have $A_{n_k} . F_{n_k} \tendsinlaw \widetilde{G}$.
   But since $A_{n_k} \to A$ where $A(x) = \alpha x + \beta$
   and we have also assumed $F_{n_k} \tendsinlaw G$, this implies by
-  continuity that $A_{n_k} . F_{n_k} \tendsinlaw A . G$.
+  continuity (Lemma~\ref{lem:action-on-cdf-continuous}) that $A_{n_k} . F_{n_k} \tendsinlaw A . G$.
   By uniqueness of limits, we get $A . G = \widetilde{G}$.
 
   To prove that in fact $A_n \to A$, not just along a subsequence, note the

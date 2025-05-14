@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kalle Kytölä, ...
 -/
 import ExtremeValueProject.CumulativeDistributionFunction
+import ExtremeValueProject.AffineTransformation
 import Mathlib
 
 section weak_convergence_cdf
@@ -75,16 +76,82 @@ end weak_convergence_cdf
 
 section levy_prokhorov_metric
 
-open MeasureTheory
+open MeasureTheory Filter Topology
 
 variable (F G :CumulativeDistributionFunction)
 
---#check F.toStieltjesFunction.toMeasure
+namespace CumulativeDistributionFunction
 
-example (F : CumulativeDistributionFunction) : ProbabilityMeasure ℝ := by
+lemma tendsto_probabilityMeasure_iff_forall_continuousAt_tendsto
+    (Fs : ℕ → CumulativeDistributionFunction) (G : CumulativeDistributionFunction) :
+    Tendsto (fun i ↦ (Fs i).probabilityMeasure) atTop (𝓝 G.probabilityMeasure)
+      ↔ ∀ x, ContinuousAt G x → Tendsto (fun i ↦ Fs i x) atTop (𝓝 (G x)) := by
+  constructor
+  · intro h x hGx
+    have key := @tendsto_apply_of_tendsto_of_continuousAt ℕ atTop
+                (fun i ↦ (Fs i).probabilityMeasure) G.probabilityMeasure h x
+    simp_all
+  · intro h
+    apply tendsto_of_forall_continuousAt_tendsto_cdf
+    simpa using h
 
-  sorry
+noncomputable def equiv_levyProkhorov :
+    CumulativeDistributionFunction ≃ LevyProkhorov (ProbabilityMeasure ℝ) :=
+  equiv_probabilityMeasure.trans (LevyProkhorov.equiv (ProbabilityMeasure ℝ)).symm
 
-#check MeasureTheory.LevyProkhorov (ProbabilityMeasure ℝ)
+noncomputable instance : MetricSpace CumulativeDistributionFunction := by
+  apply MetricSpace.induced equiv_levyProkhorov
+  · intro F G h
+    simpa only [EmbeddingLike.apply_eq_iff_eq] using h
+  · exact levyProkhorovDist_metricSpace_probabilityMeasure
+
+noncomputable def homeomorph_levyProkhorov :
+    CumulativeDistributionFunction ≃ₜ LevyProkhorov (ProbabilityMeasure ℝ) :=
+  Equiv.toHomeomorphOfIsInducing equiv_levyProkhorov ⟨rfl⟩
+
+noncomputable def homeomorph_probabilityMeasure :
+    CumulativeDistributionFunction ≃ₜ ProbabilityMeasure ℝ :=
+  homeomorph_levyProkhorov.trans homeomorph_probabilityMeasure_levyProkhorov.symm
+
+lemma homeomorph_probabilityMeasure_apply_eq (F : CumulativeDistributionFunction) :
+    homeomorph_probabilityMeasure F = F.probabilityMeasure :=
+  rfl
+
+/-- The standard characterization of convergence of cumulative distribution functions. -/
+lemma tendsto_iff_forall_continuousAt_tendsto
+    (Fs : ℕ → CumulativeDistributionFunction) (G : CumulativeDistributionFunction) :
+    Tendsto Fs atTop (𝓝 G) ↔
+      ∀ x, ContinuousAt G x → Tendsto (fun i ↦ Fs i x) atTop (𝓝 (G x)) := by
+  rw [← tendsto_probabilityMeasure_iff_forall_continuousAt_tendsto]
+  constructor
+  · intro h
+    simp_rw [← homeomorph_probabilityMeasure_apply_eq]
+    apply homeomorph_probabilityMeasure.continuous.continuousAt.tendsto.comp h
+  · intro h
+    convert homeomorph_probabilityMeasure.symm.continuous.continuousAt.tendsto.comp h
+    · ext1 i
+      exact EquivLike.inv_apply_eq_iff_eq_apply.mp rfl
+    · exact EquivLike.inv_apply_eq_iff_eq_apply.mp rfl
+
+end CumulativeDistributionFunction
 
 end levy_prokhorov_metric
+
+
+
+section continuous_mulAction
+
+namespace CumulativeDistributionFunction
+
+lemma continuous_mulAction :
+    Continuous fun (⟨A, F⟩ : AffineIncrEquiv × CumulativeDistributionFunction) ↦ A • F := by
+  rw [continuous_iff_seqContinuous]
+  intro AFs BG h_lim
+  rw [tendsto_iff_forall_continuousAt_tendsto]
+  intro x hBGx
+  simp only [Function.comp_apply, mulAction_apply_eq]
+  sorry -- **Issue #54** (action-on-cdf-continuous)
+
+end CumulativeDistributionFunction
+
+end continuous_mulAction

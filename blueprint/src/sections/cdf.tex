@@ -336,3 +336,141 @@
     = \, G(x) .
   \end{align*}
 \end{proof}
+
+
+
+\section{Topology on orientation-preserving affine isomorphisms}
+
+\begin{definition}[]
+  \label{def:affine-transform-topology}
+  \uses{def:oriented-affine-isomorphism}
+  \lean{instTopologicalSpaceAffineIncrEquiv}
+  \leanok
+  We equip the space $\OriAffR$ of orientation-preserving affine isomorphisms
+  with the topology of pointwise convergence, i.e., with the
+  coarsest topology which makes the evaluations $A \mapsto A(x)$ continuous
+  for all $x \in \bR$.
+\end{definition}
+
+\begin{lemma}[The coefficients of affine map depend continuously on the map]
+  \label{lem:affine-coefficients-continuous}
+  \uses{def:oriented-affine-isomorphism}
+  \lean{AffineIncrEquiv.continuous_coefs_fst, AffineIncrEquiv.continuous_coefs_snd}
+  \leanok
+  The coefficients $a$ and $b$ of an orientation-preserving affine isomorphism
+  $A(x) = a x + b$ depend continuously on $A$.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  We may first write $a = A(1) - A(0)$ and $b = A(0)$.
+  These depend continuously on $A$,
+  since the evaluations $A(1)$ and $A(0)$ do.
+\end{proof}
+
+\begin{lemma}[Metrizability of the topology on oriented affine isomorphisms]
+  \label{lem:affine-metrizable}
+  \uses{def:affine-transform-topology}
+  \lean{AffineIncrEquiv.homeomorph_prod, AffineIncrEquiv.metrizableSpace}
+  \leanok
+  The topology of pointwise convergence makes $\OriAffR$
+  homeomorphic to $\bR^2$, and in particular
+  metrizable.
+\end{lemma}
+\begin{proof}
+  \uses{lem:affine-coefficients-continuous}
+  % \leanok
+  The essential claim is that the function
+  \begin{align*}
+    \mathrm{cfs} \colon \OriAffR \to (0,+\infty) \times \bR
+  \end{align*}
+  obtained by mapping $A(x) = a x + b$ to its coefficients $(a,b)$ is a homeomorphism.
+  (The homeomorphism to $\bR^2 = \bR \times \bR$ follows by combining with the
+  homeomorphism $(a,b) \mapsto (\log a, b)$.)
+
+  The continuity of $\mathrm{cfs}$ follows from Lemma~\ref{lem:affine-coefficients-continuous}.
+  For the continuity of the inverse, we must only check that for any $x \in \bR$,
+  its composition with the point evaluation at $x$ is continuous. But the composition
+  is $(a,b) \mapsto a x + b$, and the continuity is clear.
+\end{proof}
+
+\begin{lemma}[Inversion of orientation preserving affine isomorphisms is continuous]
+  \label{lem:affine-inversion-continuous}
+  \uses{def:oriented-affine-isomorphism}
+  \lean{AffineIncrEquiv.continuous_coefs_fst, AffineIncrEquiv.continuous_coefs_snd}
+  \leanok
+  The map $A \mapsto A^{-1}$ is continuous on $\OriAffR$
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  \ldots
+\end{proof}
+
+\begin{lemma}[The action of oriented affine transforms on c.d.f.s is continuous]
+  \label{lem:action-on-cdf-continuous}
+  \uses{lem:oriented-affine-action-on-cdf}
+  \lean{CumulativeDistributionFunction.continuous_mulAction}
+  \leanok
+  The action $A . F$ of $A \in \OriAffR$ on a c.d.f $F$ depends
+  jointly continuously on $A$ and $F$.
+
+  \emph{(The topology on c.d.f.s is the topology of convergence in distribution, i.e.,
+  convergence at all continuity points of the limit cdf.)}
+\end{lemma}
+\begin{proof}
+  \uses{lem:affine-metrizable, lem:affine-inversion-continuous}
+  % \leanok
+  The spaces are metrizable, so it suffices to check sequential continuity.
+
+  Suppose that $A_n \to B$ (oriented affine isomophisms)
+  and $F_n \tendsinlaw G$ (c.d.f.s) as $n \to \infty$.
+  Let $x \in \bR$ be a continuity point of $B.G$.
+  Let $\eps > 0$. Note that $B^{-1}(x)$ is a continuity point of $G$.
+  Then there exists a $\delta > 0$ such that $|G(y) - G\big(B^{-1}(x)\big)| < \frac{\eps}{2}$
+  when $|y-B^{-1}(x)|<\delta$.
+
+  By density of continuity points of $G$, pick continuity points
+  $y_-,y_+$ such that
+  \begin{align*}
+    B^{-1}(x)-\delta \; < \; y_- \; < \; B^{-1}(x) \; < \; y_+ \; < \; B^{-1}(x)+\delta .
+  \end{align*}
+  Since $F_n \tendsinlaw G$, we have that
+  $F_n(y_\pm) \to G(y_\pm)$ as $n \to \infty$,
+  and in particular there exists some $N$ such that for $n \ge N$
+  we have $\big| F_n(y_\pm) - G(y_\pm) \big| < \frac{\eps}{4}$ for both $y_\pm$.
+
+  By Lemma~\ref{lem:affine-inversion-continuous}
+  and $A_n \to B$, we get that $A_n^{-1} \to B^{-1}$, and in particular
+  there exists some $N'$ such that for $n \ge N'$ we have
+  \begin{align*}
+    y_- < A_n^{-1}(x) < y_+ .
+  \end{align*}
+
+  For $n \ge \max \set{N,N'}$, we then have
+  \begin{align*}
+    (A_n.F_n)(x) \;
+    = \; & F_n \big( A_n^{-1}(x) \big) \\
+    \le \; & F_n (y_+) \\
+    < \; & G(y_+) + \frac{\eps}{4} \\
+    \le \; & G \big( B^{-1}(x) \big) + \frac{\eps}{2} + \frac{\eps}{4} \\
+    = \; & (B.G) (x) + \frac{3\eps}{4} \\
+    < \; & (B.G) (x) + \eps
+  \end{align*}
+  and similarly
+  \begin{align*}
+    (A_n.F_n)(x) \;
+    = \; & F_n \big( A_n^{-1}(x) \big) \\
+    \ge \; & F_n (y_-) \\
+    > \; & G(y_-) - \frac{\eps}{4} \\
+    \ge \; & G \big( B^{-1}(x) \big) - \frac{\eps}{2} - \frac{\eps}{4} \\
+    = \; & (B.G) (x) - \frac{3\eps}{4} \\
+    > \; & (B.G) (x) + \eps ,
+  \end{align*}
+  which together yield $\big| (A_n.F_n)(x) - (B.G)(x) \big| < \eps$.
+
+  Since $x$ was an arbitrary continuity point of $B.G$ and
+  $\eps > 0$ was arbitrary, this proves that $A_n.F \tendsinlaw B.G$.
+\end{proof}
+
+% lem:oriented-affine-action-on-cdf
