@@ -274,13 +274,15 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \begin{theorem}[Convergence to types again]
   \label{thm:convergence-to-types-different-affine}
   \uses{def:cdf, lem:oriented-affine-action-on-cdf, def:cdf-type}
-  % \lean{}
+  % \lean{} % also `AffineIncrEquiv.inv_mul_eq_mkOfCoefs`
   % \leanok
   Let $(A_n)_{n \in \bN}$ and
   $(\widetilde{A}_n)_{n \in \bN}$ be two sequences of oriented
-  affine isomorphisms of $\bR$, $A_n, \widetilde{A}_n \in \OriAffR$,
-  written as $A_n(x) = a_n x + b_n$
-  and $\widetilde{A}_n(x) = \tilde{a}_n x + \tilde{b}_n$.
+  affine isomorphisms of $\bR$, $A_n, \widetilde{A}_n \in \OriAffR$.
+  Write $A_n(x) = a_n x + b_n$
+  and $\widetilde{A}_n(x) = \tilde{a}_n x + \tilde{b}_n$,
+  and for the inverses $A_n^{-1}(x) = c_n x + d_n$
+  and $\widetilde{A}^{-1}_n(x) = \tilde{c}_n x + \tilde{d}_n$.
 
   Let $(F_n)_{n \in \bN}$ be a sequence of c.d.f.s
   such that $A_n.F_n \tendsinlaw G$, with
@@ -292,25 +294,73 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   \begin{align*}
     \frac{\tilde{a}_n}{a_n} \to 1
     \quad \text{ and } \quad
-    \frac{\tilde{b}_n - b_n}{a_n} \to 0 .
+    \frac{a_n \tilde{b}_n - \tilde{a}_n b_n}{a_n} \to 0,
+  \end{align*}
+  or equivalently,
+  \begin{align*}
+    \frac{\tilde{c}_n}{c_n} \to 1
+    \quad \text{ and } \quad
+    \frac{\tilde{d}_n - d_n}{c_n} \to 0 .
   \end{align*}
 \end{theorem}
 \begin{proof}
   \uses{thm:convergence-to-types}
   % \leanok
-  \ldots
+  \emph{(This is actually just a special case of what is stated as
+  Corollary~\ref{cor:convergence-to-types-different-limit} below.
+  The better organization is to prove that corollary
+  directly, and obtain this lemma as a special case.)}
+
+  We will apply the convergence to types with the reference sequence
+  $(A_n.F_n)_{n \in \bN}$, which by assumption tends to a
+  nondegenerate $G$.
+
+  To express the other sequence in terms of the reference sequence, we write
+  \begin{align*}
+    \widetilde{A}_n.F_n \; = \; (\widetilde{A}_n A_n^{-1}).(A_n.F_n) .
+  \end{align*}
+  By assumption this also tends to $G$.
+
+  Theorem~\ref{thm:convergence-to-types} applies, and guarantees convergence
+  $\widetilde{A}_n A_n^{-1} \to A$ to some $A \in \OriAffR$,
+  and it also implies $A.G = G$ (note that the other limit is also $G$
+  by our assumptions).
+  However, the unique $A$ for which we have $A.G = G$ is $A = \mathrm{id}$.
+  We therefore get $\widetilde{A}_n A_n^{-1} \to \id$.
+  To explicitly see the coefficients, note that
+  \begin{align*}
+    A_n^{-1}(x) \; = \; & a_n^{-1} (x - b_n)
+  \end{align*}
+  and
+  \begin{align*}
+    \widetilde{A}_n \big( A_n^{-1}(x) \big)
+    \; = \; & \tilde{a}_n \big(a_n^{-1} (x - b_n)\big) + \tilde{b}_n \\
+    \; = \; & \tilde{a}_n a_n^{-1} x - \tilde{a}_n a_n^{-1} b_n + \tilde{b}_n .
+  \end{align*}
+  The convergence $\widetilde{A}_n A_n^{-1} \to \id$ is equivalent to
+  the convergence of the coefficients,
+  \begin{align*}
+    \tilde{a}_n a_n^{-1} \; \longrightarrow \; & 1 \\
+    - \tilde{a}_n a_n^{-1} b_n + \tilde{b}_n \; \longrightarrow \; & 0 .
+  \end{align*}
+  The second one can be rewritten as
+  \begin{align*}
+    \frac{a_n \tilde{b}_n - \tilde{a}_n b_n}{a_n} \; \longrightarrow \; & 0 .
+  \end{align*}
 \end{proof}
 
 \begin{corollary}[Convergence to types with different limits]
   \label{cor:convergence-to-types-different-limit}
   \uses{def:cdf, lem:oriented-affine-action-on-cdf, def:cdf-type}
-  % \lean{}
+  % \lean{} % also `AffineIncrEquiv.inv_mul_eq_mkOfCoefs`
   % \leanok
   Let $(A_n)_{n \in \bN}$ and
   $(\widetilde{A}_n)_{n \in \bN}$ be two sequences of oriented
-  affine isomorphisms of $\bR$, $A_n, \widetilde{A}_n \in \OriAffR$,
-  written as $A_n(x) = a_n x + b_n$
-  and $\widetilde{A}_n(x) = \tilde{a}_n x + \tilde{b}_n$.
+  affine isomorphisms of $\bR$, $A_n, \widetilde{A}_n \in \OriAffR$.
+  Write $A_n(x) = a_n x + b_n$
+  and $\widetilde{A}_n(x) = \tilde{a}_n x + \tilde{b}_n$,
+  and for the inverses $A_n^{-1}(x) = c_n x + d_n$
+  and $\widetilde{A}^{-1}_n(x) = \tilde{c}_n x + \tilde{d}_n$.
 
   Let $(F_n)_{n \in \bN}$ be a sequence of c.d.f.s
   such that $A_n.F_n \tendsinlaw G$ and
@@ -320,49 +370,61 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   \begin{align*}
     \frac{\tilde{a}_n}{a_n} \to \alpha
     \quad \text{ and } \quad
-    \frac{\tilde{b}_n - b_n}{a_n} \to \beta ,
+    \frac{a_n \tilde{b}_n - \tilde{a}_n b_n}{a_n} \to \beta,
   \end{align*}
   and we have
   \begin{align*}
     A.G = \widetilde{G}
     \qquad \text{ where } \; A(x) = \alpha x + \beta .
   \end{align*}
+  Equivalently, with $\gamma = \alpha^{-1}$ and $\delta = -\alpha^{-1} \beta$
+  so that $A^{-1}(x) = \gamma x + \delta$, we have
+  \begin{align*}
+    \frac{\tilde{c}_n}{c_n} \to \gamma
+    \quad \text{ and } \quad
+    \frac{\tilde{d}_n - d_n}{c_n} \to \delta .
+  \end{align*}
+
   In particular, $G$ and $\widetilde{G}$ have the same type.
 \end{corollary}
 \begin{proof}
   \uses{thm:convergence-to-types-different-affine}
   % \leanok
-  Suppose that $A_n.F_n \tendsinlaw G$ and
-  $\widetilde{A}_n.F_n \tendsinlaw \widetilde{G}$.
+  We will apply the convergence to types with the reference sequence
+  $(A_n.F_n)_{n \in \bN}$, which by assumption tends to a
+  nondegenerate $G$.
 
-  Applying the convergence to types theorem,
-  Theorem~\ref{thm:convergence-to-types}, to the sequence $(A_n.F_n)_{n \in \bN}$
-  of c.d.f.s and to the sequence of transformations
-  $\big( \widetilde{A}_n \circ A_n^{-1} \big)_{n \in \bN}$, we get that
-  $G$ and $\widetilde{G}$ must be of the same type, i.e., there exists a
-  $A \in \OriAffR$ such that $A.\widetilde{G} = G$.
-
-  We then get
+  To express the other sequence in terms of the reference sequence, we write
   \begin{align*}
-    (A \circ \widetilde{A}_n).F_n = A.(\widetilde{A}_n.F_n) \tendsinlaw A.\widetilde{G} = G
+    \widetilde{A}_n.F_n \; = \; (\widetilde{A}_n A_n^{-1}).(A_n.F_n) .
   \end{align*}
-  (by continuity of the action of affine transforms on distributions).
-  Theorem~\ref{thm:convergence-to-types-different-affine} then applies.
-  %To express its conclusion conveniently, write $A^{-1}(x) = \alpha x + \beta$
-  %(so that $A(x) = \alpha^{-1} (x - \beta)$)
-  %and $\widetilde{A}_n(x) = \tilde{a}_n x + \tilde{b}_n$ and
-  %$A_n(x) = a_n x + b_n$. Then we have
-  %\begin{align*}
-  %  (A \circ \widetilde{A}_n)(x) = \alpha^{-1} \big( \tilde{a}_n x + \tilde{b}_n - \beta \big)
-  %    = \alpha^{-1} \tilde{a}_n x + \alpha^{-1} (\tilde{b}_n - \beta) ,
-  %\end{align*}
-  %and the conclusion of Theorem~\ref{thm:convergence-to-types-different-affine} is
-  %\begin{align*}
-  %  \frac{\alpha^{-1} \tilde{a}_n}{a_n} \to 1
-  %  \quad \text{ and } \quad
-  %  \frac{\alpha^{-1} (\tilde{b}_n - \beta) - b_n}{a_n} \to 0 .
-  %\end{align*}
-  \ldots
+  By assumption this tends to a nondegenerate $\widetilde{G}$.
+
+  Theorem~\ref{thm:convergence-to-types} applies, and guarantees convergence
+  $\widetilde{A}_n A_n^{-1} \to A$ to some $A \in \OriAffR$,
+  and it also implies $A.G = \widetilde{G}$.
+
+  Write $A(x) = \alpha x + \beta$. To explicitly see the coefficients of
+  $\widetilde{A}_n A_n^{-1}$, note that
+  \begin{align*}
+    A_n^{-1}(x) \; = \; & a_n^{-1} (x - b_n)
+  \end{align*}
+  and
+  \begin{align*}
+    \widetilde{A}_n \big( A_n^{-1}(x) \big)
+    \; = \; & \tilde{a}_n \big(a_n^{-1} (x - b_n)\big) + \tilde{b}_n \\
+    \; = \; & \tilde{a}_n a_n^{-1} x - \tilde{a}_n a_n^{-1} b_n + \tilde{b}_n .
+  \end{align*}
+  The convergence $\widetilde{A}_n A_n^{-1} \to A$ is equivalent to
+  the convergence of the coefficients,
+  \begin{align*}
+    \tilde{a}_n a_n^{-1} \; \longrightarrow \; & \alpha \\
+    - \tilde{a}_n a_n^{-1} b_n + \tilde{b}_n \; \longrightarrow \; & \beta .
+  \end{align*}
+  The second one can be rewritten as
+  \begin{align*}
+    \frac{a_n \tilde{b}_n - \tilde{a}_n b_n}{a_n} \; \longrightarrow \; & \beta .
+  \end{align*}
 \end{proof}
 
 \begin{lemma}[A choice of normalizing constants for convergence to types]
@@ -542,8 +604,8 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
 \begin{lemma}[Continuous parameter extreme value limit relation]
   \label{lem:continuous-parameter-ev-limit}
   \uses{def:cdf, lem:oriented-affine-action-on-cdf}
-  % \lean{}
-  % \leanok
+  \lean{continuous_parameter_ev_limit_relation}
+  \leanok
   Let $F$ be a c.d.f.
 
   \emph{(Note that below we use
@@ -562,9 +624,31 @@ $A_n(x) = a_n x + b_n$ and $A(x) = a x + b$, and $a_n \to a$ and $b_n \to b$).
   Then, for any $t > 0$, denoting by $G^t$ the c.d.f. given by
   $G^t(x) = \big( G(x) \big)^t$, we have
   \begin{align*}
-    A_{n}.F^{\lfloor n t \rfloor} \tendsinlaw G^t .
+    A_{n}.F^{\lfloor n t \rfloor} \tendsinlaw G^t ,
   \end{align*}
+  where, for $x \in \bR$, the floor notation $\lfloor x \rfloor$ stands
+  for the greatest integer $k \in \bZ$ such that $k \le x$.
 \end{lemma}
+\begin{proof}
+  % \uses{}
+  % \leanok
+  Let $t > 0$ and let $x \in \bR$ be a continuity point of $G$.
+  For $n \in \bN$, calculate
+  \begin{align*}
+      \big((A_n . F) (x) \big)^{\lfloor n t \rfloor}
+    %\; = \; \big(F(A_n^{-1}(x)) \big)^{\lfloor n t \rfloor} \\
+    \; = \; & \Big( \big((A_n . F) (x) \big)^n \Big)^{\lfloor n t \rfloor / n} .
+  \end{align*}
+  By assumption, we have $\big((A_n . F) (x) \big)^n \to G(x)$ as $n \to \infty$.
+  Also $\lfloor n t \rfloor / n \to t$ as $n \to \infty$.
+  By (joint) continuity of the power function
+  $(x,y) \mapsto x^y = \exp\big( y \, \log(x) \big)$,
+  we get that the expression above tends to $G(x)^t$.
+
+  Finally noting that the continuity points of $G^t$ are the same as the
+  continuity points of $G$, the above in fact proves the asserted
+  $A_{n}.F^{\lfloor n t \rfloor} \tendsinlaw G^t$.
+\end{proof}
 
 \begin{lemma}[Self-similarity of extreme value distributions]
   \label{lem:self-similarity-of-extreme-value-distributions}

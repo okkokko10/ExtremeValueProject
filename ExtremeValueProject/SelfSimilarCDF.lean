@@ -70,6 +70,15 @@ lemma CumulativeDistributionFunction.npow_apply_eq
   ext x
   simp only [mulAction_apply_eq, pow_apply_eq]
 
+open Filter Topology in
+lemma continuous_parameter_ev_limit_relation
+    {F G : CumulativeDistributionFunction} {As : ℕ → AffineIncrEquiv} {x : ℝ}
+    (hAF : Tendsto (fun n ↦ ((As n) • F) x) atTop (𝓝 (G x))) {t : ℝ} (t_pos : 0 < t) :
+    Tendsto (fun n ↦ ((As n) • F).pow
+        (t := 1 ⊔ Nat.floor (n * t)) (lt_max_of_lt_left zero_lt_one) x)
+      atTop (𝓝 (G.pow t_pos x)) := by
+  sorry -- **Issue #57** (continuous-parameter-ev-limit)
+
 open Real
 
 lemma CumulativeDistributionFunction.conjugate_smul_self_eq (G : CumulativeDistributionFunction)

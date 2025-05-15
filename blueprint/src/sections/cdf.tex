@@ -397,14 +397,15 @@
 \begin{lemma}[Inversion of orientation preserving affine isomorphisms is continuous]
   \label{lem:affine-inversion-continuous}
   \uses{def:oriented-affine-isomorphism}
-  \lean{AffineIncrEquiv.continuous_coefs_fst, AffineIncrEquiv.continuous_coefs_snd}
+  \lean{AffineIncrEquiv.continuous_inv, AffineIncrEquiv.invHomeomorph}
   \leanok
-  The map $A \mapsto A^{-1}$ is continuous on $\OriAffR$
+  The map $A \mapsto A^{-1}$ is continuous on $\OriAffR$.
+  In particular, inversion defines a homeomorphism of $\OriAffR$ to itself.
 \end{lemma}
 \begin{proof}
-  % \uses{}
+  \uses{lem:affine-coefficients-continuous}
   % \leanok
-  \ldots
+  Calculate and use Lemma~\ref{lem:affine-coefficients-continuous}.
 \end{proof}
 
 \begin{lemma}[The action of oriented affine transforms on c.d.f.s is continuous]

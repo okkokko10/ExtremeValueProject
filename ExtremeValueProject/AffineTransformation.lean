@@ -411,6 +411,25 @@ form `x ↦ a * x + b` is `y ↦ α * x + β` where `β = - a⁻¹ * b`. -/
     (A⁻¹).coefs.2 = -(A.coefs.1)⁻¹ * A.coefs.2 :=
   A.val.inv_coefs_of_field_snd
 
+lemma AffineIncrEquiv.coefs_fst_inv_mul (A B : AffineIncrEquiv) :
+    (A⁻¹ * B).coefs.1 = A.coefs.1⁻¹ * B.coefs.1 := by
+  simp
+
+lemma AffineIncrEquiv.coefs_snd_inv_mul (A B : AffineIncrEquiv) :
+    (A⁻¹ * B).coefs.2 = A.coefs.1⁻¹ * (B.coefs.2 - A.coefs.2) := by
+  simp
+  ring
+
+/-- If `A₁(x) = a₁ x + b₁` and  `A₂(x) = a₂ x + b₂`, then
+`(A₁⁻¹ ∘ A₂)(x) = (a₁⁻¹ a₂) x + (b₂ - b₁) / a₁`. -/
+lemma AffineIncrEquiv.inv_mul_eq_mkOfCoefs (A₁ A₂ : AffineIncrEquiv) :
+    A₁⁻¹ * A₂ = mkOfCoefs (a := A₁.coefs.1⁻¹ * A₂.coefs.1)
+        (mul_pos (inv_pos.mpr A₁.isOrientationPreserving) A₂.isOrientationPreserving)
+        (A₁.coefs.1⁻¹ * (A₂.coefs.2 - A₁.coefs.2)) := by
+  ext x
+  rw [apply_eq, coefs_fst_inv_mul, coefs_snd_inv_mul]
+  simp
+
 lemma AffineIncrEquiv.continuous_coefs_fst :
     Continuous fun (A : AffineIncrEquiv) ↦ A.coefs.1 := by
   sorry
@@ -435,6 +454,35 @@ lemma AffineIncrEquiv.tendsto_nhds_iff_tendsto_coefs {ι : Type*} {L : Filter ι
     simp only [apply_eq]
     apply Tendsto.add _ h₂
     exact Tendsto.mul h₁ tendsto_const_nhds
+
+/-- The map `A ↦ A⁻¹` is continuous on the type `AffineIncrEquiv` of orientation-preserving
+affine isomorphisms of `ℝ`. -/
+lemma AffineIncrEquiv.continuous_inv :
+    Continuous fun (A : AffineIncrEquiv) ↦ A⁻¹ := by
+  sorry -- **Issue #56** (affine-inversion-continuous)
+
+/-- The map `A ↦ A⁻¹` as a homeomorphism of the type `AffineIncrEquiv` of orientation-preserving
+affine isomorphisms of `ℝ`. -/
+def AffineIncrEquiv.invHomeomorph :
+    AffineIncrEquiv ≃ₜ AffineIncrEquiv where
+  toFun A := A⁻¹
+  invFun A := A⁻¹
+  left_inv A := by simp
+  right_inv A := by simp
+  continuous_toFun := continuous_inv
+  continuous_invFun := continuous_inv
+
+@[simp] lemma AffineIncrEquiv.invHomeomorph_symm :
+    invHomeomorph.symm = invHomeomorph := by
+  ext1 A
+  simp_rw [invHomeomorph]
+  simp
+
+@[simp] lemma AffineIncrEquiv.invHomeomorph_sq :
+    invHomeomorph.trans invHomeomorph = .refl _ := by
+  ext1 A
+  simp_rw [invHomeomorph]
+  simp
 
 open Real in
 /-- The space of orientation-preserving affine isomorphisms of ℝ is homeomorphic to ℝ². -/
