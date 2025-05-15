@@ -30,7 +30,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
 \end{lemma}
 \begin{proof}
   \uses{lem:cdf-continuity-pt-transform, lem:degenerate-cdf-transform}
-  % \leanok
+  \leanok
   Straightforward using Lemmas~\ref{lem:cdf-continuity-pt-transform}
   and~\ref{lem:degenerate-cdf-transform}.
 \end{proof}
@@ -48,6 +48,9 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \begin{align*}
   \GumbelCDF (x) = \exp\big(-\exp(-x)\big) .
   \end{align*}
+
+  (In the parametrization of extreme value distribution types by one
+  index $\gamma \in \bR$, this case corresponds to $\gamma = 0$.)
 \end{definition}
 
 \begin{definition}
@@ -56,7 +59,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \lean{standardWeibullCDF}
   % \leanok
   \emph{The standard (reverse) Weibull distribution} of parameter
-  $\alpha > 0$ is the c.d.f. $F_\Weibull$ given by
+  $\alpha > 0$ is the c.d.f. $\WeibullCDF{\alpha}$ given by
   \begin{align*}
   \WeibullCDF{\alpha} (x) = \begin{cases}
       \exp \big( - (-x)^\alpha \big) \quad & \text{ for } x < 0 \\
@@ -65,7 +68,7 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \end{align*}
 
   (In the parametrization of extreme value distribution types by one
-  parameter $\gamma \in \bR$, this case corresponds to $\gamma < 0$
+  index $\gamma \in \bR$, this case corresponds to $\gamma < 0$
   via $\gamma = -1/\alpha$.)
 \end{definition}
 
@@ -75,16 +78,16 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \lean{standardFrechetCDF}
   % \leanok
   \emph{The standard Fr\'echet distribution} of parameter $\alpha > 0$
-  is the c.d.f. $F_\Frechet$ given by
+  is the c.d.f. $\FrechetCDF{\alpha}$ given by
   \begin{align*}
   \FrechetCDF{\alpha} (x) = \begin{cases}
-    0 \quad & \text{ for } x \ge 0 \\
-    \exp \big( - x^{-\alpha} \big) \quad & \text{ for } x < 0 .
+    0 \quad & \text{ for } x \le 0 \\
+    \exp \big( - x^{-\alpha} \big) \quad & \text{ for } x > 0 .
     \end{cases}
   \end{align*}
 
   (In the parametrization of extreme value distribution types by one
-  parameter $\gamma \in \bR$, this case corresponds to $\gamma > 0$
+  index $\gamma \in \bR$, this case corresponds to $\gamma > 0$
   via $\gamma = 1/\alpha$.)
 \end{definition}
 
@@ -125,8 +128,8 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \uses{def:std-Weibull-cdf, def:extr-val-distr}
   \lean{isExtremeValueDistr_standardWeibullCDF}
   % \leanok
-  The standard Weibull distribution $F_\Weibull$ is an extreme value
-  distribution.
+  For any $\alpha > 0$, the standard Weibull distribution $\WeibullCDF{\alpha}$
+  is an extreme value distribution.
 \end{theorem}
 \begin{proof}
   %\uses{lem:cdf-of-max-many}
@@ -139,8 +142,8 @@ Lemma~\ref{lem:cdf-of-affine-max-many} motivates the following definition.
   \uses{def:std-Frechet-cdf, def:extr-val-distr}
   \lean{isExtremeValueDistr_standardFrechetCDF}
   % \leanok
-  The standard Fr\'echet distribution $F_\Frechet$ is an extreme value
-  distribution.
+  For any $\alpha > 0$, the standard Fr\'echet distribution $\FrechetCDF{\alpha}$
+  is an extreme value distribution.
 \end{theorem}
 \begin{proof}
   \uses{}

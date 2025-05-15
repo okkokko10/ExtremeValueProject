@@ -6,6 +6,7 @@ Authors: Kalle Kytölä, ...
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Order.OrdContinuous
 import Mathlib.Topology.Order.DenselyOrdered
+import Mathlib
 
 open Set
 
@@ -105,6 +106,14 @@ lemma Monotone.continuousWithinAt_Iic_iff_isLUB_image_Iio' {R S : Type*}
   ⟨isLUB_image_Iio_of_continuousWithinAt_Iic' f_mono hx,
    f_mono.continuousWithinAt_Iic_of_isLUB_image_Iio⟩
 
+lemma Monotone.continuousWithinAt_Ici_iff_isGLB_image_Ioi' {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R]
+    [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hx : (𝓝[>] x).NeBot) :
+    ContinuousWithinAt f (Ici x) x ↔ IsGLB (f '' Ioi x) (f x) :=
+  continuousWithinAt_Iic_iff_isLUB_image_Iio' (R := Rᵒᵈ) (S := Sᵒᵈ)
+    (fun _ _ hx ↦ by exact f_mono hx) hx
+
 lemma Monotone.continuousWithinAt_Iic_iff_isLUB_image_Iio {R S : Type*}
     [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
     [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
@@ -112,6 +121,14 @@ lemma Monotone.continuousWithinAt_Iic_iff_isLUB_image_Iio {R S : Type*}
     ContinuousWithinAt f (Iic x) x ↔ IsLUB (f '' Iio x) (f x) :=
   ⟨isLUB_image_Iio_of_continuousWithinAt_Iic f_mono hx,
    f_mono.continuousWithinAt_Iic_of_isLUB_image_Iio⟩
+
+lemma Monotone.continuousWithinAt_Ici_iff_isGLB_image_Ioi {R S : Type*}
+    [LinearOrder R] [TopologicalSpace R] [OrderTopology R] [DenselyOrdered R]
+    [LinearOrder S] [TopologicalSpace S] [OrderTopology S]
+    {f : R → S} (f_mono : Monotone f) {x : R} (hx : ¬ IsMax x) :
+    ContinuousWithinAt f (Ici x) x ↔ IsGLB (f '' Ioi x) (f x) :=
+  continuousWithinAt_Iic_iff_isLUB_image_Iio (R := Rᵒᵈ) (S := Sᵒᵈ)
+    (fun _ _ hx ↦ by exact f_mono hx) hx
 
 variable {X : Type*} [ConditionallyCompleteLinearOrder X] [TopologicalSpace X] [OrderTopology X]
 variable {Y : Type*} [ConditionallyCompleteLinearOrder Y] [TopologicalSpace Y] [OrderTopology Y]
@@ -130,8 +147,25 @@ is densely ordered. -/
 lemma RightOrdContinuous.continuousWithinAt_Ici (hf : RightOrdContinuous f) :
     ContinuousWithinAt f (Ici x) x := hf.orderDual.continuousWithinAt_Iic
 
--- TODO: Add `ContinuousAt` versions with weaker (pointwise) hypotheses than left/right
--- order continuity?
+/-- A topologically left-continuous function is order-theoretically left-continuous, assuming
+the function is between conditionally complete linear orders with order topologies, and the domain
+is densely ordered and has no minimum. -/
+lemma Monotone.leftOrdContinuous_of_forall_continuousWithinAt_Iic [NoMinOrder X]
+    (f_mono : Monotone f) (hf : ∀ x, ContinuousWithinAt f (Iic x) x) :
+    LeftOrdContinuous f := by
+  refine (leftOrdContinuous_iff_forall_isLUB_image_Iio f_mono).mpr ?_
+  intro x
+  have key := @continuousWithinAt_Iic_iff_isLUB_image_Iio' X Y _ _ _ _ _ _ f f_mono x (nhdsLT_neBot x)
+  simpa [← key] using hf x
+
+/-- A topologically right-continuous function is order-theoretically right-continuous, assuming
+the function is between conditionally complete linear orders with order topologies, and the domain
+is densely ordered and has no maximum. -/
+lemma Monotone.rightOrdContinuous_of_forall_continuousWithinAt_Ici [NoMaxOrder X]
+    (f_mono : Monotone f) (hf : ∀ x, ContinuousWithinAt f (Ici x) x) :
+    RightOrdContinuous f :=
+  leftOrdContinuous_of_forall_continuousWithinAt_Iic (X := Xᵒᵈ) (Y := Yᵒᵈ)
+    (fun _ _ hx ↦ by exact f_mono hx) hf
 
 end ConditionallyCompleteLinearOrder
 

@@ -93,11 +93,11 @@ instance : CoeFun CumulativeDistributionFunction (fun _ ↦ ℝ → ℝ) where
 
 lemma apply_nonneg (F : CumulativeDistributionFunction) (x : ℝ) :
     0 ≤ F x := by
-  sorry -- **Issue #9**
+  exact F.mono'.le_of_tendsto F.tendsto_atBot x
 
 lemma apply_le_one (F : CumulativeDistributionFunction) (x : ℝ) :
     F x ≤ 1 := by
-  sorry -- **Issue #9**
+  exact F.mono'.ge_of_tendsto F.tendsto_atTop x
 
 lemma apply_eq_measure_Iic (F : CumulativeDistributionFunction) (x : ℝ) :
     F x = ENNReal.toReal (F.measure (Iic x)) := by
@@ -148,6 +148,21 @@ noncomputable def equiv_probabilityMeasure :
     apply Subtype.ext
     apply μ.measure_cdf
 
+/-- The Borel probability measure on ℝ defined by a cumulative distribution function. -/
+noncomputable def probabilityMeasure (F : CumulativeDistributionFunction) :=
+    equiv_probabilityMeasure F
+
+@[simp] lemma probabilityMeasure_cdf_eq_self (F : CumulativeDistributionFunction) :
+    F.probabilityMeasure.cdf = F := by
+  change equiv_probabilityMeasure.symm (equiv_probabilityMeasure F) = F
+  simp
+
+@[simp] lemma _root_.MeasureTheory.ProbabilityMeasure.cdf_probabilityMeasure_eq_self
+    (μ : ProbabilityMeasure ℝ) :
+    μ.cdf.probabilityMeasure = μ := by
+  change equiv_probabilityMeasure (equiv_probabilityMeasure.symm μ) = μ
+  simp
+
 lemma continuousAt_iff (F : CumulativeDistributionFunction) (x : ℝ) :
     ContinuousAt F x ↔ F.measure {x} = 0 := by
   rw [StieltjesFunction.measure_singleton]
@@ -167,6 +182,16 @@ lemma tendsto_apply_of_tendsto_of_continuousAt {ι : Type*} {L : Filter ι}
   have aux := (μ.cdf.continuousAt_iff x).mp cont
   rw [ProbabilityMeasure.measure_cdf μ] at aux
   exact (ProbabilityMeasure.null_iff_toMeasure_null μ {x}).mpr aux
+
+lemma eq_of_forall_apply_eq_const_mul (F G : CumulativeDistributionFunction)
+    (c : ℝ) (h : ∀ x, F x = c * G x) :
+    F = G := by
+  sorry -- TODO: Create an issue?
+
+lemma eq_of_forall_dense_eq {S : Set ℝ} (S_dense : Dense S) (F G : CumulativeDistributionFunction)
+    (h : ∀ x ∈ S, F x = G x) :
+    F = G := by
+  sorry -- **Issue #52**
 
 end CumulativeDistributionFunction
 
