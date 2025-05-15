@@ -121,6 +121,86 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     (hG : ¬ G.IsDegenerate) {A : ℕ → AffineIncrEquiv}
     (a_lim : Tendsto (fun n ↦ (A n).val.toAffineMap.coefs_of_field.1) atTop atTop) :
     ¬ ∀ x, ContinuousAt G' x → Tendsto (fun n ↦ ((A n) • (F n)) x) atTop (𝓝 (G' x)) := by
+  -- at all continuity points x of G, Fn tends to G as n grows
+
+
+  -- notes: if the affine sequence inverses have the offset grow faster than the multiplier,
+  -- then as n increases, the halfway point is moved further left of right,
+  --   and all positions tend to the same bound as n increases.
+  -- wait, nevermind...
+
+  -- it seems to flatten out.
+
+  intro nottrue
+  -- needs: all CDF have some continuity points.
+  --
+  have ⟨x1,x2,x1_lt_x2,Gx1_pos,Gx2_bound,x1_cont,x2_cont⟩:= CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate _ hG
+
+  have x1_tendsto:= F_lim _ x1_cont
+  --
+  --special case
+  -- by_cases test : F = fun n ↦ G
+  -- ·
+  --   by_cases test2 : A = fun (n : ℕ) ↦ AffineIncrEquiv.mkOfCoefs (?_ : (n : ℝ) + 1 > 0) 0
+  --   · sorry
+  --   ·
+  --     simp at nottrue
+  --     simp_all only [test,test2]
+  --     simp_all
+  --     sorry
+  --   sorry
+
+  have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := sorry
+  have ⟨above,claim_above⟩ : ∃ above, ∀ n, A n x2 < above := sorry
+  have an_value (n) : (A n).val.toAffineMap.coefs_of_field.1 = (A n x2 - A n x1) / (x2 - x1) :=
+    by
+    simp
+    rw [←mul_sub_left_distrib]
+    set x2x1 := x2 - x1
+    have x2x1_nonzero: x2x1 ≠ 0 := by
+      rw [ne_eq]
+      rw [sub_eq_zero]
+      exact x1_lt_x2.ne'
+    simp [x2x1_nonzero]
+    rfl
+  have ⟨an_above,an_claim_above⟩ : ∃ a_above, ∀ n, ((A n).val.toAffineMap.coefs_of_field.1) < a_above :=
+    by
+    simp_rw [an_value]
+    set x2x1 := x2 - x1
+    have x2x1_positive: 0 < x2x1 := by
+      unfold x2x1
+      norm_num
+      exact x1_lt_x2
+    use (above - below) / x2x1
+    intro n
+    suffices ((A n) x2 - (A n) x1) < (above - below) by
+      sorry
+
+    specialize claim_above n
+    specialize claim_below n
+    -- apply neg_lt_neg at claim_below
+    linarith
+
+  clear * - a_lim an_claim_above
+  set W := fun n ↦ ((A n)).val.toAffineMap.coefs_of_field.1
+  -- simp_rw [] at an_claim_above
+  change ∀ (n : ℕ), W n < an_above at an_claim_above
+
+  have := Filter.tendsto_atTop'.mp a_lim
+  -- simp at this
+  revert this
+  simp
+  use (Set.Ioi an_above)
+  simp
+  constructor
+  · use an_above + 1
+    intro _ _
+    linarith
+  intro x
+  use x
+  simp
+  apply (an_claim_above x).le
+
   sorry -- **Issue #40**
 
 end CumulativeDistributionFunction
