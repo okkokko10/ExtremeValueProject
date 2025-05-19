@@ -28,10 +28,6 @@ lemma exists_Ioo_subset_add_of_measure_pos {A : Set ℝ}
         A_mble A_pos A_mble.neg (by simpa only [Measure.measure_neg] using A_pos)
   refine ⟨a, b, a_lt_b, by simpa only [sub_neg_eq_add] using hab⟩
 
-#check Group ℝ
-#synth AddCommGroup ℝ
-#synth AddGroup ℝ
-
 lemma eq_top_of_subgroup_of_measure_pos {S : AddSubgroup ℝ}
     {A : Set ℝ} (A_le_S : A ⊆ S) (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
     S = ⊤ := by
@@ -66,7 +62,9 @@ lemma linear_of_additive_of_measurable
     {f : ℝ → ℝ} (f_add : ∀ t₁ t₂, f (t₁ + t₂) = f t₁ + f t₂) (f_mble : Measurable f) (x : ℝ) :
     f x = (f 1) * x := by
   set As : ℕ → Set ℝ := fun n ↦ {y | f y ≤ n} with def_As
-  have cover : ⋃ n, As n = ⊤ := by sorry
+  have cover : ⋃ n, As n = ⊤ := by
+    ext x
+    simp [exists_nat_ge (f x), def_As]
   have As_mble (n : ℕ) : MeasurableSet (As n) := f_mble measurableSet_Iic
   obtain ⟨n, hn⟩ : ∃ n, 0 < volume (As n) := by
     apply exists_measure_pos_of_not_measure_iUnion_null
