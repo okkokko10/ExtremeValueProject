@@ -6,6 +6,98 @@ Authors: Kalle Kytölä, ...
 import Mathlib
 import ExtremeValueProject.AffineTransformation
 
+section cauchy_hamel_functional_equation
+
+open Real Set Pointwise MeasureTheory
+
+lemma exists_Ioo_subset_diff_self_of_measure_pos {A : Set ℝ}
+    (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
+    ∃ δ > 0, Ioo (-δ) δ ⊆ A - A := by
+  sorry
+
+lemma exists_Ioo_subset_diff_of_measure_pos {A B : Set ℝ}
+    (A_mble : MeasurableSet A) (A_pos : 0 < volume A)
+    (B_mble : MeasurableSet B) (B_pos : 0 < volume B) :
+    ∃ (a b : ℝ), a < b ∧ Ioo a b ⊆ A - B := by
+  sorry
+
+lemma exists_Ioo_subset_add_of_measure_pos {A : Set ℝ}
+    (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
+    ∃ (a b : ℝ), a < b ∧ Ioo a b ⊆ A + A := by
+  obtain ⟨a, b, a_lt_b, hab⟩ := exists_Ioo_subset_diff_of_measure_pos
+        A_mble A_pos A_mble.neg (by simpa only [Measure.measure_neg] using A_pos)
+  refine ⟨a, b, a_lt_b, by simpa only [sub_neg_eq_add] using hab⟩
+
+lemma eq_top_of_subgroup_of_measure_pos {S : AddSubgroup ℝ}
+    {A : Set ℝ} (A_le_S : A ⊆ S) (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
+    S = ⊤ := by
+  sorry
+
+lemma exists_forall_abs_le_of_additive_of_le_on_measure_pos
+    {f : ℝ → ℝ} (f_add : ∀ t₁ t₂, f (t₁ + t₂) = f t₁ + f t₂)
+    {A : Set ℝ} (A_mble : MeasurableSet A) (A_pos : 0 < volume A)
+    {M : ℝ} (f_bdd_on_A : ∀ a ∈ A, f a ≤ M) :
+    ∃ δ > 0, ∃ c, ∀ x ∈ Ioo (-δ) δ, |f x| ≤ c := by
+  sorry
+
+open Topology in
+lemma exists_nhd_abs_le_of_additive_of_le_on_measure_pos
+    {f : ℝ → ℝ} (f_add : ∀ t₁ t₂, f (t₁ + t₂) = f t₁ + f t₂)
+    {A : Set ℝ} (A_mble : MeasurableSet A) (A_pos : 0 < volume A)
+    {M : ℝ} (f_bdd_on_A : ∀ a ∈ A, f a ≤ M) :
+    ∃ B ∈ 𝓝 (0 : ℝ), ∃ c, ∀ x ∈ B, |f x| ≤ c := by
+  obtain ⟨δ, δ_pos, hδ⟩ :=
+    exists_forall_abs_le_of_additive_of_le_on_measure_pos f_add A_mble A_pos f_bdd_on_A
+  exact ⟨Ioo (-δ) δ, Ioo_mem_nhds (by linarith) δ_pos, hδ⟩
+
+lemma linear_of_additive_of_le_on_measure_pos
+    {f : ℝ → ℝ} (f_add : ∀ t₁ t₂, f (t₁ + t₂) = f t₁ + f t₂)
+    {A : Set ℝ} (A_mble : MeasurableSet A) (A_pos : 0 < volume A)
+    {M : ℝ} (f_bdd_on_A : ∀ a ∈ A, f a ≤ M) (x : ℝ) :
+    f x = (f 1) * x := by
+  sorry
+
+open ENNReal in
+lemma linear_of_additive_of_measurable
+    {f : ℝ → ℝ} (f_add : ∀ t₁ t₂, f (t₁ + t₂) = f t₁ + f t₂) (f_mble : Measurable f) (x : ℝ) :
+    f x = (f 1) * x := by
+  set As : ℕ → Set ℝ := fun n ↦ {y | f y ≤ n} with def_As
+  have cover : ⋃ n, As n = ⊤ := by
+    ext x
+    simp [exists_nat_ge (f x), def_As]
+  have As_mble (n : ℕ) : MeasurableSet (As n) := f_mble measurableSet_Iic
+  obtain ⟨n, hn⟩ : ∃ n, 0 < volume (As n) := by
+    apply exists_measure_pos_of_not_measure_iUnion_null
+    simp [cover]
+  exact linear_of_additive_of_le_on_measure_pos f_add (As_mble n) hn (M := n) (by simp [def_As]) x
+
+/-- A measurable additive map ℝ → ℝ is linear.
+(The only measurable solutions to the Cauchy-Hamel functional equation are the obvious ones.) -/
+lemma eq_const_mul_of_additive_of_measurable {f : ℝ → ℝ}
+    (f_add : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ + f s₂) (f_mble : Measurable f) :
+    ∃ α, f = fun s ↦ α * s := by
+  use f 1
+  ext x
+  exact linear_of_additive_of_measurable f_add f_mble x
+
+/-- A measurable multiplicative map ℝ → (0,+∞) is of the form s ↦ exp(α * s) for some α ∈ ℝ.
+(The only measurable solutions to the multiplicative version of the Cauchy-Hamel functional
+equation are the obvious ones.) -/
+lemma eq_exp_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : ∀ s, 0 < f s)
+    (f_multiplicative : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ * f s₂) (f_mble : Measurable f) :
+    ∃ α, f = fun s ↦ exp (α * s) := by
+  let g := fun s ↦ log (f s)
+  have f_eq_exp_g (s) : f s = exp (g s) := by
+    simpa [g] using (exp_log (f_pos s)).symm
+  have g_mble : Measurable g := measurable_log.comp f_mble
+  have g_additive (s₁ s₂) : g (s₁ + s₂) = g s₁ + g s₂ := by
+    simpa only [g, f_multiplicative] using log_mul (f_pos _).ne.symm (f_pos _).ne.symm
+  obtain ⟨α, key⟩ := eq_const_mul_of_additive_of_measurable g_additive g_mble
+  refine ⟨α, by ext s ; rw [f_eq_exp_g, key]⟩
+
+end cauchy_hamel_functional_equation
+
+
 section one_parameter_subgroups_of_affine_transformations
 
 /-- The homomorphism `ℝ → AffineIncrEquiv` given by `s ↦ Aₛ`, where `Aₛ x = x + β * s`.
@@ -191,28 +283,6 @@ lemma AffineIncrEquiv.homomorphism_coef_eqn_snd
   simp [show f (s₁ + s₂) = f s₁ * f s₂ by rw [← f.map_mul] ; rfl]
 
 open Real
-
-/-- A measurable additive map ℝ → ℝ is linear.
-(The only measurable solutions to the Cauchy-Hamel functional equation are the obvious ones.) -/
-lemma eq_const_mul_of_additive_of_measurable {f : ℝ → ℝ}
-    (f_additive : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ + f s₂) (f_mble : Measurable f) :
-    ∃ α, f = fun s ↦ α * s := by
-  sorry
-
-/-- A measurable multiplicative map ℝ → (0,+∞) is of the form s ↦ exp(α * s) for some α ∈ ℝ.
-(The only measurable solutions to the multiplicative version of the Cauchy-Hamel functional
-equation are the obvious ones.) -/
-lemma eq_exp_const_mul_of_multiplicative_of_measurable {f : ℝ → ℝ} (f_pos : ∀ s, 0 < f s)
-    (f_multiplicative : ∀ s₁ s₂, f (s₁ + s₂) = f s₁ * f s₂) (f_mble : Measurable f) :
-    ∃ α, f = fun s ↦ exp (α * s) := by
-  let g := fun s ↦log (f s)
-  have f_eq_exp_g (s) : f s = exp (g s) := by
-    simpa [g] using (exp_log (f_pos s)).symm
-  have g_mble : Measurable g := measurable_log.comp f_mble
-  have g_additive (s₁ s₂) : g (s₁ + s₂) = g s₁ + g s₂ := by
-    simpa only [g, f_multiplicative] using log_mul (f_pos _).ne.symm (f_pos _).ne.symm
-  obtain ⟨α, key⟩ := eq_const_mul_of_additive_of_measurable g_additive g_mble
-  refine ⟨α, by ext s ; rw [f_eq_exp_g, key]⟩
 
 lemma eq_of_functional_eqn_of_ne_zero {f : ℝ → ℝ} {α : ℝ} (α_ne_zero : α ≠ 0)
     (f_eqn : ∀ s₁ s₂, f (s₁ + s₂) = exp (α * s₁) * f s₂ + f s₁) :
