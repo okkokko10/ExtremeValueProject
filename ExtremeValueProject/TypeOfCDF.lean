@@ -150,7 +150,52 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
   --     sorry
   --   sorry
 
-  have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := sorry
+  have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := by
+    have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z < G x1 := sorry
+    have z_converge:= nottrue z z_spec_cont
+    by_contra con
+
+    -- (nₖ)_(k∈ℕ)
+    have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := sorry
+
+    have ineq(k): F (s k) x1 ≤ (A (s k) • F (s k)) z := by
+      have in_other_words : F (s k) x1 = (A (s k) • F (s k)) (A (s k) x1) := by
+        simp only [mulAction_apply_eq]
+        set w := (A (s k))⁻¹ ((A (s k)) x1) with w_def
+        set q := A (s k)
+        have w_eq_x1: w = x1 := by
+          rw [w_def]
+          simp
+          ring_nf
+          have q_pos: q.coefs.1 ≠ 0 := by exact (AffineIncrEquiv.coefs_fst_pos q).ne'
+          rw [CommGroupWithZero.mul_inv_cancel q.coefs.1 q_pos]
+          exact one_mul x1
+        rw [w_eq_x1]
+
+      rw [in_other_words]
+      set qf := A (s k) • F (s k)
+      exact (qf.mono) (s_spec k).le
+
+    have : Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
+      -- #check x1_tendsto
+      have : Filter.map (fun k ↦ F (s k) x1) atTop ≤ Filter.map (fun n ↦ F (n) x1) atTop := by
+        #check Filter
+
+        sorry
+      unfold Tendsto
+      trans
+      · exact this
+      · exact x1_tendsto
+
+    have : Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' x1)) := sorry
+
+
+    #check subseq_tendsto_of_neBot
+    #check subseq_forall_of_frequently
+
+
+
+    sorry
   have ⟨above,claim_above⟩ : ∃ above, ∀ n, A n x2 < above := sorry
   have an_value (n) : (A n).val.toAffineMap.coefs_of_field.1 = (A n x2 - A n x1) / (x2 - x1) :=
     by
@@ -174,7 +219,7 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     use (above - below) / x2x1
     intro n
     suffices ((A n) x2 - (A n) x1) < (above - below) by
-      sorry
+      exact (div_lt_div_iff_of_pos_right x2x1_positive).mpr this
 
     specialize claim_above n
     specialize claim_below n
