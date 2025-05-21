@@ -158,6 +158,8 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     -- (nₖ)_(k∈ℕ)
     have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := sorry
 
+    have s_atTop : Filter.map s atTop = atTop := sorry
+
     have ineq(k): F (s k) x1 ≤ (A (s k) • F (s k)) z := by
       have in_other_words : F (s k) x1 = (A (s k) • F (s k)) (A (s k) x1) := by
         simp only [mulAction_apply_eq]
@@ -176,22 +178,28 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       set qf := A (s k) • F (s k)
       exact (qf.mono) (s_spec k).le
 
-    have : Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
+    have left_tendsto : Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
       -- #check x1_tendsto
-      have : Filter.map (fun k ↦ F (s k) x1) atTop ≤ Filter.map (fun n ↦ F (n) x1) atTop := by
-        #check Filter
+      have : Filter.map ((fun n ↦ F n x1) ∘ s) atTop ≤ Filter.map (fun n ↦ F (n) x1) atTop := by
+        rw [←Filter.map_map]
+        rw [s_atTop]
 
-        sorry
       unfold Tendsto
       trans
       · exact this
       · exact x1_tendsto
 
-    have : Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' x1)) := sorry
+    have right_tendsto : Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' z)) := by
+      change Tendsto ((fun n ↦ (A n • F n) z) ∘ s) atTop (𝓝 (G' z))
+      unfold Tendsto at z_converge ⊢
+      refine le_trans ?_ z_converge
+      rw [←Filter.map_map]
+      rw [s_atTop]
 
 
-    #check subseq_tendsto_of_neBot
-    #check subseq_forall_of_frequently
+
+    -- #check subseq_tendsto_of_neBot
+    -- #check subseq_forall_of_frequently
 
 
 
