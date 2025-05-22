@@ -35,6 +35,15 @@ lemma connectedComponentIn_disjoint {α : Type*} [TopologicalSpace α] {s : Set 
   Set.disjoint_left.2 fun _ hzx hzy ↦
     h <| (connectedComponentIn_eq hzx).trans (connectedComponentIn_eq hzy).symm
 
+-- TODO: Maybe not really needed; we have `connectedComponentIn_disjoint`.
+lemma pairwise_disjoint_connectedComponentIn (U : Set ℝ) :
+    {C | ∃ x ∈ U, C = connectedComponentIn U x}.Pairwise Disjoint := by
+  intro C hC D hD hCD
+  obtain ⟨x, x_in_U, C_eq⟩ := hC
+  obtain ⟨y, y_in_U, D_eq⟩ := hD
+  rw [C_eq, D_eq] at hCD ⊢
+  exact connectedComponentIn_disjoint hCD
+
 -- TODO: Is this missing from Mathlib?
 lemma IsOpen.isOpen_connectedComponentIn {α : Type*} [TopologicalSpace α]
     {s : Set α} (s_loc_conn : LocallyConnectedSpace s) (s_open : IsOpen s) {x : α} :
@@ -96,6 +105,10 @@ lemma ConnectedComponents.mk_out_eq {α : Type*} [TopologicalSpace α] (C : Conn
     ConnectedComponents.mk (Quot.out C) = C :=
   Quotient.out_eq _
 
+--lemma ConnectedComponents.out_mem_connectedComponent {α : Type*} [TopologicalSpace α] (C : ConnectedComponents α) :
+--    (Quot.out C) ∈ connectedComponent (Quot.out C) := by
+--  exact mem_connectedComponent
+
 lemma TopologicalSpace.SeparableSpace.countable_connectedComponents {α : Type*} [TopologicalSpace α]
     [LocallyConnectedSpace α] (sep : SeparableSpace α) :
     Countable (ConnectedComponents α) := by
@@ -118,14 +131,35 @@ lemma TopologicalSpace.SeparableSpace.countable_connectedComponents {α : Type*}
     obtain ⟨C, hAC⟩ := hA
     simpa [← hAC] using isOpen_connectedComponent
 
--- TODO: Maybe not really needed; we have `connectedComponentIn_disjoint`.
-lemma pairwise_disjoint_connectedComponentIn (U : Set ℝ) :
-    {C | ∃ x ∈ U, C = connectedComponentIn U x}.Pairwise Disjoint := by
-  intro C hC D hD hCD
-  obtain ⟨x, x_in_U, C_eq⟩ := hC
-  obtain ⟨y, y_in_U, D_eq⟩ := hD
-  rw [C_eq, D_eq] at hCD ⊢
-  exact connectedComponentIn_disjoint hCD
+-- TODO: Missing from Mathlib?
+open TopologicalSpace in
+lemma IsOpen.separableSpace {α : Type*} [TopologicalSpace α] [SeparableSpace α]
+    {s : Set α} (s_open : IsOpen s) :
+    SeparableSpace s := by
+  obtain ⟨c, c_ctble, c_dense⟩ := ‹SeparableSpace α›.exists_countable_dense
+  refine ⟨⟨(↑) ⁻¹' c, c_ctble.preimage Subtype.val_injective, ?_⟩⟩
+  simpa [Subtype.dense_iff] using c_dense.open_subset_closure_inter s_open
+
+open TopologicalSpace in
+lemma IsOpen.countable_setOf_connectedComponentIn
+    {α : Type*} [TopologicalSpace α] [LocallyConnectedSpace α] [sep : SeparableSpace α]
+    {s : Set α} (s_open : IsOpen s) :
+    Countable {C : Set α | ∃ x ∈ s, C = connectedComponentIn s x} := by
+  have : LocallyConnectedSpace s := s_open.locallyConnectedSpace
+  have sep_s : SeparableSpace s := s_open.separableSpace
+  have key := SeparableSpace.countable_connectedComponents (α := s) inferInstance
+  let ψ : {C : Set α | ∃ x ∈ s, C = connectedComponentIn s x} → ConnectedComponents s :=
+    fun C ↦ ConnectedComponents.mk
+            ⟨(mem_setOf_eq.mp C.prop).choose, (mem_setOf_eq.mp C.prop).choose_spec.1⟩
+  have ψ_inj : Function.Injective ψ := by
+    intro C₁ C₂ hψC
+    ext1
+    have aux₁ := (mem_setOf_eq.mp C₁.prop).choose_spec
+    have aux₂ := (mem_setOf_eq.mp C₂.prop).choose_spec
+    rw [aux₁.2, aux₂.2]
+    simp only [ψ, ConnectedComponents.coe_eq_coe] at hψC
+    simpa only [connectedComponentIn, aux₁.1, ↓reduceDIte, aux₂.1, image_val_inj] using hψC
+  exact Function.Injective.countable ψ_inj
 
 -- TODO: Hopefully this is not needed and `Real.convex_iff_isPreconnected` is enough.
 lemma Real.eq_Ioo_or_Iio_or_Ioi_or_univ_of_isOpen_of_isConnected
