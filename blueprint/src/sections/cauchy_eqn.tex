@@ -1,0 +1,81 @@
+\chapter{Cauchy-Hamel functional equation}
+
+\section{Positive measure additive subgroups of the reals}
+
+\begin{lemma}[Countably many connected components for an open set]
+  \label{lem:countably-many-connected-components-of-open}
+  %\uses{}
+  \lean{IsOpen.countable_setOf_connectedComponentIn}
+  \leanok
+  Let $X$ be a locally connected separable space. Then any open subset $U \subseteq X$ has at
+  most countably many connected components.
+\end{lemma}
+\begin{proof}
+  % \uses{}
+  \leanok
+  (The proof is already formalized, see
+  \texttt{IsOpen.countable_setOf_connectedComponentIn}.)
+\end{proof}
+
+For subsets $A, B \subseteq \bR$, we use the following notation for pointwise
+sum sets and difference sets:
+\begin{align*}
+  A + B & = \set{ a + b \; \big| \; a \in A, \, b \in B } , \\
+  A - B & = \set{ a - b \; \big| \; a \in A, \, b \in B } .
+\end{align*}
+
+We denote by $\Leb$ the Lebesgue measure on $\bR$.
+
+\begin{lemma}[Difference of positive measure sets contains an interval]
+  \label{lem:difference-set-contains-interval}
+  % \uses{}
+  % \lean{}
+  % \leanok
+  Let $A \subset \bR$ be a measurable set of positive Lebesgue measure.
+  Then there exists a $\delta > 0$ such that
+  \begin{align*}
+    (-\delta,\delta) \, \subseteq \, A - A .
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  \uses{lem:countably-many-connected-components-of-open}
+  % \leanok
+  Pick a measurable subset $A_0 \subseteq A$ such that
+  $0 < \Leb[A_0] < +\infty$.
+
+  Since the Lebesgue measure is outer regular, we can find an open set $U \subset \bR$
+  such that $A_0 \subseteq U$ and $\Leb[U] < \frac{4}{3} \Leb[A_0]$.
+
+  The open set $U$ has at most countably many connected components
+  (which are in fact open intervals); denote
+  by $(U_i)_{i \in I}$ the indexed collection of them.
+
+  Note that for at least one index $j \in I$ we have $\Leb[A_0 \cap U_j] > \frac{3}{4} \Leb[U_j]$,
+  because otherwise we get
+  \begin{align*}
+    \Leb[A_0] = \Leb[A_0 \cap U]
+    = \, & \sum_{i \in I} \Leb[A_0 \cap U_i] \\
+    \le \, & \frac{3}{4} \sum_{i \in I} \Leb[U_i] \\
+    = \, & \frac{3}{4} \Leb[U],
+  \end{align*}
+  contradicting the choice of $U$.
+
+  Choose $j$ as above and let $\delta = \frac{1}{2} \Leb[U_j]$.
+  We claim that $(-\delta,\delta) \subseteq A_0 - A_0$ (which then
+  clearly implies the assertion of the lemma).
+  Indeed, suppose $t \in (-\delta,\delta)$.
+  Then $(t+U_j) \cup U_j$ is an interval of length less than $\frac{3}{2} \Leb[U_j]$.
+  Moreover, we have $A_0 \cap U_j \subseteq (t+U_j) \cup U_j$ and
+  $t+(A_0 \cap U_j) \subseteq (t+U_j) \cup U_j$. Now note that
+  \begin{align*}
+    \Leb[t + (A_0 \cap U_j)] = \Leb[A_0 \cap U_j] > \frac{3}{4} \Leb[U_j] .
+  \end{align*}
+  If the sets $t + (A_0 \cap U_j)$ and $(A_0 \cap U_j)$ were disjoint, then
+  the measure of $(A_0 \cap U_j) \cup (t+(A_0 \cap U_j))$ would thus be
+  greater than $\frac{3}{2} \Leb[U_j]$, which is impossible given the length
+  of the interval $(t+U_j) \cup U_j$ is less than $\frac{3}{2} \Leb[U_j]$.
+  Therefore there exists a point $a \in (t + (A_0 \cap U_j)) \cap (A_0 \cap U_j)$.
+  Denoting $a' = a - t$, we have $a, a' \in A_0 \cap U_j \subseteq A_0$
+  and $t = a - a' \in A_0 - A_0 \subseteq A - A$. Since $t \in (-\delta,\delta)$
+  was arbitrary, this proves the assertion.
+\end{proof}
