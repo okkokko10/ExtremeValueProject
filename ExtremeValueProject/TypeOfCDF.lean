@@ -157,6 +157,8 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
 
     -- (nₖ)_(k∈ℕ)
     have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := sorry
+    -- #check subseq_tendsto_of_neBot
+    -- #check subseq_forall_of_frequently
 
     have s_atTop : Filter.map s atTop = atTop := sorry
 
@@ -195,15 +197,18 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       refine le_trans ?_ z_converge
       rw [←Filter.map_map]
       rw [s_atTop]
+    -- #check tendsto_le_of_eventuallyLE
+    have := tendsto_le_of_eventuallyLE left_tendsto right_tendsto ?_
+    exact this.not_lt z_spec_lt
+    clear * - ineq
+    unfold EventuallyLE
+    simp only [ineq]
+    simp
 
 
 
-    -- #check subseq_tendsto_of_neBot
-    -- #check subseq_forall_of_frequently
 
 
-
-    sorry
   have ⟨above,claim_above⟩ : ∃ above, ∀ n, A n x2 < above := sorry
   have an_value (n) : (A n).val.toAffineMap.coefs_of_field.1 = (A n x2 - A n x1) / (x2 - x1) :=
     by
