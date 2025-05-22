@@ -54,8 +54,7 @@ lemma IsOpen.isOpen_connectedComponentIn {α : Type*} [TopologicalSpace α]
       exact ⟨y_in_s, by simpa [← hU] using y_in_U⟩
   simpa [obs] using U_open.inter s_open
 
--- TODO: Is this missing from Mathlib?
-lemma TopologicalSpace.SeparableSpace.countable_of_disjoint_of_isOpen_of_nonempty
+private lemma TopologicalSpace.SeparableSpace.countable_of_disjoint_of_isOpen_of_nonempty
     {α : Type*} [TopologicalSpace α] (sep : SeparableSpace α) {As : Set (Set α)}
     (As_disj : As.Pairwise Disjoint) (As_open : ∀ A ∈ As, IsOpen A)
     (As_nonemp : ∀ A ∈ As, A.Nonempty)  :
@@ -88,67 +87,51 @@ lemma TopologicalSpace.SeparableSpace.countable_of_disjoint_of_isOpen
     simp only [mem_diff, mem_singleton_iff] at hA
     exact nonempty_iff_ne_empty.mpr hA.2
 
-#check Quotient
-#check Quotient.lift
-#check ConnectedComponents
-#check connectedComponents_preimage_singleton
-
---noncomputable def ConnectedComponents.choose (α : Type*) [TopologicalSpace α] (C : ConnectedComponents α) :
---    α :=
---  Quot.out C
-
 lemma ConnectedComponents.mk_eq_mk_iff {α : Type*} [TopologicalSpace α] {x y : α} :
     ConnectedComponents.mk x = ConnectedComponents.mk y
       ↔ connectedComponent x = connectedComponent y := by
   simp_all only [coe_eq_coe]
 
 lemma ConnectedComponents.mk_out_eq {α : Type*} [TopologicalSpace α] (C : ConnectedComponents α) :
-    ConnectedComponents.mk (Quot.out C) = C := by
-  sorry
+    ConnectedComponents.mk (Quot.out C) = C :=
+  Quotient.out_eq _
 
 lemma TopologicalSpace.SeparableSpace.countable_connectedComponents {α : Type*} [TopologicalSpace α]
-    (sep : SeparableSpace α) :
+    [LocallyConnectedSpace α] (sep : SeparableSpace α) :
     Countable (ConnectedComponents α) := by
-  sorry
+  set φ : ConnectedComponents α → Set α := (fun A ↦ connectedComponent (Quot.out A)) with def_φ
+  set As : Set (Set α) := Set.range φ with def_As
+  have key := @countable_of_disjoint_of_isOpen α _ sep As ?_ ?_
+  · obtain ⟨f, f_inj⟩ := Set.countable_iff_exists_injective.mp key
+    apply (countable_iff_exists_injective _).mpr ⟨fun C ↦ f (rangeFactorization φ C), f_inj.comp ?_⟩
+    intro C₁ C₂ hC
+    simp only [rangeFactorization, Subtype.mk.injEq, φ, As] at hC
+    exact Quotient.out_equiv_out.mp hC
+  · intro A₁ hA₁ A₂ hA₂ hA_ne
+    simp only [mem_range, As, φ] at hA₁ hA₂
+    obtain ⟨C₁, hC₁⟩ := hA₁
+    obtain ⟨C₂, hC₂⟩ := hA₂
+    rw [← hC₁, ← hC₂] at hA_ne ⊢
+    exact connectedComponent_disjoint hA_ne
+  · intro A hA
+    simp only [def_As, def_φ, mem_range, As, φ] at hA
+    obtain ⟨C, hAC⟩ := hA
+    simpa [← hAC] using isOpen_connectedComponent
 
-#check measure_sUnion
-
+-- TODO: Maybe not really needed; we have `connectedComponentIn_disjoint`.
 lemma pairwise_disjoint_connectedComponentIn (U : Set ℝ) :
     {C | ∃ x ∈ U, C = connectedComponentIn U x}.Pairwise Disjoint := by
   intro C hC D hD hCD
   obtain ⟨x, x_in_U, C_eq⟩ := hC
   obtain ⟨y, y_in_U, D_eq⟩ := hD
-  intro E E_ss_C E_ss_D
-  simp only [bot_eq_empty, le_eq_subset, subset_empty_iff]
-  by_contra con
-  apply hCD
-  rw [C_eq, D_eq]
-  refine connectedComponentIn_eq ?_
-  sorry
+  rw [C_eq, D_eq] at hCD ⊢
+  exact connectedComponentIn_disjoint hCD
 
+-- TODO: Hopefully this is not needed and `Real.convex_iff_isPreconnected` is enough.
 lemma Real.eq_Ioo_or_Iio_or_Ioi_or_univ_of_isOpen_of_isConnected
     {U : Set ℝ} (U_open : IsOpen U) (U_conn : IsConnected U) :
     (∃ a b, U = Ioo a b) ∨ (∃ b, U = Iio b) ∨ (∃ a, U = Ioi a) ∨ U = univ := by
-  by_cases emp : U = ∅
-  · exact Or.inl ⟨1, 0, by simp [emp]⟩
-  obtain ⟨x, x_in_U⟩ := nonempty_iff_ne_empty.mpr emp
-  by_cases bdd_above : BddAbove {y | Ico x y ⊆ U}
-  · by_cases bdd_below : BddBelow {z | Ioc z x ⊆ U}
-    · sorry
-    · sorry
-  · by_cases bdd_below : BddBelow {z | Ioc z x ⊆ U}
-    · sorry
-    · right; right; right
-      ext a
-      sorry
-
---lemma Real.connectedComponentIn_eq_Ioo_of_isOpen
---    {U : Set ℝ} (U_open : IsOpen U) {x : ℝ} (x_mem : x ∈ U) :
---    ∃ a b, a < x ∧ x < b ∧ connectedComponentIn U x
-
-
-lemma eq_iUnion_Ioo_of_isOpen {U : Set ℝ} (U_open : IsOpen U) :
-    ∃ {ι : Type} ()
+  sorry
 
 lemma exists_Ioo_subset_diff_self_of_measure_pos {A : Set ℝ}
     (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
