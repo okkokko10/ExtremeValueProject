@@ -58,10 +58,10 @@ lemma apply_eq_zero_of_tendsto_of_lt
     (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x)))
     {x : ℝ} (x_lt : x < β) :
-    G x = 0 := by
+    G' x = 0 := by
   sorry
 
-open AffineIncrEquiv in
+open AffineIncrEquiv Set Countable Monotone in
 /-- If we have c.d.f. convergence `Fₙ → G` and `Aₙ • Fₙ → G'`, where `Aₙ(x) = aₙ * x + bₙ`
 with `aₙ → 0` and `bₙ → β`, then `G'(x) = 1` for all `x > β`. -/
 lemma apply_eq_one_of_tendsto_of_gt
@@ -72,8 +72,70 @@ lemma apply_eq_one_of_tendsto_of_gt
     (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x)))
     {x : ℝ} (x_gt : β < x) :
-    G x = 1 := by
-  sorry
+    G' x = 1 := by
+  have (ε : ℝ) (ε_pos : ε > 0) : G' x > 1 - ε := by
+
+    have dense_cont_pts (H : CumulativeDistributionFunction) : Dense {x | ContinuousAt H x} := by
+      simpa [compl] using dense_compl (𝕜 := ℝ) (countable_not_continuousAt H.mono')
+
+    -- Choose `x'` s.t. `β < x' < x` and `G'` is continuous at `x'`
+    obtain ⟨x', ⟨x'_gt, x'_lt⟩, x'_cont⟩ :=
+      (dense_cont_pts G').inter_open_nonempty (Ioo β x) isOpen_Ioo (nonempty_Ioo.mpr x_gt)
+    simp only [mem_setOf_eq] at x'_cont
+
+    -- Choose `z'` s.t. `G(z') > 1 - ε'` where `ε' := ε/2`
+    set ε' := ε/2 with hε'
+    have Gz'_ev_gt : ∀ᶠ z' in atTop, 1 - ε' < G z' := by
+      filter_upwards
+        [G.tendsto_atTop (show Ioi (1-ε') ∈ 𝓝 1 from Ioi_mem_nhds (by linarith))]
+        with z' hz' using hz'
+    obtain ⟨z', hz'⟩ := Gz'_ev_gt.exists
+
+    -- Choose `z` s.t. `G(z) > 1 - ε'` and `G` is continuous at `z`
+    obtain ⟨z, z_gt, z_cont⟩ :=
+      (dense_cont_pts G).inter_open_nonempty {z | z' < z} isOpen_Ioi nonempty_Ioi
+    simp only [mem_setOf_eq] at z_gt z_cont
+    have Gz_gt : 1 - ε' < G z := hz'.trans_le <| G.mono (by linarith)
+
+    -- `Aₙ(z) → β`
+    have : Tendsto (λ n ↦ a n * z) atTop (𝓝 (0 * z)) := a_lim.mul_const z
+    simp only [zero_mul] at this
+    have A_lim : Tendsto (λ n ↦ a n * z + b n) atTop (𝓝 (0 + β)) := this.add b_lim
+    simp only [zero_add] at A_lim
+
+    -- `Aₙ(z) < x'` for large `n`
+    have Anz_ev_lt : ∀ᶠ n in atTop, a n * z + b n < x' := by
+      filter_upwards [A_lim (Iio_mem_nhds x'_gt)] with n hn using hn
+
+    -- `1 - ε' < Fₙ(z)` for large `n`
+    have Fnz_ev_gt : ∀ᶠ n in atTop, 1 - ε' < F n z := by
+      filter_upwards [F_lim z z_cont (Ioi_mem_nhds Gz_gt)] with n hn using hn
+
+    -- Shorthand `Fₙ' = Aₙ.Fₙ`
+    set F' : ℕ → CumulativeDistributionFunction :=
+      fun n ↦ (mkOfCoefs (a_pos n) (b n)) • (F n) with hF'
+
+    -- Assume the opposite to get `Fₙ'(x') < 1 - ε'` for large `n`
+    by_contra con
+    have F'nx'_ev_gt : ∀ᶠ n in atTop, F' n x' < 1 - ε' := by
+      filter_upwards
+        [F_lim' x' x'_cont (Iio_mem_nhds (show G' x' < 1 - ε' by linarith [G'.mono x'_lt.le]))]
+        with n hn using hn
+
+    obtain ⟨n, ⟨hn₁, hn₂⟩, hn₃⟩ := ((Fnz_ev_gt.and Anz_ev_lt).and F'nx'_ev_gt).exists
+
+    -- Contradiction `1 - ε' < Fₙ(z) ≤ Fₙ'(x') < 1 - ε'`
+    have := calc
+      (F n) z = F' n (a n * z + b n) := by
+        rw [← mulAction_apply_eq_self_apply (F n) (mkOfCoefs (a_pos n) (b n))]
+        rfl
+      _ ≤ F' n x' := (F' n).mono' (by linarith)
+    linarith
+
+  have : G' x ≥ 1 := by
+    by_contra
+    linarith [this ((1 - G' x) / 2) (by linarith)]
+  linarith [apply_le_one G' x]
 
 open AffineIncrEquiv in
 /-- If we have c.d.f. convergence `Fₙ → G` and `Aₙ • Fₙ → G'`, where `Aₙ(x) = aₙ * x + bₙ`
@@ -85,10 +147,10 @@ lemma isDegenerate_of_tendsto_shrinking
     (F_lim : ∀ x, ContinuousAt G x → Tendsto (fun n ↦ F n x) atTop (𝓝 (G x)))
     (F_lim' : ∀ x, ContinuousAt G' x →
       Tendsto (fun n ↦ ((mkOfCoefs (a_pos n) (b n)) • (F n)) x) atTop (𝓝 (G' x))) :
-    G.IsDegenerate := by
+    G'.IsDegenerate := by
   rw [isDegenerate_iff]
   use β
-  suffices (∀ x < β, G x = 0) ∧ (∀ x > β, G x = 1) by
+  suffices (∀ x < β, G' x = 0) ∧ (∀ x > β, G' x = 1) by
     funext x
     by_cases x_lt : x < β
     · have obs : ¬ x ∈ Set.Ici β := by simpa using x_lt
@@ -96,9 +158,9 @@ lemma isDegenerate_of_tendsto_shrinking
     · have obs : x ∈ Set.Ici β := by simpa using x_lt
       by_cases x_eq : x = β
       · simp only [obs, Set.indicator_of_mem]
-        have key := G.right_continuous
-        have key' : ContinuousWithinAt G (Set.Ioi β) β := continuousWithinAt_Ioi_iff_Ici.mpr (key β)
-        have aux : ∀ᶠ x in (𝓝[>] β), G x = 1 := by
+        have key := G'.right_continuous
+        have key' : ContinuousWithinAt G' (Set.Ioi β) β := continuousWithinAt_Ioi_iff_Ici.mpr (key β)
+        have aux : ∀ᶠ x in (𝓝[>] β), G' x = 1 := by
           filter_upwards [self_mem_nhdsWithin] with x hx using this.2 _ hx
         have wow := Tendsto.congr' aux key'
         rw [tendsto_const_nhds_iff] at wow
