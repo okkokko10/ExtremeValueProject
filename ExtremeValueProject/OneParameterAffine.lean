@@ -10,6 +10,146 @@ section cauchy_hamel_functional_equation
 
 open Real Set Pointwise MeasureTheory
 
+lemma eq_iUnion_connectedComponentIn (U : Set ℝ) :
+    U = ⋃ x ∈ U, connectedComponentIn U x := by
+  apply subset_antisymm
+  · intro x x_in_U
+    simpa using ⟨x, x_in_U, mem_connectedComponentIn x_in_U⟩
+  · simp only [iUnion_subset_iff]
+    intro x x_in_U
+    exact connectedComponentIn_subset U x
+
+lemma eq_sUnion_connectedComponentIn (U : Set ℝ) :
+    U = ⋃₀ {C | ∃ x ∈ U, C = connectedComponentIn U x} := by
+  apply subset_antisymm
+  · intro x x_in_U
+    simpa using ⟨connectedComponentIn U x, ⟨x, x_in_U, rfl⟩, mem_connectedComponentIn x_in_U⟩
+  · simp only [sUnion_subset_iff, mem_setOf_eq, forall_exists_index, and_imp]
+    intro C x x_in_U hC
+    simpa [hC] using connectedComponentIn_subset U x
+
+-- TODO: This seems to be missing in Mathlib. Compare with `connectedComponent_disjoint`.
+lemma connectedComponentIn_disjoint {α : Type*} [TopologicalSpace α] {s : Set α} {x y : α}
+    (h : connectedComponentIn s x ≠ connectedComponentIn s y) :
+    Disjoint (connectedComponentIn s x) (connectedComponentIn s y) :=
+  Set.disjoint_left.2 fun _ hzx hzy ↦
+    h <| (connectedComponentIn_eq hzx).trans (connectedComponentIn_eq hzy).symm
+
+-- TODO: Is this missing from Mathlib?
+lemma IsOpen.isOpen_connectedComponentIn {α : Type*} [TopologicalSpace α]
+    {s : Set α} (s_loc_conn : LocallyConnectedSpace s) (s_open : IsOpen s) {x : α} :
+    IsOpen (connectedComponentIn s x) := by
+  by_cases hxs : x ∉ s
+  · simp [connectedComponentIn, hxs]
+  rw [not_not] at hxs
+  simp only [connectedComponentIn, hxs, ↓reduceDIte]
+  obtain ⟨U, U_open, hU⟩ := @isOpen_connectedComponent s _ s_loc_conn ⟨x, hxs⟩
+  have obs : Subtype.val '' connectedComponent ⟨x, hxs⟩ = U ∩ s := by
+    ext y
+    simp only [mem_image, Subtype.exists, exists_and_right, exists_eq_right, mem_inter_iff]
+    refine ⟨?_, ?_⟩
+    · intro ⟨y_in_s, hy⟩
+      exact ⟨by simpa [← hU] using hy, y_in_s⟩
+    · intro ⟨y_in_U, y_in_s⟩
+      exact ⟨y_in_s, by simpa [← hU] using y_in_U⟩
+  simpa [obs] using U_open.inter s_open
+
+-- TODO: Is this missing from Mathlib?
+lemma TopologicalSpace.SeparableSpace.countable_of_disjoint_of_isOpen_of_nonempty
+    {α : Type*} [TopologicalSpace α] (sep : SeparableSpace α) {As : Set (Set α)}
+    (As_disj : As.Pairwise Disjoint) (As_open : ∀ A ∈ As, IsOpen A)
+    (As_nonemp : ∀ A ∈ As, A.Nonempty)  :
+    As.Countable := by
+  obtain ⟨s, s_ctble, s_dense⟩ := sep.exists_countable_dense
+  have aux (A) (hA : A ∈ As) : ∃ x ∈ s, x ∈ A :=
+    s_dense.exists_mem_open (As_open A hA) (As_nonemp A hA)
+  set g : As → s := fun A ↦ ⟨(aux A.val A.prop).choose, (aux A.val A.prop).choose_spec.1⟩ with def_g
+  have hg (A : As) : (g A).val ∈ A.val := (aux A.val A.prop).choose_spec.2
+  have g_inj : Function.Injective g := by
+    intro A B hAB
+    by_contra maybe_ne
+    apply (As_disj A.prop B.prop (Subtype.coe_ne_coe.mpr maybe_ne)).not_mem_of_mem_left (hg A)
+    simpa [← hAB] using (hg B)
+  rw [Set.countable_iff_exists_injective] at s_ctble ⊢
+  obtain ⟨f, f_inj⟩ := s_ctble
+  refine ⟨f ∘ g, f_inj.comp g_inj⟩
+
+-- TODO: Is this missing from Mathlib?
+lemma TopologicalSpace.SeparableSpace.countable_of_disjoint_of_isOpen
+    {α : Type*} [TopologicalSpace α] (sep : SeparableSpace α) {As : Set (Set α)}
+    (As_disj : As.Pairwise Disjoint) (As_open : ∀ A ∈ As, IsOpen A) :
+    As.Countable := by
+  suffices (As \ {∅}).Countable from
+    Countable.mono (show As ⊆ (As \ {∅}) ∪ {∅} by simp) (this.union (countable_singleton ∅))
+  apply countable_of_disjoint_of_isOpen_of_nonempty sep
+  · exact As_disj.mono diff_subset
+  · exact fun A hA ↦ As_open A (mem_of_mem_diff hA)
+  · intro A hA
+    simp only [mem_diff, mem_singleton_iff] at hA
+    exact nonempty_iff_ne_empty.mpr hA.2
+
+#check Quotient
+#check Quotient.lift
+#check ConnectedComponents
+#check connectedComponents_preimage_singleton
+
+--noncomputable def ConnectedComponents.choose (α : Type*) [TopologicalSpace α] (C : ConnectedComponents α) :
+--    α :=
+--  Quot.out C
+
+lemma ConnectedComponents.mk_eq_mk_iff {α : Type*} [TopologicalSpace α] {x y : α} :
+    ConnectedComponents.mk x = ConnectedComponents.mk y
+      ↔ connectedComponent x = connectedComponent y := by
+  simp_all only [coe_eq_coe]
+
+lemma ConnectedComponents.mk_out_eq {α : Type*} [TopologicalSpace α] (C : ConnectedComponents α) :
+    ConnectedComponents.mk (Quot.out C) = C := by
+  sorry
+
+lemma TopologicalSpace.SeparableSpace.countable_connectedComponents {α : Type*} [TopologicalSpace α]
+    (sep : SeparableSpace α) :
+    Countable (ConnectedComponents α) := by
+  sorry
+
+#check measure_sUnion
+
+lemma pairwise_disjoint_connectedComponentIn (U : Set ℝ) :
+    {C | ∃ x ∈ U, C = connectedComponentIn U x}.Pairwise Disjoint := by
+  intro C hC D hD hCD
+  obtain ⟨x, x_in_U, C_eq⟩ := hC
+  obtain ⟨y, y_in_U, D_eq⟩ := hD
+  intro E E_ss_C E_ss_D
+  simp only [bot_eq_empty, le_eq_subset, subset_empty_iff]
+  by_contra con
+  apply hCD
+  rw [C_eq, D_eq]
+  refine connectedComponentIn_eq ?_
+  sorry
+
+lemma Real.eq_Ioo_or_Iio_or_Ioi_or_univ_of_isOpen_of_isConnected
+    {U : Set ℝ} (U_open : IsOpen U) (U_conn : IsConnected U) :
+    (∃ a b, U = Ioo a b) ∨ (∃ b, U = Iio b) ∨ (∃ a, U = Ioi a) ∨ U = univ := by
+  by_cases emp : U = ∅
+  · exact Or.inl ⟨1, 0, by simp [emp]⟩
+  obtain ⟨x, x_in_U⟩ := nonempty_iff_ne_empty.mpr emp
+  by_cases bdd_above : BddAbove {y | Ico x y ⊆ U}
+  · by_cases bdd_below : BddBelow {z | Ioc z x ⊆ U}
+    · sorry
+    · sorry
+  · by_cases bdd_below : BddBelow {z | Ioc z x ⊆ U}
+    · sorry
+    · right; right; right
+      ext a
+      sorry
+
+--lemma Real.connectedComponentIn_eq_Ioo_of_isOpen
+--    {U : Set ℝ} (U_open : IsOpen U) {x : ℝ} (x_mem : x ∈ U) :
+--    ∃ a b, a < x ∧ x < b ∧ connectedComponentIn U x
+
+
+lemma eq_iUnion_Ioo_of_isOpen {U : Set ℝ} (U_open : IsOpen U) :
+    ∃ {ι : Type} ()
+
 lemma exists_Ioo_subset_diff_self_of_measure_pos {A : Set ℝ}
     (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
     ∃ δ > 0, Ioo (-δ) δ ⊆ A - A := by
