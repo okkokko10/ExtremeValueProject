@@ -122,19 +122,9 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     (hG : ¬ G.IsDegenerate) {A : ℕ → AffineIncrEquiv}
     (a_lim : Tendsto (fun n ↦ (A n).val.toAffineMap.coefs_of_field.1) atTop atTop) :
     ¬ ∀ x, ContinuousAt G' x → Tendsto (fun n ↦ ((A n) • (F n)) x) atTop (𝓝 (G' x)) := by
-  -- at all continuity points x of G, Fn tends to G as n grows
-
-
-  -- notes: if the affine sequence inverses have the offset grow faster than the multiplier,
-  -- then as n increases, the halfway point is moved further left of right,
-  --   and all positions tend to the same bound as n increases.
-  -- wait, nevermind...
-
-  -- it seems to flatten out.
 
   intro nottrue
-  -- needs: all CDF have some continuity points.
-  --
+
   have ⟨x1,x2,x1_lt_x2,Gx1_pos,Gx2_bound,x1_cont,x2_cont⟩:= CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate _ hG
 
   have x1_tendsto:= F_lim _ x1_cont
@@ -145,23 +135,18 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       have ⟨z,_,_,z_lt,_,z_cont,_⟩:= G'.forall_pos_exists_lt_gt_continuousAt Gx1_pos
       use z
 
-    have z_converge:= nottrue z z_spec_cont
+    have z_converge := nottrue z z_spec_cont
     by_contra not_bounded
     simp [-AffineIncrEquiv.apply_eq] at not_bounded
 
-
-    set B := (A · x1)
-    change ∀ (x : ℝ), ∃ n, B n ≤ x at not_bounded
-
-    -- have not_z_bounded :=
-    have not_bounded' (y) : ∃ n, B n < y := by
-      have ⟨x,x_spec⟩ := not_bounded (y - 1)
-      use x
-      linarith
-    have not_bounded_after (t) : ∃ x > t, B x < z := by
-      have ⟨init,init_spec⟩ := not_bounded' z
-      -- let qq := ⨅ i ≤ t, B i
-      -- let qq := sInf (B '' {i | i ≤ t})
+    have not_bounded_after (t) : ∃ x > t, A x x1 < z := by
+      set B := (A · x1)
+      change ∀ (x : ℝ), ∃ n, B n ≤ x at not_bounded
+      have not_bounded' (y) : ∃ n, B n < y := by
+        have ⟨x,x_spec⟩ := not_bounded (y - 1)
+        use x
+        linarith only [x_spec]
+      -- qq is the minimum so far
       have ⟨qq,qq_spec⟩ : ∃qq, ∀i ≤ t, qq ≤ B i := by
         induction' t with t ww
         · simp only [nonpos_iff_eq_zero, forall_eq]
@@ -170,106 +155,51 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
         use (min ww (B (t+1)))
         intro i it1
         specialize ww_spec i
-        simp
+        simp only [inf_le_iff]
         by_cases h1 : i ≤ t
         · left
           exact ww_spec h1
         right
-        have t1_is_i: t + 1 = i := by linarith
+        have t1_is_i: t + 1 = i := by linarith only [it1, h1]
         rw [t1_is_i]
 
 
+      have ⟨init,init_spec⟩ := not_bounded' z
       by_cases h : init > t
       · use init, h
       simp at h
       have qq_init: qq ≤ B init := qq_spec init h
       have ⟨w,w_spec⟩ := not_bounded' qq
-      have w_bound: B w < z := by linarith
+      have w_bound: B w < z := by linarith only [w_spec, qq_init, init_spec]
 
-      use w
-      refine ⟨?_, w_bound⟩
-      by_contra co
-      simp at co
-      have := qq_spec w co
-      linarith
+      refine ⟨w, ?_, w_bound⟩
+      have := (qq_spec w).mt
+      simp_rw [not_le] at this
+      apply this w_spec
 
 
-    -- (nₖ)_(k∈ℕ)
-    -- have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := by
-    --   have ⟨init,init_spec⟩ := not_bounded (z - 1)
-    --   -- have ⟨succ,succ_spec⟩ := not_bounded ((A init) x1 - 1)
-    --   have gen: ∀n, ∃y > n, (A y) x1 ≤ (A n) x1 := by
-    --     intro n
-    --     have ⟨succ,succ_spec⟩ := not_bounded ((A n) x1)
-    --     use succ
-
-    --     sorry
 
 
-    --   -- let rec ff(n) : ℕ := match n with
-    --   --   | 0 => init
-    --   --   | n+1 => (gen (ff n)).choose
-
-
-    --   sorry
-    -- #check subseq_tendsto_of_neBot
-    have id_top : Tendsto (id : ℕ → ℕ) atTop atTop := by exact fun ⦃U⦄ a => a
-    have key: ∃ᶠ (n : ℕ) in atTop, (fun k => B k < z) (id n) := by
-      simp [-AffineIncrEquiv.apply_eq]
-      -- refine Nat.frequently_atTop_iff_infinite.mpr ?_
-
-      exact frequently_atTop'.mpr not_bounded_after
-
-    -- #check subseq_forall_of_frequently
-    have ⟨s,s_atTop,s_spec⟩ := subseq_forall_of_frequently (p := (fun k ↦ B k < z)) id_top key
-
-
-    -- have s_atTop : Filter.map s atTop ≤ atTop := by
-    --   exact s_increasing.tendsto_atTop
-      -- #check tendsto_atTop_atTop_of_monotone
-      -- refine tendsto_atTop_mono (f := id) (g := s) (l:= atTop) ?_ ?_
-      -- · intro n
-      --   simp only [id_eq]
-      --   unfold StrictMono at s_increasing
-      --   induction' n with n prev
-      --   ·
-      --     simp only [zero_le]
-      --   ·
-
-      --     sorry
+    have ⟨(s : ℕ → ℕ),
+        (s_atTop : Tendsto s atTop atTop),
+        (s_spec : ∀ (n : ℕ), A (s n) x1 < z)⟩
+      := subseq_forall_of_frequently tendsto_id (frequently_atTop'.mpr not_bounded_after)
 
 
     have ineq(k): F (s k) x1 ≤ (A (s k) • F (s k)) z := by
-      have in_other_words : F (s k) x1 = (A (s k) • F (s k)) (A (s k) x1) := by
-        simp only [mulAction_apply_eq]
-        set w := (A (s k))⁻¹ ((A (s k)) x1) with w_def
-        set q := A (s k)
-        have w_eq_x1: w = x1 := by
-          rw [w_def]
-          simp
-          ring_nf
-          have q_pos: q.coefs.1 ≠ 0 := by exact (AffineIncrEquiv.coefs_fst_pos q).ne'
-          rw [CommGroupWithZero.mul_inv_cancel q.coefs.1 q_pos]
-          exact one_mul x1
-        rw [w_eq_x1]
-
-      rw [in_other_words]
+      rw [←mulAction_apply_eq_self_apply (F (s k)) (A (s k)) x1]
       set qf := A (s k) • F (s k)
       exact (qf.mono) (s_spec k).le
 
     have left_tendsto : Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
-      -- #check x1_tendsto
-      have : Filter.map ((fun n ↦ F n x1) ∘ s) atTop ≤ Filter.map (fun n ↦ F (n) x1) atTop := by
-        rw [←Filter.map_map]
-        rw [le_def]
-        set q := map s atTop
-        intro x lx
-        exact s_atTop lx
-
       unfold Tendsto
-      trans
-      · exact this
-      · exact x1_tendsto
+      refine le_trans ?_ x1_tendsto
+      rw [(by rfl : (fun n ↦ F (s n) x1) = (fun n ↦ F n x1) ∘ s)]
+      rw [←Filter.map_map]
+      rw [le_def]
+      intro x lx
+      exact s_atTop lx
+
 
     have right_tendsto : Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' z)) := by
       change Tendsto ((fun n ↦ (A n • F n) z) ∘ s) atTop (𝓝 (G' z))
@@ -277,12 +207,10 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       refine le_trans ?_ z_converge
       rw [←Filter.map_map]
       rw [le_def]
-      set q := map s atTop
       intro x lx
       exact s_atTop lx
-    -- #check tendsto_le_of_eventuallyLE
-    have := tendsto_le_of_eventuallyLE left_tendsto right_tendsto ?_
-    exact this.not_lt z_spec_lt
+
+    refine (tendsto_le_of_eventuallyLE left_tendsto right_tendsto ?_).not_lt z_spec_lt
     clear * - ineq
     unfold EventuallyLE
     simp only [ineq]
@@ -320,7 +248,7 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     specialize claim_above n
     specialize claim_below n
     -- apply neg_lt_neg at claim_below
-    linarith
+    linarith only [claim_below, claim_above]
 
   clear * - a_lim an_claim_above
   set W := fun n ↦ ((A n)).val.toAffineMap.coefs_of_field.1
