@@ -167,6 +167,49 @@ lemma Real.eq_Ioo_or_Iio_or_Ioi_or_univ_of_isOpen_of_isConnected
     (∃ a b, U = Ioo a b) ∨ (∃ b, U = Iio b) ∨ (∃ a, U = Ioi a) ∨ U = univ := by
   sorry
 
+lemma exists_interval_measure_inter_gt_mul_measure
+    {A : Set ℝ} (A_mble : MeasurableSet A) (A_pos : 0 < volume A) (A_fin : volume A < ⊤)
+    {r : ENNReal} (r_lt_one : r < 1) :
+    ∃ (J : Set ℝ), IsConnected J ∧ (interior A).Nonempty ∧ volume (J ∩ A) > r * volume J := by
+  sorry
+
+lemma isPreconnected_of_Ioo_subset_of_subset_Icc
+    {J : Set ℝ} {a b : ℝ} (J_ge : Ioo a b ⊆ J) (J_le : J ⊆ Icc a b) :
+    IsPreconnected J := by
+  sorry
+
+lemma isConnected_of_Ioo_subset_of_subset_Icc
+    {J : Set ℝ} {a b : ℝ} (hab : a < b) (J_ge : Ioo a b ⊆ J) (J_le : J ⊆ Icc a b) :
+    IsConnected J :=
+  ⟨(nonempty_Ioo.mpr hab).mono J_ge, isPreconnected_of_Ioo_subset_of_subset_Icc J_ge J_le⟩
+
+lemma union_add_self_subset_Icc_of_subset_Icc
+    {J : Set ℝ} {a b : ℝ} (J_le : J ⊆ Icc a b) (t : ℝ) :
+    J ∪ ({t} + J) ⊆ Icc (min a (a + t)) (max b (b + t)) := by
+  intro x hx
+  cases' hx with hx hx
+  · exact ⟨min_le_of_left_le (J_le hx).1, le_max_of_le_left (J_le hx).2⟩
+  · refine ⟨min_le_of_right_le ?_, le_max_of_le_right ?_⟩
+    · simp only [singleton_add, image_add_left, mem_preimage] at hx
+      linarith [(J_le hx).1]
+    · simp only [singleton_add, image_add_left, mem_preimage] at hx
+      linarith [(J_le hx).2]
+
+lemma Ioo_subset_union_add_self_of_Ioo_subset
+    {J : Set ℝ} {a b : ℝ} (J_ge : Ioo a b ⊆ J) (t : ℝ) (ht : |t| < b - a) :
+    Ioo (min a (a + t)) (max b (b + t)) ⊆ J ∪ ({t} + J) := by
+  sorry -- TODO: Add issue.
+
+lemma volume_union_add_self_ge_of_Ioo_subset
+    {J : Set ℝ} {a b : ℝ} (hab : a ≤ b) (J_ge : Ioo a b ⊆ J) (t : ℝ) (ht : |t| < b - a) :
+    ENNReal.ofReal (b - a + |t|) ≤ volume (J ∪ ({t} + J)) := by
+  sorry
+
+lemma volume_union_add_self_le_of_subset_Icc
+    {J : Set ℝ} {a b : ℝ} (hab : a ≤ b) (J_le : J ⊆ Icc a b) (t : ℝ) :
+    volume (J ∪ ({t} + J)) ≤ ENNReal.ofReal (b - a + |t|) := by
+  sorry
+
 lemma exists_Ioo_subset_diff_self_of_measure_pos {A : Set ℝ}
     (A_mble : MeasurableSet A) (A_pos : 0 < volume A) :
     ∃ δ > 0, Ioo (-δ) δ ⊆ A - A := by
