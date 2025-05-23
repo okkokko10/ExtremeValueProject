@@ -139,51 +139,30 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     by_contra not_bounded
     simp [-AffineIncrEquiv.apply_eq] at not_bounded
 
-    have not_bounded_after (t) : ∃ x > t, A x x1 < z := by
+    have not_bounded_after (z) (t) : ∃ x ≥ t, A x x1 < z := by
       set B := (A · x1)
-      change ∀ (x : ℝ), ∃ n, B n ≤ x at not_bounded
-      have not_bounded' (y) : ∃ n, B n < y := by
-        have ⟨x,x_spec⟩ := not_bounded (y - 1)
+      change ∃ x ≥ t, B x < z
+      induction t generalizing z with
+      | zero =>
+        have ⟨x,x_spec⟩ := not_bounded (z - 1)
         use x
+        simp only [ge_iff_le, zero_le, true_and]
         linarith only [x_spec]
-      -- qq is the minimum so far
-      have ⟨qq,qq_spec⟩ : ∃qq, ∀i ≤ t, qq ≤ B i := by
-        induction' t with t ww
-        · simp only [nonpos_iff_eq_zero, forall_eq]
-          use (B 0)
-        obtain ⟨ww, ww_spec⟩ := ww
-        use (min ww (B (t+1)))
-        intro i it1
-        specialize ww_spec i
-        simp only [inf_le_iff]
-        by_cases h1 : i ≤ t
-        · left
-          exact ww_spec h1
-        right
-        have t1_is_i: t + 1 = i := by linarith only [it1, h1]
-        rw [t1_is_i]
-
-
-      have ⟨init,init_spec⟩ := not_bounded' z
-      by_cases h : init > t
-      · use init, h
-      simp at h
-      have qq_init: qq ≤ B init := qq_spec init h
-      have ⟨w,w_spec⟩ := not_bounded' qq
-      have w_bound: B w < z := by linarith only [w_spec, qq_init, init_spec]
-
-      refine ⟨w, ?_, w_bound⟩
-      have := (qq_spec w).mt
-      simp_rw [not_le] at this
-      apply this w_spec
-
+      | succ t prev =>
+        -- `prev (min (B t) z)` ensures that `y ≠ t`, using `B y < B t`
+        have ⟨y, y_gt_t, y_spec⟩ := prev (min (B t) z)
+        rw [lt_inf_iff] at y_spec
+        have yyt : t ≠ y := by
+          intro con
+          exact (con ▸ y_spec.left.ne) rfl
+        refine ⟨y, Nat.lt_iff_add_one_le.mp (Nat.lt_of_le_of_ne y_gt_t yyt), y_spec.right⟩
 
 
 
     have ⟨(s : ℕ → ℕ),
         (s_atTop : Tendsto s atTop atTop),
         (s_spec : ∀ (n : ℕ), A (s n) x1 < z)⟩
-      := subseq_forall_of_frequently tendsto_id (frequently_atTop'.mpr not_bounded_after)
+      := subseq_forall_of_frequently tendsto_id (frequently_atTop.mpr (not_bounded_after z))
 
 
     have ineq(k): F (s k) x1 ≤ (A (s k) • F (s k)) z := by
