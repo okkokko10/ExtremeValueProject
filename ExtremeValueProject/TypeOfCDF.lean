@@ -153,14 +153,82 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
   have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := by
     have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z < G x1 := sorry
     have z_converge:= nottrue z z_spec_cont
-    by_contra con
+    by_contra not_bounded
+    simp [-AffineIncrEquiv.apply_eq] at not_bounded
+
+
+
+    -- have not_z_bounded :=
+    have not_bounded' (y) : ∃ x, (A x) x1 < y := by
+      have ⟨x,x_spec⟩ := not_bounded (y - 1)
+      use x
+      linarith
+    have not_bounded_after (t) : ∃ x > t, (A x) x1 < z := by
+      have ⟨init,init_spec⟩ := not_bounded' z
+      by_cases h : init > t
+      · use init, h
+      simp at h
+      let qq := ⨅ i ≤ t, A i x1
+      have : qq ≤ A init x1 := by
+        unfold qq
+        sorry
+
+
+      -- have ⟨succ,succ_spec⟩ := not_bounded ((A init) x1 - 1)
+      have gen: ∀n, ∃y > n, (A y) x1 ≤ (A n) x1 := by
+        intro n
+        have ⟨succ,succ_spec⟩ := not_bounded ((A n) x1)
+        use succ
+        sorry
+
+      sorry
 
     -- (nₖ)_(k∈ℕ)
-    have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := sorry
-    -- #check subseq_tendsto_of_neBot
-    -- #check subseq_forall_of_frequently
+    -- have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := by
+    --   have ⟨init,init_spec⟩ := not_bounded (z - 1)
+    --   -- have ⟨succ,succ_spec⟩ := not_bounded ((A init) x1 - 1)
+    --   have gen: ∀n, ∃y > n, (A y) x1 ≤ (A n) x1 := by
+    --     intro n
+    --     have ⟨succ,succ_spec⟩ := not_bounded ((A n) x1)
+    --     use succ
 
-    have s_atTop : Filter.map s atTop = atTop := sorry
+    --     sorry
+
+
+    --   -- let rec ff(n) : ℕ := match n with
+    --   --   | 0 => init
+    --   --   | n+1 => (gen (ff n)).choose
+
+
+    --   sorry
+    -- #check subseq_tendsto_of_neBot
+    have id_top : Tendsto (id : ℕ → ℕ) atTop atTop := by exact fun ⦃U⦄ a => a
+    have key: ∃ᶠ (n : ℕ) in atTop, (fun k => (A k) x1 < z) (id n) := by
+      simp [-AffineIncrEquiv.apply_eq]
+      refine Nat.frequently_atTop_iff_infinite.mpr ?_
+
+
+      sorry
+      -- exact frequently_atTop'.mpr not_bounded_after
+
+    -- #check subseq_forall_of_frequently
+    have ⟨s,s_atTop,s_spec⟩ := subseq_forall_of_frequently (p := (fun k ↦ A (k) x1 < z)) id_top key
+
+
+    -- have s_atTop : Filter.map s atTop ≤ atTop := by
+    --   exact s_increasing.tendsto_atTop
+      -- #check tendsto_atTop_atTop_of_monotone
+      -- refine tendsto_atTop_mono (f := id) (g := s) (l:= atTop) ?_ ?_
+      -- · intro n
+      --   simp only [id_eq]
+      --   unfold StrictMono at s_increasing
+      --   induction' n with n prev
+      --   ·
+      --     simp only [zero_le]
+      --   ·
+
+      --     sorry
+
 
     have ineq(k): F (s k) x1 ≤ (A (s k) • F (s k)) z := by
       have in_other_words : F (s k) x1 = (A (s k) • F (s k)) (A (s k) x1) := by
@@ -184,7 +252,10 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       -- #check x1_tendsto
       have : Filter.map ((fun n ↦ F n x1) ∘ s) atTop ≤ Filter.map (fun n ↦ F (n) x1) atTop := by
         rw [←Filter.map_map]
-        rw [s_atTop]
+        rw [le_def]
+        set q := map s atTop
+        intro x lx
+        exact s_atTop lx
 
       unfold Tendsto
       trans
@@ -196,7 +267,10 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       unfold Tendsto at z_converge ⊢
       refine le_trans ?_ z_converge
       rw [←Filter.map_map]
-      rw [s_atTop]
+      rw [le_def]
+      set q := map s atTop
+      intro x lx
+      exact s_atTop lx
     -- #check tendsto_le_of_eventuallyLE
     have := tendsto_le_of_eventuallyLE left_tendsto right_tendsto ?_
     exact this.not_lt z_spec_lt
@@ -259,7 +333,7 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
   simp
   apply (an_claim_above x).le
 
-  sorry -- **Issue #40**
+  -- **Issue #40**
 
 end CumulativeDistributionFunction
 
