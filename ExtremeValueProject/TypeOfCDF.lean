@@ -158,31 +158,48 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
 
 
     set B := (A · x1)
+    change ∀ (x : ℝ), ∃ n, B n ≤ x at not_bounded
 
     -- have not_z_bounded :=
-    have not_bounded' (y) : ∃ x, B x < y := by
+    have not_bounded' (y) : ∃ n, B n < y := by
       have ⟨x,x_spec⟩ := not_bounded (y - 1)
       use x
       linarith
     have not_bounded_after (t) : ∃ x > t, B x < z := by
       have ⟨init,init_spec⟩ := not_bounded' z
+      -- let qq := ⨅ i ≤ t, B i
+      -- let qq := sInf (B '' {i | i ≤ t})
+      have ⟨qq,qq_spec⟩ : ∃qq, ∀i ≤ t, qq ≤ B i := by
+        induction' t with t ww
+        · simp only [nonpos_iff_eq_zero, forall_eq]
+          use (B 0)
+        obtain ⟨ww, ww_spec⟩ := ww
+        use (min ww (B (t+1)))
+        intro i it1
+        specialize ww_spec i
+        simp
+        by_cases h1 : i ≤ t
+        · left
+          exact ww_spec h1
+        right
+        have t1_is_i: t + 1 = i := by linarith
+        rw [t1_is_i]
+
+
       by_cases h : init > t
       · use init, h
       simp at h
-      let qq := ⨅ i ≤ t, B i
-      have : qq ≤ B init := by
-        unfold qq
-        sorry
+      have qq_init: qq ≤ B init := qq_spec init h
+      have ⟨w,w_spec⟩ := not_bounded' qq
+      have w_bound: B w < z := by linarith
 
+      use w
+      refine ⟨?_, w_bound⟩
+      by_contra co
+      simp at co
+      have := qq_spec w co
+      linarith
 
-      -- have ⟨succ,succ_spec⟩ := not_bounded ((A init) x1 - 1)
-      have gen: ∀n, ∃y > n, B y ≤ B n := by
-        intro n
-        have ⟨succ,succ_spec⟩ := not_bounded (B n)
-        use succ
-        sorry
-
-      sorry
 
     -- (nₖ)_(k∈ℕ)
     -- have ⟨s,s_increasing,s_spec⟩ : ∃ s : ℕ → ℕ, StrictMono s ∧ ∀ k, A (s k) x1 < z := by
@@ -206,11 +223,9 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     have id_top : Tendsto (id : ℕ → ℕ) atTop atTop := by exact fun ⦃U⦄ a => a
     have key: ∃ᶠ (n : ℕ) in atTop, (fun k => B k < z) (id n) := by
       simp [-AffineIncrEquiv.apply_eq]
-      refine Nat.frequently_atTop_iff_infinite.mpr ?_
+      -- refine Nat.frequently_atTop_iff_infinite.mpr ?_
 
-
-      sorry
-      -- exact frequently_atTop'.mpr not_bounded_after
+      exact frequently_atTop'.mpr not_bounded_after
 
     -- #check subseq_forall_of_frequently
     have ⟨s,s_atTop,s_spec⟩ := subseq_forall_of_frequently (p := (fun k ↦ B k < z)) id_top key
