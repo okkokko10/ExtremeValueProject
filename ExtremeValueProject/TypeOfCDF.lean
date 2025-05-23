@@ -157,27 +157,28 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     simp [-AffineIncrEquiv.apply_eq] at not_bounded
 
 
+    set B := (A · x1)
 
     -- have not_z_bounded :=
-    have not_bounded' (y) : ∃ x, (A x) x1 < y := by
+    have not_bounded' (y) : ∃ x, B x < y := by
       have ⟨x,x_spec⟩ := not_bounded (y - 1)
       use x
       linarith
-    have not_bounded_after (t) : ∃ x > t, (A x) x1 < z := by
+    have not_bounded_after (t) : ∃ x > t, B x < z := by
       have ⟨init,init_spec⟩ := not_bounded' z
       by_cases h : init > t
       · use init, h
       simp at h
-      let qq := ⨅ i ≤ t, A i x1
-      have : qq ≤ A init x1 := by
+      let qq := ⨅ i ≤ t, B i
+      have : qq ≤ B init := by
         unfold qq
         sorry
 
 
       -- have ⟨succ,succ_spec⟩ := not_bounded ((A init) x1 - 1)
-      have gen: ∀n, ∃y > n, (A y) x1 ≤ (A n) x1 := by
+      have gen: ∀n, ∃y > n, B y ≤ B n := by
         intro n
-        have ⟨succ,succ_spec⟩ := not_bounded ((A n) x1)
+        have ⟨succ,succ_spec⟩ := not_bounded (B n)
         use succ
         sorry
 
@@ -203,7 +204,7 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     --   sorry
     -- #check subseq_tendsto_of_neBot
     have id_top : Tendsto (id : ℕ → ℕ) atTop atTop := by exact fun ⦃U⦄ a => a
-    have key: ∃ᶠ (n : ℕ) in atTop, (fun k => (A k) x1 < z) (id n) := by
+    have key: ∃ᶠ (n : ℕ) in atTop, (fun k => B k < z) (id n) := by
       simp [-AffineIncrEquiv.apply_eq]
       refine Nat.frequently_atTop_iff_infinite.mpr ?_
 
@@ -212,7 +213,7 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       -- exact frequently_atTop'.mpr not_bounded_after
 
     -- #check subseq_forall_of_frequently
-    have ⟨s,s_atTop,s_spec⟩ := subseq_forall_of_frequently (p := (fun k ↦ A (k) x1 < z)) id_top key
+    have ⟨s,s_atTop,s_spec⟩ := subseq_forall_of_frequently (p := (fun k ↦ B k < z)) id_top key
 
 
     -- have s_atTop : Filter.map s atTop ≤ atTop := by
