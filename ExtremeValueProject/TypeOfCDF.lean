@@ -7,6 +7,7 @@ import Mathlib
 import ExtremeValueProject.CumulativeDistributionFunction
 import ExtremeValueProject.AffineTransformation
 
+import ExtremeValueProject.WeakConvergenceCDF
 
 section preliminaries_for_type_of_cdf
 
@@ -137,21 +138,13 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
   have ⟨x1,x2,x1_lt_x2,Gx1_pos,Gx2_bound,x1_cont,x2_cont⟩:= CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate _ hG
 
   have x1_tendsto:= F_lim _ x1_cont
-  --
-  --special case
-  -- by_cases test : F = fun n ↦ G
-  -- ·
-  --   by_cases test2 : A = fun (n : ℕ) ↦ AffineIncrEquiv.mkOfCoefs (?_ : (n : ℝ) + 1 > 0) 0
-  --   · sorry
-  --   ·
-  --     simp at nottrue
-  --     simp_all only [test,test2]
-  --     simp_all
-  --     sorry
-  --   sorry
+
 
   have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := by
-    have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z < G x1 := sorry
+    have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z < G x1 := by
+      have ⟨z,_,_,z_lt,_,z_cont,_⟩:= G'.forall_pos_exists_lt_gt_continuousAt Gx1_pos
+      use z
+
     have z_converge:= nottrue z z_spec_cont
     by_contra not_bounded
     simp [-AffineIncrEquiv.apply_eq] at not_bounded
