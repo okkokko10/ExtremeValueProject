@@ -136,10 +136,10 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     refine le_trans ?_ x1_tendsto
     rw [(by rfl : (fun n ↦ F (s n) x1) = (fun n ↦ F n x1) ∘ s)]
     exact fun ⦃u⦄ ↦ (s_atTop ·)
+  -- the names `lt` and `min` have lost their meaning.
   have not_bounded_after' {B : ℕ → ℝ} {lt : ℝ → ℝ → Prop} {min : ℝ → ℝ → ℝ}
       (not_bounded : ∀z, ∃ x, lt (B x) z )
-      (lt_inf_iff : ∀ ⦃a b c⦄, lt a (min b c) ↔ lt a b ∧ lt a c)
-      (ne : ∀ ⦃a b⦄, lt a b → a ≠ b)
+      (min_spec : ∀ ⦃a b c⦄, lt a (min b c) → a ≠ b ∧ lt a c)
       (z) (t) : ∃ x ≥ t, lt (B x) z := by
     induction t generalizing z with
     | zero =>
@@ -148,50 +148,46 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     | succ t prev =>
       -- `prev (min (B t) z)` ensures that `y ≠ t`, using `B y < B t`
       have ⟨y, y_gt_t, y_spec⟩ := prev (min (B t) z)
-      rw [lt_inf_iff] at y_spec
+      apply min_spec at y_spec
       have yyt : t ≠ y := by
         intro con
-        exact (con ▸  ne y_spec.left) rfl
+        exact (con ▸  y_spec.left) rfl
       refine ⟨y, Nat.lt_iff_add_one_le.mp (Nat.lt_of_le_of_ne y_gt_t yyt), y_spec.right⟩
   have ⟨below,claim_below⟩ : ∃ below, ∀ n, A n x1 > below := by
     by_contra not_bounded
     simp only [gt_iff_lt, not_exists, not_forall, not_lt] at not_bounded
-    have not_bounded' (z) : ∃ x, (A x) x1 < z := by
-        have ⟨x,x_spec⟩ := not_bounded (z - 1)
-        use x
-        linarith only [x_spec]
-    have not_bounded_after := not_bounded_after' not_bounded' (@lt_inf_iff _ _) (@ne_of_lt _ _)
+    have not_bounded_after := not_bounded_after' not_bounded
+      (lt := (· ≤ ·)) (min := (fun a b ↦ min (a - 1) b))
+      (by intro a b c abc ; constructor <;> linarith [le_inf_iff.mp abc] )
     have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z < G x1 := by
       have ⟨z,_,_,z_lt,_,z_cont,_⟩:= G'.forall_pos_exists_lt_gt_continuousAt Gx1_pos
       use z
-    have ⟨(s : ℕ → ℕ), (s_atTop : Tendsto s atTop atTop), (s_spec : ∀ (n : ℕ), A (s n) x1 < z)⟩
+    have ⟨(s : ℕ → ℕ), (s_atTop : Tendsto s atTop atTop), (s_spec : ∀ (n : ℕ), A (s n) x1 ≤ z)⟩
       := subseq_forall_of_frequently tendsto_id (frequently_atTop.mpr (not_bounded_after z))
     have ineq (k) : F (s k) x1 ≤ (A (s k) • F (s k)) z := by
       rw [←mulAction_apply_eq_self_apply (F (s k)) (A (s k)) x1]
       set qf := A (s k) • F (s k)
-      exact (qf.mono) (s_spec k).le
+      exact (qf.mono) (s_spec k)
     exact (tendsto_le_of_eventuallyLE (left_tendsto x1_cont s_atTop)
       (right_tendsto z_spec_cont s_atTop) (Eventually.of_forall ineq)).not_lt z_spec_lt
 
   have ⟨above,claim_above⟩ : ∃ above, ∀ n, A n x2 < above := by
     by_contra not_bounded
     simp [-AffineIncrEquiv.apply_eq] at not_bounded
-    have not_bounded' (z) : ∃ x, (A x) x2 > z := by
-        have ⟨x,x_spec⟩ := not_bounded (z + 1)
-        use x
-        linarith only [x_spec]
-    have not_bounded_after := not_bounded_after' not_bounded' (@sup_lt_iff _ _) (@ne_of_gt _ _)
+    have not_bounded_after := not_bounded_after' not_bounded
+      (lt := (· ≥ ·)) (min := (fun a b ↦ max (a + 1) b))
+      (by intro a b c abc ; constructor <;> linarith [sup_le_iff.mp abc])
     have ⟨z,z_spec_cont,z_spec_lt⟩ : ∃z, ContinuousAt G' z ∧ G' z > G x2 := by
       have Gx2_pos' : 0 < 1 - (G x2) := by linarith [Gx1_pos, G.mono x1_lt_x2.le]
       have ⟨_,w,_,_,w_lt,_,w_cont⟩:= G'.forall_pos_exists_lt_gt_continuousAt Gx2_pos'
       simp only [sub_sub_cancel] at w_lt
       use w
-    have ⟨(s : ℕ → ℕ), (s_atTop : Tendsto s atTop atTop), (s_spec : ∀ (n : ℕ), A (s n) x2 > z)⟩
+    have ⟨(s : ℕ → ℕ), (s_atTop : Tendsto s atTop atTop), (s_spec : ∀ (n : ℕ), A (s n) x2 ≥ z)⟩
       := subseq_forall_of_frequently tendsto_id (frequently_atTop.mpr (not_bounded_after z))
     have ineq (k) : F (s k) x2 ≥ (A (s k) • F (s k)) z := by
       rw [←mulAction_apply_eq_self_apply (F (s k)) (A (s k)) x2]
       set qf := A (s k) • F (s k)
-      exact (qf.mono) (s_spec k).le
+      exact (qf.mono) (s_spec k)
     exact (tendsto_le_of_eventuallyLE (right_tendsto z_spec_cont s_atTop)
       (left_tendsto x2_cont s_atTop) (Eventually.of_forall ineq)).not_lt z_spec_lt
 
