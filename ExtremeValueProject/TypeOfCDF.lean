@@ -123,14 +123,19 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
     (a_lim : Tendsto (fun n ↦ (A n).val.toAffineMap.coefs_of_field.1) atTop atTop) :
     ¬ ∀ x, ContinuousAt G' x → Tendsto (fun n ↦ ((A n) • (F n)) x) atTop (𝓝 (G' x)) := by
   intro nottrue
-  have ⟨x1,x2,x1_lt_x2,Gx1_pos,Gx2_bound,x1_cont,x2_cont⟩:= CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate _ hG
-  have right_tendsto {z : ℝ} (z_spec_cont : ContinuousAt G' z) {s : ℕ → ℕ} (s_atTop : Tendsto s atTop atTop) : Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' z)) := by
+  have ⟨x1,x2,x1_lt_x2,Gx1_pos,Gx2_bound,x1_cont,x2_cont⟩:=
+    CumulativeDistributionFunction.exists₂_continuousAt_of_not_isDegenerate _ hG
+  have right_tendsto {z : ℝ} (z_spec_cont : ContinuousAt G' z) {s : ℕ → ℕ}
+      (s_atTop : Tendsto s atTop atTop) :
+      Tendsto (fun k ↦ (A (s k) • F (s k)) z) atTop (𝓝 (G' z)) := by
     change Tendsto ((fun n ↦ (A n • F n) z) ∘ s) atTop (𝓝 (G' z))
     have z_converge := nottrue z z_spec_cont
     unfold Tendsto at z_converge ⊢
     refine le_trans ?_ z_converge
     exact fun ⦃u⦄ ↦ (s_atTop ·)
-  have left_tendsto {x1 : ℝ} (x1_cont : ContinuousAt G x1) {s : ℕ → ℕ} (s_atTop : Tendsto s atTop atTop) : Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
+  have left_tendsto {x1 : ℝ} (x1_cont : ContinuousAt G x1) {s : ℕ → ℕ}
+      (s_atTop : Tendsto s atTop atTop) :
+      Tendsto (fun k ↦ F (s k) x1) atTop (𝓝 (G x1)) := by
     unfold Tendsto
     have x1_tendsto:= F_lim _ x1_cont
     refine le_trans ?_ x1_tendsto
@@ -170,10 +175,9 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       exact (qf.mono) (s_spec k)
     exact (tendsto_le_of_eventuallyLE (left_tendsto x1_cont s_atTop)
       (right_tendsto z_spec_cont s_atTop) (Eventually.of_forall ineq)).not_lt z_spec_lt
-
   have ⟨above,claim_above⟩ : ∃ above, ∀ n, A n x2 < above := by
     by_contra not_bounded
-    simp [-AffineIncrEquiv.apply_eq] at not_bounded
+    simp only [not_exists, not_forall, not_lt] at not_bounded
     have not_bounded_after := not_bounded_after' not_bounded
       (lt := (· ≥ ·)) (min := (fun a b ↦ max (a + 1) b))
       (by intro a b c abc ; constructor <;> linarith [sup_le_iff.mp abc])
@@ -190,58 +194,45 @@ lemma not_tendsto_cdf_of_expanding_of_tendsto_not_isDegenerate
       exact (qf.mono) (s_spec k)
     exact (tendsto_le_of_eventuallyLE (right_tendsto z_spec_cont s_atTop)
       (left_tendsto x2_cont s_atTop) (Eventually.of_forall ineq)).not_lt z_spec_lt
-
-
-  have an_value (n) : (A n).val.toAffineMap.coefs_of_field.1 = (A n x2 - A n x1) / (x2 - x1) :=
+  set a := fun n ↦ (A n).val.toAffineMap.coefs_of_field.1
+  have ⟨an_above,an_claim_above⟩ : ∃ a_above, ∀ n, a n < a_above :=
     by
-    simp
-    rw [←mul_sub_left_distrib]
-    set x2x1 := x2 - x1
-    have x2x1_nonzero: x2x1 ≠ 0 := by
-      rw [ne_eq]
-      rw [sub_eq_zero]
-      exact x1_lt_x2.ne'
-    simp [x2x1_nonzero]
-    rfl
-  have ⟨an_above,an_claim_above⟩ : ∃ a_above, ∀ n, ((A n).val.toAffineMap.coefs_of_field.1) < a_above :=
-    by
-    simp_rw [an_value]
     set x2x1 := x2 - x1
     have x2x1_positive: 0 < x2x1 := by
       unfold x2x1
       norm_num
       exact x1_lt_x2
+    have an_value (n) : a n = (A n x2 - A n x1) / (x2x1) :=
+      by
+      simp only [AffineIncrEquiv.apply_eq, add_sub_add_right_eq_sub]
+      rw [←mul_sub_left_distrib]
+      refold_let x2x1
+      simp only [isUnit_iff_ne_zero, ne_eq, x2x1_positive.ne', not_false_eq_true,
+        IsUnit.mul_div_cancel_right]
+      rfl
+    simp_rw [an_value]
     use (above - below) / x2x1
     intro n
     suffices ((A n) x2 - (A n) x1) < (above - below) by
       exact (div_lt_div_iff_of_pos_right x2x1_positive).mpr this
-
-    specialize claim_above n
-    specialize claim_below n
-    -- apply neg_lt_neg at claim_below
-    linarith only [claim_below, claim_above]
-
+    linarith only [claim_below n, claim_above n]
   clear * - a_lim an_claim_above
-  set W := fun n ↦ ((A n)).val.toAffineMap.coefs_of_field.1
-  -- simp_rw [] at an_claim_above
-  change ∀ (n : ℕ), W n < an_above at an_claim_above
-
+  change ∀ (n : ℕ), a n < an_above at an_claim_above
   have := Filter.tendsto_atTop'.mp a_lim
-  -- simp at this
   revert this
-  simp
+  simp only [mem_atTop_sets, ge_iff_le, forall_exists_index, imp_false, not_forall,
+    Classical.not_imp, not_exists, exists_and_right]
   use (Set.Ioi an_above)
-  simp
+  simp only [Set.mem_Ioi, not_lt, exists_prop, exists_and_right]
   constructor
   · use an_above + 1
     intro _ _
     linarith
-  intro x
-  use x
-  simp
-  apply (an_claim_above x).le
+  · intro x
+    use x
+    simp only [le_refl, true_and]
+    apply (an_claim_above x).le
 
-  -- **Issue #40**
 
 end CumulativeDistributionFunction
 
